@@ -53,17 +53,17 @@
 
        this.start = async () => {
          // logging of 'start' event
-         this.logger && this.logger.log( 'start' );
+         this.logger && this.logger.log('start');
 
          // load all published apps and components
 
          // render main HTML structure
-         $.setContent( this.element, $.html( this.html.main, { logo: this.logo, title: this.title } ) );
+         $.setContent(this.element, $.html(this.html.main, {logo: this.logo, title: this.title}));
 
          // select content area
-         const content = this.element.querySelector( '#content' );
+         const content = this.element.querySelector('#content');
+       };
      }
-
    };
 
    let b="ccm."+component.name+(component.version?"-"+component.version.join("."):"")+".js";if(window.ccm&&null===window.ccm.files[b])return window.ccm.files[b]=component;(b=window.ccm&&window.ccm.components[component.name])&&b.ccm&&(component.ccm=b.ccm);"string"===typeof component.ccm&&(component.ccm={url:component.ccm});let c=(component.ccm.url.match(/(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)/)||["latest"])[0];if(window.ccm&&window.ccm[c])window.ccm[c].component(component);else{var a=document.createElement("script");document.head.appendChild(a);component.ccm.integrity&&a.setAttribute("integrity",component.ccm.integrity);component.ccm.crossorigin&&a.setAttribute("crossorigin",component.ccm.crossorigin);a.onload=function(){window.ccm[c].component(component);document.head.removeChild(a)};a.src=component.ccm.url}
