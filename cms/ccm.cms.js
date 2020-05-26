@@ -31,7 +31,7 @@
       //    "default_icon": "https://modularcms.github.io/modularcms-components/cms/resources/img/default.png",
       //    "form": [ "ccm.component", "https://ccmjs.github.io/akless-components/submit/versions/ccm.submit-8.1.1.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/submit/resources/configs.js", "component_meta" ] ],
       "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.0.0.mjs" ],
-      "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cms/resources/html/dms.html" ],
+      "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cms/resources/html/cms.html" ],
       //    "lang": [ "ccm.instance", "https://ccmjs.github.io/tkless-components/lang/versions/ccm.lang-1.0.0.js" ],
       //    "listing": { "apps": [ "ccm.component", ... ], "components": [ "ccm.component", ... ] },
       //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-5.0.0.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
