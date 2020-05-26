@@ -14,7 +14,7 @@
 
     name: 'cms',
 
-    ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.4.0.js',
+    ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.2.min.js',
 
     config: {
       "apps": [ "ccm.store" ],
