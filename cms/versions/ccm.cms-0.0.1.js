@@ -22,7 +22,7 @@
  //    "app_manager": [ "ccm.component", "https://ccmjs.github.io/akless-components/app_manager/versions/ccm.app_manager-2.0.1.js" ],
  //    "apps": [ "ccm.store" ],
        "css": [ "ccm.load",
-         "https://ccmjs.github.io/akless-components/dms/resources/css/dms.css",
+         "https://modularcms.github.io/modularcms-components/cms/resources/css/dms.css",
          "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
        ],
  //    "component_manager": [ "ccm.component", "https://ccmjs.github.io/akless-components/component_manager/versions/ccm.component_manager-3.4.1.js" ],
