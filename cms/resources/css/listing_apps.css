@@ -1,0 +1,72 @@
+/**
+ * @overview layout for listing of all apps
+ * @author André Kless <andre.kless@web.de.de> 2019
+ * @license MIT License
+ */
+
+#element {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  line-height: 1.42857143;
+  display: flex;
+  justify-content: center;
+}
+
+#entries {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-width: 100em;
+  padding: 2em;
+}
+
+#entries.empty::before {
+  content: 'No published Components to display.';
+}
+
+#entries .entry {
+  width: 16em;
+  padding: 1em;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+#entries .entry:hover {
+  border-radius: 0.5em;
+  background-color: rgba(153, 153, 153, 0.06);
+}
+
+#entries .entry .left {
+  padding-right: 0.5em;
+}
+
+#entries .entry img {
+  width: 64px;
+  height: 64px;
+  display: block;
+}
+
+#entries .entry .component {
+  font-family: Verdana, sans-serif;
+  font-size: x-small;
+  color: #00376B;
+  white-space: nowrap;
+  padding-left: 2px;
+}
+
+#entries .entry .title {
+  font-size: 16px;
+  white-space: normal;
+  line-height: 1.2em;
+  padding-left: 2px;
+}
+
+#entries .entry .developer {
+  font-family: Verdana, sans-serif;
+  font-size: 12px;
+  color: #999999;
+  white-space: nowrap;
+  padding-top: 0.2em;
+  padding-left: 2px;
+}

@@ -1,0 +1,77 @@
+<!--
+@overview default HTML template of ccm component for digital makerspace
+@author André Kless <andre.kless@web.de.de> 2019
+-->
+
+<ccm-template key="main">
+  <div id="main">
+    <div id="header">
+      <div id="brand">
+        <div id="logo">
+          <img src="%logo%">
+        </div>
+        <div id="title">
+          <span>%title%</span>
+        </div>
+      </div>
+      <div id="menu"></div>
+      <div id="top"></div>
+    </div>
+    <div id="content"></div>
+  </div>
+</ccm-template>
+
+<ccm-template key="home">
+  <div id="home">
+    <h3>What is this about?</h3>
+    <p>The Digital Makerspace offers every citizen free digital tools (<i>ccm</i>-based web components) for creating their own apps. Created apps can then be used flexibly anywhere on the Web and shared with others.</p>
+    <hr>
+    <div style="text-align: center"><iframe width="560" height="315" src="https://www.youtube.com/embed/EHVTGFqzEQU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+    <hr>
+    <section id="analytics_section">
+      <h3>Analytics</h3>
+      <p>In this section everyone can watch the activities in the Digital Makerspace.</p>
+      <div id="analytics"></div>
+    </section>
+  </div>
+</ccm-template>
+
+<ccm-template key="list">
+  <div id="filters"></div>
+  <div id="listing"></div>
+</ccm-template>
+
+<!-- Der Digital Makerspace bietet jedem Bürger freie digitale Werkzeuge (<i>ccm</i>-basierte Webkomponenten) zur Erstellung eigener Apps. Erstellte Apps können dann überall im Web flexibel eingesetzt und mit anderen geteilt werden. -->
+
+<ccm-template key="filters">
+  <div class="filter" id="title_filter">
+    <label for="search">Title</label>
+    <input type="search" autocomplete="off" list="search_data" id="search" class="form-control">
+    <datalist id="search_data"></datalist>
+  </div>
+  <div class="filter" id="component_filter">
+    <label for="component">Component</label>
+    <input type="search" autocomplete="off" list="component_data" id="component" class="form-control">
+    <datalist id="component_data"></datalist>
+  </div>
+  <div class="filter" id="creator_filter">
+    <label for="creator">Creator</label>
+    <input type="search" autocomplete="off" list="creator_data" id="creator" class="form-control">
+    <datalist id="creator_data"></datalist>
+  </div>
+  <div class="filter" id="category_filter">
+    <label for="category">Category</label>
+    <input type="search" autocomplete="off" list="category_data" id="category" class="form-control">
+    <datalist id="category_data"></datalist>
+  </div>
+  <div class="filter" id="tag_filter">
+    <label for="tags">Tag</label>
+    <input type="search" autocomplete="off" list="tags_data" id="tags" class="form-control">
+    <datalist id="tags_data"></datalist>
+  </div>
+  <div class="filter" id="language_filter">
+    <label for="language">Language</label>
+    <input type="search" autocomplete="off" list="language_data" id="language" class="form-control">
+    <datalist id="language_data"></datalist>
+  </div>
+</ccm-template>

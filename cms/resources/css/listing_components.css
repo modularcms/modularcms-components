@@ -1,0 +1,76 @@
+/**
+ * @overview layout for listing of all components
+ * @author André Kless <andre.kless@web.de.de> 2018-2019
+ * @license MIT License
+ */
+
+#element {
+  --color1: #00BFFF;
+  --color2: #00376B;
+  --color3: #914D00;
+  --color4: #E6F4F1;
+  display: flex;
+  justify-content: center;
+}
+
+#entries {
+  justify-content: center;
+  margin: 1em;
+}
+
+.entry {
+  margin: 1em;
+  min-width: 15em !important;
+  max-width: 15em;
+  border-width: medium !important;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.empty:before {
+  content: 'No published Components to display.';
+}
+
+.entry:hover {
+  border-color: var(--color1);
+}
+
+.card-header {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-header span {
+  opacity: 0;
+  font-size: xx-large;
+}
+
+.card:hover .card-header span {
+  opacity: 0.5;
+  font-size: xx-large;
+}
+
+.card-header img {
+  margin: 0 1.5em;
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 100%;
+}
+
+.card-title {
+  margin-bottom: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.creator-version {
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.card-text {
+  font-size: smaller;
+  height: 4em;
+  overflow: hidden;
+}
