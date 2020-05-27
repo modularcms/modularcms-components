@@ -9,7 +9,7 @@ ccm.files[ 'resources.js' ] = {
         "html.1": "../cms/resources/html/cms.html",
     //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ],
         "logo": "../cms/resources/img/logo.svg",
-        "user": [ "ccm.instance", "../user/ccm.user.js", [ "ccm.get", "../cms/resources/resources.js", "user" ] ]
+        "user": [ "ccm.instance", "../user/ccm.user.js", [ "ccm.get", "../cms/resources/resources.js", "userlocal" ] ]
     },
     "user": {
         "realm": "default",

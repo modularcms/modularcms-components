@@ -153,10 +153,11 @@ ccm.files[ 'resources.js' ] = {
             "class": "panel panel-info",
             "inner": [
               {
+                "tag": "h1",
                 "class": "panel-heading",
                 "inner": {
                   "class": "panel-title",
-                  "inner": "hello%title%"
+                  "inner": "%title%"
                 }
               },
               {

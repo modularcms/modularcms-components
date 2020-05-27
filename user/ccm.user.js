@@ -73,7 +73,7 @@
       "realm": "guest",
 //    "restart": true,
 //    "store": "ccm-user",
-      "title": "Guest Mode: Please enter any username"
+      "title": "Login"
 //    "url": "ccm2.inf.h-brs.de"
 
     },
