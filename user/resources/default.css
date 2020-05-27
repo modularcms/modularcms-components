@@ -6,4 +6,16 @@
 
 #login-form {
   background-color: var(--color-primary);
+  min-height: 100vh;
+}
+
+#loginbox {
+  width: 100%
+  max-width: 600px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  position: absolute;
+  background-color: var(--color-light);
+  padding: 16px;
 }
