@@ -13,13 +13,11 @@ ccm.files[ 'resources.js' ] = {
     },
     "user": {
         "realm": "default",
-        "title": "Please enter username and password",
         "url": "https://auth.modularcms.io/login"
     },
     "userlocal": {
         "css.1": "../user/resources/default.css",
         "realm": "default",
-        "title": "Please enter username and password",
         "url": "https://auth.modularcms.io/login"
     }
 };

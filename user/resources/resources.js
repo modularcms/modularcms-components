@@ -155,10 +155,7 @@ ccm.files[ 'resources.js' ] = {
               {
                 "tag": "h1",
                 "class": "panel-heading",
-                "inner": {
-                  "class": "panel-title",
-                  "inner": "%title%"
-                }
+                "inner": "%title%"
               },
               {
                 "class": "panel-body",
@@ -171,50 +168,22 @@ ccm.files[ 'resources.js' ] = {
                     "onsubmit": "%login%",
                     "inner": [
                       {
-                        "id": "username-entry",
-                        "class": "input-group",
-                        "inner": [
-                          {
-                            "tag": "span",
-                            "class": "input-group-addon",
-                            "inner": {
-                              "tag": "i",
-                              "class": "glyphicon glyphicon-user"
-                            }
-                          },
-                          {
-                            "tag": "input",
-                            "id": "login-username",
-                            "type": "text",
-                            "class": "form-control",
-                            "name": "user",
-                            "placeholder": "username",
-                            "required": true
-                          }
-                        ]
+                        "tag": "input",
+                        "id": "login-username",
+                        "type": "text",
+                        "class": "form-control",
+                        "name": "user",
+                        "placeholder": "Username",
+                        "required": true
                       },
                       {
-                        "id": "password-entry",
-                        "class": "input-group",
-                        "inner": [
-                          {
-                            "tag": "span",
-                            "class": "input-group-addon",
-                            "inner": {
-                              "tag": "i",
-                              "class": "glyphicon glyphicon-lock"
-                            }
-                          },
-                          {
-                            "tag": "input",
-                            "id": "login-password",
-                            "type": "password",
-                            "class": "form-control",
-                            "name": "token",
-                            "placeholder": "password",
-                            "required": true
-                          }
-                        ]
+                        "tag": "input",
+                        "id": "login-password",
+                        "type": "password",
+                        "class": "form-control",
+                        "name": "token",
+                        "placeholder": "Password",
+                        "required": true
                       },
                       {
                         "class": "form-group",
@@ -227,13 +196,6 @@ ccm.files[ 'resources.js' ] = {
                               "id": "btn-login",
                               "class": "btn btn-success",
                               "value": "Login"
-                            },
-                            {
-                              "tag": "a",
-                              "id": "btn-abort",
-                              "class": "btn btn-warning",
-                              "onclick": "%abort%",
-                              "inner": "Abort"
                             }
                           ]
                         }
