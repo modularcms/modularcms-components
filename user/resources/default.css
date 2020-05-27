@@ -29,7 +29,7 @@
   text-align: center;
 }
 
-input[type="text"], input[type="submit"] {
+input[type="text"] ,input[type="password"], input[type="submit"], button {
   padding: 8px;
   font-size: 20px;
   font-family: 'OpenSans';
