@@ -2,7 +2,7 @@
  * @overview ccm component for user authentication
  * @author André Kless <andre.kless@web.de> 2017-2020
  * @license The MIT License (MIT)
- * @version 9.6.0
+ * @version latest (9.6.0)
  * @changes
  * version 9.6.0 (07.05.2020):
  * - uses ccm v25.5.2
@@ -51,21 +51,19 @@
 
   const component = {
 
-    name: 'user', version: [ 9, 6, 0 ],
+    name: 'user',
 
     ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.2.js',
 
     config: {
 
       "css": [ "ccm.load",
-        "https://ccmjs.github.io/akless-components/libs/bootstrap/css/bootstrap.css",
-        { "context": "head", "url": "https://ccmjs.github.io/akless-components/libs/bootstrap/css/font-face.css" },
         "https://ccmjs.github.io/akless-components/user/resources/default.css"
       ],
 //    "guest": "guest",
 //    "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
       "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.0.0.mjs" ],
-      "html": [ "ccm.get", "https://ccmjs.github.io/akless-components/user/resources/resources.js", "html" ],
+      "html": [ "ccm.get", "https://modularcms.github.io/modularcms-components/user/resources/resources.js", "html" ],
 //    "logged_in": true,
 //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-4.0.4.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
@@ -165,47 +163,9 @@
           result = $.parse( result );
         else
           do {
-            switch ( my.realm ) {
-              case 'cloud':
-                result = await renderLogin( this.title, true );
-                if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
-                if ( this.hash ) result.token = this.hash.md5( result.token );
-                result.realm = my.realm;
-                result.store = my.store;
-                try { result = await this.ccm.load( { url: this.url, params: result } ); } catch ( e ) { result = undefined; }
-                break;
-              case 'guest':
-                if ( this.guest )
-                  result = { user: this.guest === true ? $.generateKey() : this.guest };
-                else {
-                  result = await renderLogin( this.title );
-                  if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
-                }
-                result.key = result.token = result.user;
-                break;
-              case 'hbrsinfkaul':
-                result = await this.ccm.load( { url: 'https://kaul.inf.h-brs.de/login/login.php', method: 'JSONP', params: { realm: my.realm } } );
-                if ( $.isObject( result ) ) {
-                  result.key = result.user;
-                  result.token = result.user + '#' + result.token;
-                }
-                break;
-              case 'hbrsinfpseudo':
-                result = await this.ccm.load( { url: 'https://kaul.inf.h-brs.de/login/login_pseudonym.php', method: 'JSONP', params: { realm: my.realm } } );
-                if ( $.isObject( result ) ) {
-                  result.key = result.user;
-                  result.token = result.user + '#' + result.token;
-                }
-                break;
-              case 'lea':
-                result = { user: sessionStorage.getItem( 'ccm@lea-user' ), token: sessionStorage.getItem( 'ccm@lea-token' ) };
-                if ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) ) return alert( 'Authentication failed' );
-                break;
-              default:
-                result = await renderLogin( this.title, true );
-                if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
-                result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
-            }
+            result = await renderLogin( this.title, true );
+            if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
+            result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !alert( 'Authentication failed' ) );
 
         // remember user data
@@ -306,22 +266,6 @@
         if ( !this.isLoggedIn() ) return;
 
         // choose authentication mode and proceed logout
-        switch ( my.realm ) {
-          case 'cloud':
-          case 'guest':
-            break;
-          case 'hbrsinfkaul':
-          case 'hbrsinfpseudo':
-            await this.ccm.load( { url: 'https://kaul.inf.h-brs.de/login/logout.php', method: 'JSONP', params: { realm: my.realm } } ).catch( () => {} );
-          break;
-          case 'lea':
-            sessionStorage.removeItem( 'ccm@lea-user' );
-            sessionStorage.removeItem( 'ccm@lea-token' );
-            break;
-          default:
-            await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, token: data.token } } );
-            break;
-        }
 
         // clear user data
         data = undefined;
