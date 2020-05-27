@@ -4,6 +4,10 @@
  * @license The MIT License (MIT)
  */
 
+* {
+  box-sizing: border-box;
+}
+
 #login-form {
   background-color: var(--color-primary);
   min-height: 100vh;
@@ -34,5 +38,5 @@ input[type="text"] ,input[type="password"] {
   font-size: 20px;
   font-family: 'OpenSans';
   width: 100%;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid #C4C4C4;
 }
