@@ -1,6 +1,6 @@
 /**
  * @overview ccm component for modularcms backend
- * @author Felix Bröhl <broehlfelix@googlemail.com> 2020
+ * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  * @version latest (1.0.0)
  * @changes
@@ -38,7 +38,14 @@
       "logo": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg",
       //    "rating": { "apps": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] }, { "components": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] } },
       //    "routing": [ "ccm.instance", "https://ccmjs.github.io/akless-components/routing/versions/ccm.routing-2.0.5.js" ],
-      //    "user": [ "ccm.start", "https://ccmjs.github.io/akless-components/user/versions/ccm.user-9.5.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "user" ] ]
+      "user": [ "ccm.instance", "https://ccmjs.github.io/modularcms-components/user/versions/ccm.user-9.5.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "user" ] ],
+      "menu": [
+        {"title": "Pages", "route": "/pages"},
+        {"title": "Users", "route": "/users"},
+        {"title": "Themes", "route": "/themes"},
+        {"title": "Layouts", "route": "/layouts"},
+        {"title": "Sites", "route": "/sites"}
+      ]
     },
 
     Instance: function () {
@@ -61,7 +68,48 @@
 
         // select content area
         const content = this.element.querySelector('#content');
+        const menu = this.element.querySelector('#menu');
+        const hamburger = this.element.querySelector('#hamburger-button');
+
+        //if ( this.user ) { $.append( this.element.querySelector('#menu'), this.user.root ); this.user.start(); }
+
+        this.menu.forEach((item) => {
+          $.append(this.element.querySelector('#menu ul'), $.html(this.html.menuitem, {title: item.title}));
+        })
+
+        // hamburger button
+        hamburger.onclick = () => {
+          if (hamburger.classList.contains('active')) {
+            menu.classList.remove('active');
+            hamburger.classList.remove('active');
+          } else {
+            menu.classList.add('active');
+            hamburger.classList.add('active');
+          }
+        };
+
+        loggedIn = this.user && this.user.isLoggedIn();
+        this.changeLoginState(loggedIn);
+        if (loggedIn) {
+          $.setContent(content, $.html(this.html.pages, {}));
+        } else {
+          this.user.login().then(() => {
+              this.changeLoginState(true);
+            }).catch(() => {
+            this.changeLoginState(false);
+          });
+        }
       };
+
+      let loggedIn = this.user && this.user.isLoggedIn();
+      this.changeLoginState = (newState) => {
+        loggedIn = newState;
+        if (loggedIn) {
+          this.element.classList.add('loggedIn');
+        } else {
+          this.element.classList.remove('loggedIn');
+        }
+      }
     }
   };
 

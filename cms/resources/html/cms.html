@@ -1,36 +1,41 @@
 <!--
 @overview default HTML template of ccm component for digital makerspace
-@author André Kless <andre.kless@web.de.de> 2019
+@author Felix Bröhl <broehl@everoo.io> 2020
 -->
 
 <ccm-template key="main">
   <div id="main">
     <header id="header">
-      <img id="logo" src="%logo%">
-      <nav id="menu"></nav>
+      <img id="logo" src="%logo%" />
+      <nav id="menu"><ul></ul></nav>
+      <div id="user">
+        <div id="user-component-wrapper"></div>
+        <div id="user-settings-button"></div>
+        <div id="user-settings-menu"></div>
+      </div>
+      <div id="hamburger-button"><div class="inner"></div></div>
     </header>
-    <main id="content">
-      <h1>Site under construction</h1>
-    </main>
+    <main id="content"></main>
     <footer>
-      © Felix Bröhl 2020 – <a href="/legal-notice">Legal notice</a> | <a href="/privacy">Privacy policy</a>
+      © Felix Bröhl 2020 – <a href="https://modularcms.io/legal-notice">Legal notice</a> | <a href="https://modularcms.io/legal-notice">Privacy policy</a>
     </footer>
   </div>
 </ccm-template>
 
-<ccm-template key="home">
-  <div id="home">
-    <h3>What is this about?</h3>
-    <p>The Digital Makerspace offers every citizen free digital tools (<i>ccm</i>-based web components) for creating their own apps. Created apps can then be used flexibly anywhere on the Web and shared with others.</p>
-    <hr>
-    <div style="text-align: center"><iframe width="560" height="315" src="https://www.youtube.com/embed/EHVTGFqzEQU" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
-    <hr>
-    <section id="analytics_section">
-      <h3>Analytics</h3>
-      <p>In this section everyone can watch the activities in the Digital Makerspace.</p>
-      <div id="analytics"></div>
-    </section>
+<ccm-template key="login">
+  <div id="login">
+    <div id="user-login-wrap"></div>
   </div>
+</ccm-template>
+
+<ccm-template key="pages">
+  <div id="pages">
+    <h1>Site under construction</h1>
+  </div>
+</ccm-template>
+
+<ccm-template key="menuitem">
+  <li>%title%</li>
 </ccm-template>
 
 <ccm-template key="list">
