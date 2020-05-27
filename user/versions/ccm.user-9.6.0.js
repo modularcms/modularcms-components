@@ -58,7 +58,7 @@
     config: {
 
       "css": [ "ccm.load",
-        "https://ccmjs.github.io/akless-components/user/resources/default.css"
+        "https://modularcms.github.io/modularcms-components/user/resources/default.css"
       ],
 //    "guest": "guest",
 //    "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
@@ -69,7 +69,7 @@
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
 //    "norender": true,
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
-      "picture": "https://ccmjs.github.io/akless-components/user/resources/icon.svg",
+      "picture": "https://modularcms.github.io/modularcms-components/user/resources/icon.svg",
       "realm": "guest",
 //    "restart": true,
 //    "store": "ccm-user",

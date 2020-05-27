@@ -9,12 +9,10 @@ ccm.files[ 'resources.js' ] = {
   /** test configuration (relative paths) */
   "local": {
     "css": [ "ccm.load",
-      "../libs/bootstrap/css/bootstrap.css",
-      { "context": "head", "url": "../libs/bootstrap/css/font-face.css" },
       "../user/resources/default.css"
     ],
 //  "map": user => user.user === 'john' ? 'Teacher' : 'Student',
-    "helper.1": "../modules/helper.mjs",
+    "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
     "html": [ "ccm.get", "../user/resources/resources.js", "html" ],
 //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ]
   },
