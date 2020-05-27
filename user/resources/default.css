@@ -29,8 +29,10 @@
   text-align: center;
 }
 
-input[type="text"] ,input[type="password"], input[type="submit"], button {
+input[type="text"] ,input[type="password"] {
   padding: 8px;
   font-size: 20px;
   font-family: 'OpenSans';
+  width: 100%;
+  border: 1px solid rgba(255,255,255,0.1);
 }
