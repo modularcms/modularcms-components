@@ -182,7 +182,6 @@
         sessionStorage.setItem( 'ccm-user-' + my.realm, $.stringify( data ) );
 
         // (re)render own content
-        console.log(this);
         if (this.update) {
           await this.update('failedLogin', this.failedLogin);
         } else {
@@ -228,15 +227,16 @@
           // render login form
           $.setContent( self.element, $.html( self.html.login, {
             title: title,
+            wrongLoginText: this.wrongLoginText,
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
           } ) );
 
-          if (this.failedLogin) {
-            this.element.querySelector('#loginbox').classList.add('failedLogin');
-          } else {
-            this.element.querySelector('#loginbox').classList.remove('failedLogin');
-          }
+          // if (this.failedLogin) {
+          //   this.element.classList.add('failedLogin');
+          // } else {
+          //   this.element.classList.remove('failedLogin');
+          // }
 
           // no password needed? => remove input field for password
           !password && $.remove( self.element.querySelector( '#password-entry' ) );
