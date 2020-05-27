@@ -75,7 +75,6 @@
 //    "store": "ccm-user",
       "title": "Login",
 //    "url": "ccm2.inf.h-brs.de"
-      "failedLogin": false,
       "wrongLoginText": "Wrong login."
     },
 
@@ -145,10 +144,6 @@
 
       };
 
-      this.onFailedLogin = () => {
-        this.failedLogin = true;
-      }
-
       /**
        * logs in user
        * @param {boolean|function} not - prevent all or a specific onchange callback from being triggered
@@ -182,11 +177,7 @@
         sessionStorage.setItem( 'ccm-user-' + my.realm, $.stringify( data ) );
 
         // (re)render own content
-        if (this.update) {
-          await this.update('failedLogin', this.failedLogin);
-        } else {
-          await this.start();
-        }
+        await this.start();
 
         // perform 'onchange' callbacks
         not !== true && await $.asyncForEach( this.onchange, async onchange => onchange !== not && await onchange( this.isLoggedIn() ) );
