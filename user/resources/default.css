@@ -39,4 +39,9 @@ input[type="text"] ,input[type="password"] {
   font-family: 'OpenSans';
   width: 100%;
   border: 1px solid #C4C4C4;
+  color: var(--color-text);
+}
+
+::placeholder {
+  color: #BEBEBE;
 }
