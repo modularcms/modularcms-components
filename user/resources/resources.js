@@ -158,6 +158,10 @@ ccm.files[ 'resources.js' ] = {
                 "inner": "%title%"
               },
               {
+                "id": "login-alert",
+                "inner": "%wrongLoginText%"
+              }
+              {
                 "class": "panel-body",
                 "inner": [
                   {

@@ -57,6 +57,8 @@
         this.logger && this.logger.log( 'ready', $.privatize( this, true ) );  // logging of 'ready' event
       };
 
+      let content;
+
       this.start = async () => {
         // logging of 'start' event
         this.logger && this.logger.log('start');
@@ -67,11 +69,11 @@
         $.setContent(this.element, $.html(this.html.main, {logo: this.logo, title: this.title}));
 
         // select content area
-        const content = this.element.querySelector('#content');
+        content = this.element.querySelector('#content');
         const menu = this.element.querySelector('#menu');
         const hamburger = this.element.querySelector('#hamburger-button');
 
-        //if ( this.user ) { $.append( this.element.querySelector('#menu'), this.user.root ); this.user.start(); }
+        if ( this.user ) { $.append( this.element.querySelector('#user-component-wrapper'), this.user.root ); this.user.start(); }
 
         this.menu.forEach((item) => {
           $.append(this.element.querySelector('#menu ul'), $.html(this.html.menuitem, {title: item.title}));
@@ -90,9 +92,7 @@
 
         loggedIn = this.user && this.user.isLoggedIn();
         this.changeLoginState(loggedIn);
-        if (loggedIn) {
-          $.setContent(content, $.html(this.html.pages, {}));
-        } else {
+        if (!loggedIn) {
           this.user.login().then(() => {
               this.changeLoginState(true);
             }).catch(() => {
@@ -101,10 +101,11 @@
         }
       };
 
-      let loggedIn = this.user && this.user.isLoggedIn();
+      let loggedIn;
       this.changeLoginState = (newState) => {
         loggedIn = newState;
         if (loggedIn) {
+          $.setContent(content, $.html(this.html.pages, {}));
           this.element.classList.add('loggedIn');
         } else {
           this.element.classList.remove('loggedIn');

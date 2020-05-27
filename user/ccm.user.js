@@ -71,11 +71,12 @@
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
       "picture": "https://modularcms.github.io/modularcms-components/user/resources/icon.svg",
       "realm": "guest",
-//    "restart": true,
+      "restart": true,
 //    "store": "ccm-user",
-      "title": "Login"
+      "title": "Login",
 //    "url": "ccm2.inf.h-brs.de"
-
+      "failedLogin": false,
+      "wrongLoginText": "Wrong login."
     },
 
     Instance: function () {
@@ -144,6 +145,10 @@
 
       };
 
+      this.onFailedLogin = () => {
+        this.failedLogin = true;
+      }
+
       /**
        * logs in user
        * @param {boolean|function} not - prevent all or a specific onchange callback from being triggered
@@ -166,7 +171,7 @@
             result = await renderLogin( this.title, true );
             if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
             result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
-          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !alert( 'Authentication failed' ) );
+          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !this.onFailedLogin() );
 
         // remember user data
         data = $.clone( result );
@@ -176,11 +181,13 @@
 
         sessionStorage.setItem( 'ccm-user-' + my.realm, $.stringify( data ) );
 
-        // logging of 'login' event
-        this.logger && this.logger.log( 'login' );
-
         // (re)render own content
-        await this.start();
+        console.log(this);
+        if (this.update) {
+          await this.update('failedLogin', this.failedLogin);
+        } else {
+          await this.start();
+        }
 
         // perform 'onchange' callbacks
         not !== true && await $.asyncForEach( this.onchange, async onchange => onchange !== not && await onchange( this.isLoggedIn() ) );
@@ -224,6 +231,12 @@
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
           } ) );
+
+          if (this.failedLogin) {
+            this.element.querySelector('#loginbox').classList.add('failedLogin');
+          } else {
+            this.element.querySelector('#loginbox').classList.remove('failedLogin');
+          }
 
           // no password needed? => remove input field for password
           !password && $.remove( self.element.querySelector( '#password-entry' ) );
