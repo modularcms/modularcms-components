@@ -38,7 +38,8 @@
 //    "store": "ccm-user",
       "title": "Login",
       "url": "https://auth.modularcms.io/login",
-      "wrongLoginText": "Wrong login."
+      "wrongLoginText": "Wrong login.",
+      "logo": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
     },
 
     Instance: function () {
@@ -177,6 +178,7 @@
           $.setContent( self.element, $.html( self.html.login, {
             title: title,
             wrongLoginText: this.wrongLoginText,
+            logo: this.logo,
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
           } ) );
