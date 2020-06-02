@@ -75,7 +75,7 @@
         if ( this.logged_in || sessionStorage.getItem( 'ccm-user-' + my.realm ) ) await this.login( true );
 
         // logging of 'ready' event
-        this.logger && this.logger.log( 'ready', $.privatize( this, true ) );
+        // this.logger && this.logger.log( 'ready', $.privatize( this, true ) );
 
       };
 
@@ -285,6 +285,15 @@
       this.getUsername = () => {
         const user = $.clone( this.getValue() );
         return this.map && this.map( user ) || user.name || user.user || user.key;
+      };
+
+      /**
+       * returns url for user avatar
+       * @returns {string}
+       */
+      this.getAvatar = () => {
+        const user = $.clone( this.getValue() );
+        return user.picture;
       };
 
       /**

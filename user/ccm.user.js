@@ -73,7 +73,7 @@
         if ( this.logged_in || sessionStorage.getItem( 'ccm-user-' + my.realm ) ) await this.login( true );
 
         // logging of 'ready' event
-        this.logger && this.logger.log( 'ready', $.privatize( this, true ) );
+        // this.logger && this.logger.log( 'ready', $.privatize( this, true ) );
 
       };
 

@@ -22,25 +22,18 @@ ccm.files[ 'resources.js' ] = {
   "html": {
     "logged_in": {
       "id": "logged_in",
-      "class": "well well-sm",
       "inner": [
         {
-          "id": "user",
-          "inner": [
-            { "class": "glyphicon glyphicon-user" },
-            "%user%"
-          ]
+          "tag": "img",
+          "id": "avatar",
+          "inner": "%user%"
         },
         {
-          "id": "button",
-          "class": "btn btn-default btn-xs",
-          "inner": [
-            {
-              "tag": "span",
-              "class": "glyphicon glyphicon-log-out"
-            },
-            "Logout"
-          ],
+          "id": "username",
+          "inner": "%user%"
+        },
+        {
+          "id": "logout",
           "onclick": "%click%"
         }
       ]
