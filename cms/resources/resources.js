@@ -1,7 +1,6 @@
 ccm.files[ 'resources.js' ] = {
     "live": {
-        "add_version": true,
-        "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "user" ] ]
+        "add_version": true
     },
 /** test configuration (relative paths) */
     "local": {
