@@ -26,7 +26,7 @@ ccm.files[ 'resources.js' ] = {
         {
           "tag": "img",
           "id": "avatar",
-          "src": "%user%"
+          "src": "%avatar%"
         },
         {
           "id": "username",
@@ -65,13 +65,9 @@ ccm.files[ 'resources.js' ] = {
             "class": "panel panel-info",
             "inner": [
               {
+                "tag": "img",
                 "id": "login-logo",
-                "inner": [
-                  {
-                    "tag": "img",
-                    "src": "%logo%"
-                  }
-                ]
+                "src": "%logo%"
               },
               {
                 "tag": "h1",

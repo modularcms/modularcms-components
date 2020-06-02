@@ -94,7 +94,8 @@
         if ( this.isLoggedIn() )
           $.setContent( this.element, $.html( this.html.logged_in, {
             click: this.logout,
-            user: this.getUsername()
+            user: this.getUsername(),
+            avatar: this.getAvatar()
           } ) );
         else
           $.setContent( this.element, $.html( this.html.logged_out, {
