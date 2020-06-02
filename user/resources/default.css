@@ -5,6 +5,7 @@
  */
 
 * {
+  font-family: 'Open Sans', sans-serif;
   box-sizing: border-box;
 }
 
@@ -40,7 +41,7 @@
 }
 
 input[type="text"], input[type="password"] {
-  padding: 16px;
+  padding: 15px;
   font-size: 20px;
   font-family: 'OpenSans';
   width: 100%;
