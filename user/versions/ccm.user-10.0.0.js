@@ -293,7 +293,10 @@
        */
       this.getAvatar = () => {
         const user = $.clone( this.getValue() );
-        return user.picture;
+        if (user.picture) {
+          return user.picture;
+        }
+        return this.picture;
       };
 
       /**

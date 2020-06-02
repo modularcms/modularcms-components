@@ -26,7 +26,7 @@ ccm.files[ 'resources.js' ] = {
         {
           "tag": "img",
           "id": "avatar",
-          "inner": "%user%"
+          "src": "%user%"
         },
         {
           "id": "username",

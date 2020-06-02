@@ -286,6 +286,18 @@
       };
 
       /**
+       * returns url for user avatar
+       * @returns {string}
+       */
+      this.getAvatar = () => {
+        const user = $.clone( this.getValue() );
+        if (user.picture) {
+          return user.picture;
+        }
+        return this.picture;
+      };
+
+      /**
        * returns authentication mode
        * @returns {string}
        */
