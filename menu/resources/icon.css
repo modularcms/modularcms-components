@@ -1,0 +1,45 @@
+/**
+ * @overview icon layout of ccm component for rendering a menu
+ * @author André Kless <andre.kless@h-brs.de> 2016, 2018
+ * @author Tea Kless <tea.kless@h-brs.de> 2016
+ * @license The MIT License (MIT)
+ */
+
+#main {
+  font-family: "Helvetica Neue","Helvetica","Arial",sans-serif;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+#entries {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+}
+
+.entry {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #009ee0;
+  text-align: center;
+  cursor: pointer;
+  line-height: 1.5em;
+}
+
+.entry:not(.selected) {
+  color: #009ee0;
+}
+
+.entry.selected {
+  color: #00698b;
+}
+
+.entry:hover {
+  color: #00698b;
+}
+
+.entry > div > div {
+  margin: 0.2em 2em;
+}

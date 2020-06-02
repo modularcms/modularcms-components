@@ -1,0 +1,18 @@
+<!--
+@overview default HTML templates of ccm component for rendering a menu
+@author André Kless <andre.kless@web.de.de> 2019
+-->
+
+<ccm-template key="main">
+  <div id="main">
+    <div id="lang"></div>
+    <div id="entries"></div>
+    <div id="content"></div>
+  </div>
+</ccm-template>
+
+<ccm-template key="entry">
+  <div id="%id%" class="entry" onclick="%click%">
+    <div class="title"></div>
+  </div>
+</ccm-template>

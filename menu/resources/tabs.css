@@ -1,0 +1,58 @@
+/**
+ * @overview tab layout of ccm component for rendering a menu
+ * @author André Kless <andre.kless@web.de.de> 2015-2016, 2018
+ * @license The MIT License (MIT)
+ */
+
+#main {
+  border: 0.08em solid #aaa;
+  border-radius: 0.3em;
+  background-color: white;
+  padding: 0.2em;
+
+  font-family: Verdana,Arial,sans-serif;
+}
+
+#entries {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+
+  border: 0.08em solid #aaa;
+  border-radius: 0.3em;
+  padding: 0.1em 0.2em 0;
+
+  background-color: #ddd;
+  color: #555;
+}
+
+.entry {
+  flex-grow: 1;
+
+  margin-top: 0.1em;
+  border: 0.08em solid #d3d3d3;
+  border-bottom: 0;
+  border-radius: 0.3em 0.3em 0 0;
+  padding: 0.5em 1em;
+
+  background-color: #e9e9e9;
+  text-align: center;
+  cursor: pointer;
+}
+
+.entry:hover:not( .selected ) {
+  background-color: #d3d3d3;
+  border-color: #aaa;
+}
+
+.entry.selected {
+  background-color: white;
+  border-color: #aaa;
+  margin-bottom: -0.08em;
+  cursor: auto;
+}
+
+#content {
+  padding: 0.3em;
+}

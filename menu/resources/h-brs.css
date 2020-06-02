@@ -1,0 +1,55 @@
+/**
+ * @overview H-BRS-like layout of ccm component for rendering a menu
+ * @author André Kless <andre.kless@h-brs.de> 2016, 2018
+ * @author Tea Kless <tea.kless@h-brs.de> 2016
+ * @license The MIT License (MIT)
+ */
+
+#main {
+  font-family: "Helvetica Neue","Helvetica","Arial",sans-serif;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#entries {
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  height: 100%;
+}
+
+.entry {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 2em;
+  padding: 1em;
+  cursor: pointer;
+  border-top: 0.15em solid #fff;
+}
+
+.entry:last-child {
+  border-bottom: 0.15em solid #fff;
+}
+
+.entry:not(.selected) {
+  background-color: #009ee0;
+}
+
+.entry.selected {
+  background-color: #008eca;
+}
+
+.entry:hover {
+  background-color: #008eca;
+}
+
+.entry > div {
+  display: flex;
+  align-items: center;
+}
+
+.entry > div > div:last-child {
+  padding-left: 0.5em;
+}

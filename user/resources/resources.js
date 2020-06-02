@@ -17,42 +17,6 @@ ccm.files[ 'resources.js' ] = {
 //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ]
   },
 
-  "guest": {
-    "store": "guest-user",
-    "title": "Guest Mode: Please enter any username",
-    "url": "https://ccm2.inf.h-brs.de"
-  },
-
-  /** one-time pseudonym configuration */
-  "pseudo": {
-    "realm": "guest",
-    "guest": true
-  },
-
-  /** cloud mode configuration */
-  "cloud": {
-    "realm": "cloud",
-    "url": "https://ccm2.inf.h-brs.de",
-    "title": "Please enter Username and Password",
-    "hash": [ "ccm.load", { "url": "https://ccmjs.github.io/akless-components/modules/md5.mjs", "type": "module" } ]
-  },
-
-  /** configuration for login with a Hochschule Bonn-Rhein-Sieg FB02 Computer Science account */
-  "hbrsinfkaul": {
-    "realm": "hbrsinfkaul"
-  },
-
-  /** configuraiton for pseudonym mode of login with a Hochschule Bonn-Rhein-Sieg FB02 Computer Science account */
-  "hbrsinfpseudo": {
-    "realm": "hbrsinfpseudo"
-  },
-
-  /** configuration for adaptation of a LEA account (LEA is the learning platform of the Hochschule Bonn-Rhein-Sieg) */
-  "lea": {
-    "realm": "lea",
-    "title": "Please enter Username and Password"
-  },
-
   /** compact mode for guest configuration */
   "compact": {
     "title": "Guest Mode: Please enter any username",

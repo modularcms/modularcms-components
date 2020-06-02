@@ -1,0 +1,28 @@
+<!--
+@overview slide HTML templates of ccm component for rendering a menu
+@author André Kless <andre.kless@web.de.de> 2019
+@license The MIT License (MIT)
+-->
+
+<ccm-template key="main">
+  <div id="main">
+    <div id="lang"></div>
+    <div id="head">
+      <div id="prev" onclick="%onprev%">❮</div>
+      <div id="title"></div>
+      <div id="next" onclick="%onnext%">❯</div>
+    </div>
+    <div id="frame">
+      <div id="before"></div>
+      <div id="content"></div>
+      <div id="after"></div>
+    </div>
+    <div id="entries"></div>
+  </div>
+</ccm-template>
+
+<ccm-template key="entry">
+  <div id="%id%" class="entry" onclick="%click%">
+    <div></div>
+  </div>
+</ccm-template>

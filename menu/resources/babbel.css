@@ -1,0 +1,23 @@
+/**
+ * @overview babbel-like layout of ccm component for rendering a menu
+ * @author André Kless <andre.kless@h-brs.de> 2016, 2018
+ * @author Tea Kless <tea.kless@h-brs.de> 2016
+ * @license The MIT License (MIT)
+ */
+
+#main {
+  font-family: "Helvetica Neue","Helvetica","Arial",sans-serif;
+}
+
+.entry {
+  padding: 1em;
+  cursor: pointer;
+}
+
+.entry:not(.selected) {
+  background-color: white;
+}
+
+.entry:hover {
+  background-color: #f6f5f0;
+}
