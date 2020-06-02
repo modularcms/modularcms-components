@@ -1,4 +1,7 @@
 ccm.files[ 'resources.js' ] = {
+    "live": {
+        "add_version": true
+    },
 /** test configuration (relative paths) */
     "local": {
         "add_version": true,

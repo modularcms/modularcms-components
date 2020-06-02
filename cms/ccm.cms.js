@@ -23,8 +23,7 @@
       "apps": [ "ccm.store", { "name": "dms-apps", "url": "https://ccm2.inf.h-brs.de" } ],
       "css": [ "ccm.load",
         "https://modularcms.github.io/modularcms-components/cms/resources/css/colors.css",
-        "https://modularcms.github.io/modularcms-components/cms/resources/css/style.css",
-        "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        "https://modularcms.github.io/modularcms-components/cms/resources/css/style.css"
       ],
       //    "component_manager": [ "ccm.component", "https://ccmjs.github.io/akless-components/component_manager/versions/ccm.component_manager-3.4.1.js" ],
       "components": [ "ccm.store", { "name": "dms-components", "url": "https://ccm2.inf.h-brs.de" } ],
@@ -38,7 +37,7 @@
       "logo": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg",
       //    "rating": { "apps": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] }, { "components": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] } },
       //    "routing": [ "ccm.instance", "https://ccmjs.github.io/akless-components/routing/versions/ccm.routing-2.0.5.js" ],
-      "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-9.6.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "user" ] ],
+      "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "user" ] ],
       "menu": [
         {"title": "Pages", "route": "/pages"},
         {"title": "Users", "route": "/users"},
