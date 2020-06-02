@@ -8,23 +8,14 @@ ccm.files[ 'resources.js' ] = {
 
   /** test configuration (relative paths) */
   "local": {
+    "key": "local",
     "css": [ "ccm.load",
       "../user/resources/default.css"
     ],
 //  "map": user => user.user === 'john' ? 'Teacher' : 'Student',
     "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
     "html": [ "ccm.get", "../user/resources/resources.js", "html" ],
-//  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ]
-  },
-
-  "user": {
-    "realm": "default",
-    "url": "https://auth.modularcms.io/login"
-  },
-  "userlocal": {
-    "css.1": "../user/resources/default.css",
-    "realm": "default",
-    "url": "https://auth.modularcms.io/login"
+//  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ],
   },
 
   /** compact mode for guest configuration */

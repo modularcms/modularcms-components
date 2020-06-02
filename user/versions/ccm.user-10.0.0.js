@@ -53,7 +53,7 @@
 
     name: 'user',
 
-    ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.2.js',
+    ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
     config: {
 
@@ -70,11 +70,11 @@
 //    "norender": true,
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
       "picture": "https://modularcms.github.io/modularcms-components/user/resources/icon.svg",
-      "realm": "guest",
+      "realm": "modularcms",
       "restart": true,
 //    "store": "ccm-user",
       "title": "Login",
-//    "url": "ccm2.inf.h-brs.de"
+      "url": "https://auth.modularcms.io/login",
       "wrongLoginText": "Wrong login."
     },
 
@@ -103,6 +103,7 @@
       };
 
       this.ready = async () => {
+
         // clear own website area
         $.setContent( this.element, '' );
 
@@ -163,7 +164,7 @@
             result = await renderLogin( this.title, true );
             if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
             result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
-          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !this.onFailedLogin() );
+          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !alert( 'Authentication failed' ) );
 
         // remember user data
         data = $.clone( result );
