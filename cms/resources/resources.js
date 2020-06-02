@@ -1,6 +1,7 @@
 ccm.files[ 'resources.js' ] = {
     "live": {
-        "add_version": true
+        "add_version": true,
+        "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "user" ] ]
     },
 /** test configuration (relative paths) */
     "local": {
@@ -12,7 +13,7 @@ ccm.files[ 'resources.js' ] = {
         "html.1": "../cms/resources/html/cms.html",
     //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ],
         "logo": "../cms/resources/img/logo.svg",
-        "user": [ "ccm.instance", "../user/ccm.user.js", [ "ccm.get", "../cms/resources/resources.js", "userlocal" ] ]
+        "user": [ "ccm.instance", "../user/versions/ccm.user-10.0.0.js", [ "ccm.get", "../cms/resources/resources.js", "userlocal" ] ]
     },
     "user": {
         "realm": "default",
