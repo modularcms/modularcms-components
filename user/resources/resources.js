@@ -17,6 +17,16 @@ ccm.files[ 'resources.js' ] = {
 //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ]
   },
 
+  "user": {
+    "realm": "default",
+    "url": "https://auth.modularcms.io/login"
+  },
+  "userlocal": {
+    "css.1": "../user/resources/default.css",
+    "realm": "default",
+    "url": "https://auth.modularcms.io/login"
+  },
+
   /** compact mode for guest configuration */
   "compact": {
     "title": "Guest Mode: Please enter any username",
