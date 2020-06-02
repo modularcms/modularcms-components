@@ -84,9 +84,6 @@
         // correct state is already rendered? => abort
         if ( this.isLoggedIn() && this.element.querySelector( '#logged_in' ) || !this.isLoggedIn() && this.element.querySelector( '#logged_out' ) ) return;
 
-        // logging of 'start' event
-        this.logger && this.logger.log( 'start', this.isLoggedIn() );
-
         // no login/logout button? => abort
         if ( this.norender ) return;
 
