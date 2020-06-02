@@ -14,7 +14,7 @@ ccm.files[ 'resources.js' ] = {
         "logo": "../cms/resources/img/logo.svg",
         "user": [ "ccm.instance", "../user/versions/ccm.user-10.0.0.js", [ "ccm.get", "../cms/resources/resources.js", "userlocal" ] ]
     },
-    "usercomp": {
+    "user": {
         "realm": "default",
         "url": "https://auth.modularcms.io/login"
     },
