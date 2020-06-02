@@ -9,6 +9,6 @@ ccm.files[ 'resources.js' ] = {
         "html.1": "../cms/resources/html/cms.html",
     //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ],
         "logo": "../cms/resources/img/logo.svg",
-        "user": [ "ccm.instance", "../user/versions/ccm.user-10.0.0.js" ],
+        "user": [ "ccm.instance", "../user/versions/ccm.user-10.0.0.js", [ "ccm.get", "../user/resources/resources.js", "local" ] ]
     }
 };

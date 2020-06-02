@@ -53,6 +53,8 @@ nav ul li {
 
 nav #user {
   order: 2;
+  align-items: center;
+  display: flex;
 }
 
 #hamburger-button {

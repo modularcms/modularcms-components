@@ -24,9 +24,8 @@ ccm.files[ 'resources.js' ] = {
       "id": "logged_in",
       "inner": [
         {
-          "tag": "img",
           "id": "avatar",
-          "src": "%avatar%"
+          "style": "background-image: url('%avatar%');"
         },
         {
           "id": "username",
@@ -34,7 +33,13 @@ ccm.files[ 'resources.js' ] = {
         },
         {
           "id": "logout",
-          "onclick": "%click%"
+          "onclick": "%click%",
+          "inner": [
+            {
+              "tag": "img",
+              "src": "https://modularcms.github.io/modularcms-components/user/resources/img/logout.svg"
+            }
+          ]
         }
       ]
     },
