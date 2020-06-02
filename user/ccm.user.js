@@ -84,12 +84,17 @@
       let $, my, data, context = this;
 
       this.init = async () => {
+        console.log(1);
 
         // set shortcut to help functions
         $ = Object.assign( {}, this.ccm.helper, this.helper );
 
+        console.log(2);
+
         // privatize authentication relevant instance members
         my = $.privatize( this, 'realm', 'store' );
+
+        console.log(3);
 
         // set context to highest user instance with same realm
         let instance = this;
@@ -101,10 +106,11 @@
           this.onchange = this.onchange ? [ this.onchange ] : [];
         }
         else if ( this.onchange ) context.onchange.push( this.onchange );
-
+        console.log(4);
       };
 
       this.ready = async () => {
+        console.log(5);
 
         // clear own website area
         $.setContent( this.element, '' );
