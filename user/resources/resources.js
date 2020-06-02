@@ -5,6 +5,7 @@
  */
 
 ccm.files[ 'resources.js' ] = {
+  "live": {},
 
   /** test configuration (relative paths) */
   "local": {
