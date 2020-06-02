@@ -1,50 +1,11 @@
 /**
  * @overview ccm component for user authentication
- * @author André Kless <andre.kless@web.de> 2017-2020
+ * @author André Kless <andre.kless@web.de> 2017-2020, Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
- * @version latest (9.6.0)
+ * @version latest (10.0.0)
  * @changes
- * version 9.6.0 (07.05.2020):
- * - uses ccm v25.5.2
- * - added get and set of app-specific user data
- * version 9.5.0 (15.04.2020):
- * - added optional default user picture via config
- * version 9.4.1 (10.04.2020):
- * - uses ccm v25.4.0
- * - uses helper.mjs v5.0.0 as default
- * - bug fix for immediate login without trigger of 'onchange' callback
- * - bug fix for missing realm in user data
- * version 9.4.0 (25.03.2020):
- * - uses ccm v25.2.0
- * - uses helper.mjs v4.1.1 as default
- * - added getValue() method
- * - data() method is deprecated
- * - added getUsername() method
- * - added optional mapping function for displayed username
- * version 9.3.1 (12.02.2020):
- * - uses ccm v25.0.0
- * - bug fix for user key
- * - changed default title text of login dialog
- * version 9.3.0 (09.10.2019):
- * - added optional restart of parent instance after logout
- * version 9.2.1 (09.10.2019):
- * - prevent render of same state twice
- * - uses ccm v24.0.1
- * version 9.2.0 (05.07.2019):
- * - uses Session Storage to remember user data
- * - throws error if you click on Abort in login area
- * - uses ccm v21.1.2
- * version 9.1.1 (29.05.2019):
- * - clears website area before redirect call
- * - uses ccm v20.7.1
- * version 9.1.0 (15.05.2019):
- * - login function returns user data
- * - uses ccm v20.4.0
- * version 9.0.1 (03.04.2019):
- * - bug fix for realm 'hbrsinfpseudo'
- * version 9.0.0 (11.02.2019):
- * - removed realm 'idento'
- * (for older version changes see ccm.user-8.3.1.js)
+ * version 10.0.0 (02.06.2020):
+ * - forked user component for modularcms
  */
 
 ( () => {
