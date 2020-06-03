@@ -59,6 +59,30 @@ ccm.files[ 'resources.js' ] = {
         "onclick": "%click%"
       }
     },
+    "loginLoading": {
+      "id": "login-form",
+      "class": "container",
+      "inner": [
+        {
+          "id": "loginbox",
+          "class": "mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2",
+          "inner": {
+            "class": "panel panel-info",
+            "inner": [
+              {
+                "id": "login-logo-wrap",
+                "inner": [
+                  {
+                    "tag": "img",
+                    "src": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
+                  }
+                ]
+              },
+            ]
+          }
+        }
+      ]
+    },
     "login": {
       "id": "login-form",
       "class": "container",
@@ -70,8 +94,13 @@ ccm.files[ 'resources.js' ] = {
             "class": "panel panel-info",
             "inner": [
               {
-                "tag": "img",
-                "src": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
+                "id": "login-logo-wrap",
+                "inner": [
+                  {
+                    "tag": "img",
+                    "src": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
+                  }
+                ]
               },
               {
                 "tag": "h1",

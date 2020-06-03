@@ -40,6 +40,20 @@
   text-align: center;
 }
 
+#login-logo-wrap {
+  position: absolute;
+  left: 0;
+  height: 60px;
+  top: -76px;
+  width: 100%;
+}
+
+#login-logo-wrap img {
+  margin: 0 auto;
+  height: 100%;
+  display: block;
+}
+
 input[type="text"], input[type="password"] {
   padding: 15px;
   font-size: 20px;

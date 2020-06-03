@@ -120,6 +120,7 @@
         else
           do {
             result = await renderLogin( this.title, true );
+            $.setContent( self.element, $.html( self.html.loginLoading, {} ) );
             if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
             result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !alert( 'Authentication failed' ) );
