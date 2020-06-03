@@ -131,7 +131,7 @@
             if (result) {
               wrongLogin = !result.success;
               if (result.success) {
-                //form.hide();
+                form.hide();
               }
             }
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
@@ -214,7 +214,7 @@
            */
           function finish( result ) {
 
-            // is not a standalone instance?
+            self.element.querySelector('#loginbox').classList.add('loading');
             $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
 
             resolve( {result: result, hide: hide} );
