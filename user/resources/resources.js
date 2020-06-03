@@ -66,7 +66,22 @@ ccm.files[ 'resources.js' ] = {
     },
     "loginAlert": {
       "id": "login-alert",
-      "inner": "%text%"
+      "inner": [
+        {
+          "id": "login-alert-icon",
+          "tag": "img",
+          "src": "%iconsrc%"
+        },
+        {
+          "id": "login-alert-text",
+          "inner": "%text%"
+        },
+        {
+          "id": "login-alert-close",
+          "tag": "img",
+          "src": "%iconsrc%"
+        }
+      ]
     },
     "login": {
       "id": "login-form",
@@ -118,6 +133,7 @@ ccm.files[ 'resources.js' ] = {
                             "class": "form-control",
                             "name": "user",
                             "placeholder": "Username",
+                            "value": "%username%",
                             "required": true
                           },
                           {

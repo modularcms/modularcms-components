@@ -36,7 +36,9 @@
 //    "store": "ccm-user",
       "title": "Login",
       "url": "https://auth.modularcms.io/login",
-      "wrong_login_text": "Wrong login."
+      "wrongLoginText": "Wrong login.",
+      "alertLogoutSuccessIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/logout-success.svg",
+      "alertLoginFailureIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/login-failure.svg"
     },
 
     Instance: function () {
@@ -120,8 +122,9 @@
           result = $.parse( result );
         else {
           let wrongLogin = false;
+          let username = '';
           do {
-            let form = await renderLogin( this.title, true, wrongLogin );
+            let form = await renderLogin( this.title, username, true, wrongLogin );
             let formResult = null;
             if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
@@ -130,6 +133,8 @@
               wrongLogin = !result.success;
               if (result.success) {
                 form.hide();
+              } else {
+                username = formResult.user;
               }
             }
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
@@ -154,11 +159,12 @@
         /**
          * renders login form
          * @param {string} title - login form title
+         * @param {string} username - predefined username value
          * @param {boolean} password - show input field for password
          * @param {boolean} wrongLogin
          * @returns {Promise}
          */
-        async function renderLogin( title, password, wrongLogin = false ) { return new Promise( resolve => {
+        async function renderLogin( title, username = '', password, wrongLogin = false ) { return new Promise( resolve => {
 
           /**
            * Shadow DOM of parent instance
@@ -185,6 +191,7 @@
 
           // render login form
           $.setContent( self.element, $.html( self.html.login, {
+            username: username,
             title: title,
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
@@ -193,7 +200,8 @@
           // wrong Login alert
           if (wrongLogin) {
             $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
-              text: this.wrong_login_text
+              iconsrc: self.alertLoginFailureIconSrc,
+              text: self.wrongLoginText
             } ) );
           }
 

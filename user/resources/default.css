@@ -26,8 +26,7 @@
   transform: translate(-50%,-50%);
   position: absolute;
   background-color: var(--color-light);
-  padding: 40px;
-  padding-top: 25px;
+  padding: 25px;
   border-radius: 5px;
   box-shadow: 0px 3px 6px rgba(0,0,0,0.16);
 }
@@ -197,4 +196,7 @@ input[type="submit"], button {
   padding: 16px;
   background-color: #e64515;
   border-radius: 5px;
+  color: var(--color-light);
+  display: flex;
+  margin-bottom: 25px;
 }
