@@ -104,11 +104,11 @@
       this.changeLoginState = (newState) => {
         loggedIn = newState;
         if (loggedIn) {
-          window.history.pushState({}, 'Login', '/pages');
+          //window.history.pushState({}, 'Login', '/pages');
           $.setContent(content, $.html(this.html.pages, {}));
           this.element.classList.add('loggedIn');
         } else {
-          window.history.pushState({}, 'Login', '/login');
+          //window.history.pushState({}, 'Login', '/login');
           this.element.classList.remove('loggedIn');
         }
       }

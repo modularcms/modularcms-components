@@ -94,12 +94,12 @@ ccm.files[ 'resources.js' ] = {
                 "id": "content",
                 "inner": [
                   {
+                    "id": "login-alert-wrapper"
+                  },
+                  {
                     "tag": "h1",
                     "class": "panel-heading",
                     "inner": "%title%"
-                  },
-                  {
-                    "id": "login-alert-wrapper"
                   },
                   {
                     "class": "panel-body",

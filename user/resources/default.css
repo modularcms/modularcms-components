@@ -192,3 +192,9 @@ input[type="submit"], button {
     transform: rotate(360deg);
   }
 }
+
+#login-alert {
+  padding: 16px;
+  background-color: #e64515;
+  border-radius: 5px;
+}
