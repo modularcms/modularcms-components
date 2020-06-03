@@ -91,55 +91,60 @@ ccm.files[ 'resources.js' ] = {
                 ]
               },
               {
-                "tag": "h1",
-                "class": "panel-heading",
-                "inner": "%title%"
-              },
-              {
-                "id": "login-alert-wrapper"
-              },
-              {
-                "class": "panel-body",
+                "id": "content",
                 "inner": [
                   {
-                    "tag": "form",
-                    "id": "loginform",
-                    "class": "form-horizontal",
-                    "role": "form",
-                    "onsubmit": "%login%",
+                    "tag": "h1",
+                    "class": "panel-heading",
+                    "inner": "%title%"
+                  },
+                  {
+                    "id": "login-alert-wrapper"
+                  },
+                  {
+                    "class": "panel-body",
                     "inner": [
                       {
-                        "tag": "input",
-                        "id": "login-username",
-                        "type": "text",
-                        "class": "form-control",
-                        "name": "user",
-                        "placeholder": "Username",
-                        "required": true
-                      },
-                      {
-                        "tag": "input",
-                        "id": "login-password",
-                        "type": "password",
-                        "class": "form-control",
-                        "name": "token",
-                        "placeholder": "Password",
-                        "required": true
-                      },
-                      {
-                        "class": "form-group",
-                        "inner": {
-                          "class": "col-sm-12 controls",
-                          "inner": [
-                            {
-                              "tag": "input",
-                              "type": "submit",
-                              "id": "btn-login",
-                              "class": "btn btn-success",
-                              "value": "Login"
+                        "tag": "form",
+                        "id": "loginform",
+                        "class": "form-horizontal",
+                        "role": "form",
+                        "onsubmit": "%login%",
+                        "inner": [
+                          {
+                            "tag": "input",
+                            "id": "login-username",
+                            "type": "text",
+                            "class": "form-control",
+                            "name": "user",
+                            "placeholder": "Username",
+                            "required": true
+                          },
+                          {
+                            "tag": "input",
+                            "id": "login-password",
+                            "type": "password",
+                            "class": "form-control",
+                            "name": "token",
+                            "placeholder": "Password",
+                            "required": true
+                          },
+                          {
+                            "class": "form-group",
+                            "inner": {
+                              "class": "col-sm-12 controls",
+                              "inner": [
+                                {
+                                  "tag": "input",
+                                  "type": "submit",
+                                  "id": "btn-login",
+                                  "class": "btn btn-success",
+                                  "value": "Login"
+                                }
+                              ]
                             }
-                          ]
-                        }
+                          }
+                        ]
                       }
                     ]
                   }

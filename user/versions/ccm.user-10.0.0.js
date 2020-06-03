@@ -131,7 +131,7 @@
             if (result) {
               wrongLogin = !result.success;
               if (result.success) {
-                form.hide();
+                //form.hide();
               }
             }
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
