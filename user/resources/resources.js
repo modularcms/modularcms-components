@@ -71,8 +71,7 @@ ccm.files[ 'resources.js' ] = {
             "inner": [
               {
                 "tag": "img",
-                "id": "login-logo",
-                "src": "%logo%"
+                "src": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
               },
               {
                 "tag": "h1",
