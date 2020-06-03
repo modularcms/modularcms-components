@@ -120,23 +120,27 @@
         let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
         if ( result )
           result = $.parse( result );
-        else
+        else {
           let wrongLogin = false;
           let connectionError = false;
           do {
-            let formReturn = await renderLogin( this.title, true, wrongLogin );
+            let form = await renderLogin( this.title, true, wrongLogin );
             let formResult = null;
-            if (formReturn && formReturn.result) { formResult = formReturn.result };
+            if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
             result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
             connectionError = false;
             if (result) {
               wrongLogin = !result.success;
+              if (result.success) {
+                form.hide();
+              }
             } else {
               connectionError = true;
             }
 
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
+        }
 
         // remember user data
         data = $.clone( result );

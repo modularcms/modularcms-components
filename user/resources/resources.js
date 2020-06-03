@@ -80,7 +80,8 @@ ccm.files[ 'resources.js' ] = {
               },
               {
                 "id": "loader",
-                "inner": "loading..."
+                "class": "lds-ring",
+                "inner": [{"inner":[]},{"inner":[]},{"inner":[]},{"inner":[]}]
               }
             ]
           }
