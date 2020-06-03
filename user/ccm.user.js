@@ -36,7 +36,7 @@
 //    "store": "ccm-user",
       "title": "Login",
       "url": "https://auth.modularcms.io/login",
-      "wrongLoginText": "Wrong login."
+      "wrong_login_text": "Wrong login."
     },
 
     Instance: function () {
@@ -91,7 +91,8 @@
         if ( this.isLoggedIn() )
           $.setContent( this.element, $.html( this.html.logged_in, {
             click: this.logout,
-            user: this.getUsername()
+            user: this.getUsername(),
+            avatar: this.getAvatar()
           } ) );
         else
           $.setContent( this.element, $.html( this.html.logged_out, {
@@ -117,13 +118,22 @@
         let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
         if ( result )
           result = $.parse( result );
-        else
+        else {
+          let wrongLogin = false;
           do {
-            result = await renderLogin( this.title, true );
-            $.setContent( self.element, $.html( self.html.loginLoading, {} ) );
-            if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
-            result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
-          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !alert( 'Authentication failed' ) );
+            let form = await renderLogin( this.title, true, wrongLogin );
+            let formResult = null;
+            if (form && form.result) { formResult = form.result };
+            if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
+            result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
+            if (result) {
+              wrongLogin = !result.success;
+              if (result.success) {
+                form.hide();
+              }
+            }
+          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
+        }
 
         // remember user data
         data = $.clone( result );
@@ -145,9 +155,10 @@
          * renders login form
          * @param {string} title - login form title
          * @param {boolean} password - show input field for password
+         * @param {boolean} wrongLogin
          * @returns {Promise}
          */
-        async function renderLogin( title, password ) { return new Promise( resolve => {
+        async function renderLogin( title, password, wrongLogin = false ) { return new Promise( resolve => {
 
           /**
            * Shadow DOM of parent instance
@@ -175,10 +186,16 @@
           // render login form
           $.setContent( self.element, $.html( self.html.login, {
             title: title,
-            wrongLoginText: this.wrongLoginText,
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
           } ) );
+
+          // wrong Login alert
+          if (wrongLogin) {
+            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
+              text: this.wrong_login_text
+            } ) );
+          }
 
           // if (this.failedLogin) {
           //   this.element.classList.add('failedLogin');
@@ -195,18 +212,21 @@
            */
           function finish( result ) {
 
-            // is not a standalone instance?
-            if ( shadow ) {
+            self.element.querySelector('#loginbox').classList.add('loading');
+            $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
+
+            resolve( {result: result, hide: hide} );
+          }
+
+          function hide() {
+            if (shadow) {
 
               // move own root element back to original position
               parent[ parent.nodeType === 11 ? 'removeChild' : 'appendChild' ]( self.root );
 
               // show content of parent instance
               self.parent.element.style.removeProperty('display' );
-
             }
-
-            resolve( result );
           }
 
         } ); }

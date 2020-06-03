@@ -36,7 +36,7 @@
       //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-5.0.0.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
       "logo": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg",
       //    "rating": { "apps": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] }, { "components": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] } },
-      //    "routing": [ "ccm.instance", "https://ccmjs.github.io/akless-components/routing/versions/ccm.routing-2.0.5.js" ],
+      "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
       "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js" ],
       "menu": [
         {"title": "Pages", "route": "/pages"},
@@ -104,9 +104,11 @@
       this.changeLoginState = (newState) => {
         loggedIn = newState;
         if (loggedIn) {
+          window.history.pushState({}, 'Login', '/pages');
           $.setContent(content, $.html(this.html.pages, {}));
           this.element.classList.add('loggedIn');
         } else {
+          window.history.pushState({}, 'Login', '/login');
           this.element.classList.remove('loggedIn');
         }
       }
