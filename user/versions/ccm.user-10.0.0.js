@@ -121,12 +121,22 @@
         if ( result )
           result = $.parse( result );
         else
+          let wrongLogin = false;
+          let connectionError = false;
           do {
-            result = await renderLogin( this.title, true );
-            $.setContent( self.element, $.html( self.html.loginLoading, {} ) );
-            if ( !result ) { await this.start(); throw new Error( 'login aborted' ); }
-            result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: result.user, token: result.token } } );
-          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) && !alert( 'Authentication failed' ) );
+            let formReturn = await renderLogin( this.title, true, wrongLogin );
+            let formResult = null;
+            if (formReturn && formReturn.result) { formResult = formReturn.result };
+            if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
+            result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
+            connectionError = false;
+            if (result) {
+              wrongLogin = !result.success;
+            } else {
+              connectionError = true;
+            }
+
+          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
 
         // remember user data
         data = $.clone( result );
@@ -148,9 +158,10 @@
          * renders login form
          * @param {string} title - login form title
          * @param {boolean} password - show input field for password
+         * @param {boolean} wrongLogin
          * @returns {Promise}
          */
-        async function renderLogin( title, password ) { return new Promise( resolve => {
+        async function renderLogin( title, password, wrongLogin = false ) { return new Promise( resolve => {
 
           /**
            * Shadow DOM of parent instance
@@ -199,17 +210,20 @@
           function finish( result ) {
 
             // is not a standalone instance?
-            if ( shadow ) {
+            $.setContent( self.element, $.html( self.html.loginLoading, {} ) );
+
+            resolve( {result: result, hide: hide} );
+          }
+
+          function hide() {
+            if (shadow) {
 
               // move own root element back to original position
               parent[ parent.nodeType === 11 ? 'removeChild' : 'appendChild' ]( self.root );
 
               // show content of parent instance
               self.parent.element.style.removeProperty('display' );
-
             }
-
-            resolve( result );
           }
 
         } ); }

@@ -78,6 +78,10 @@ ccm.files[ 'resources.js' ] = {
                   }
                 ]
               },
+              {
+                "id": "loader",
+                "inner": "loading..."
+              }
             ]
           }
         }
