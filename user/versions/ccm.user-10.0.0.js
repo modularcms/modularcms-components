@@ -122,23 +122,18 @@
           result = $.parse( result );
         else {
           let wrongLogin = false;
-          let connectionError = false;
           do {
             let form = await renderLogin( this.title, true, wrongLogin );
             let formResult = null;
             if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
             result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
-            connectionError = false;
             if (result) {
               wrongLogin = !result.success;
               if (result.success) {
                 form.hide();
               }
-            } else {
-              connectionError = true;
             }
-
           } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
         }
 
@@ -193,10 +188,11 @@
           // render login form
           $.setContent( self.element, $.html( self.html.login, {
             title: title,
-            wrongLoginText: this.wrongLoginText,
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
           } ) );
+
+          // wrong Login alert
 
           // if (this.failedLogin) {
           //   this.element.classList.add('failedLogin');
