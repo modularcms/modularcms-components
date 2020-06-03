@@ -73,9 +73,9 @@ input[type="submit"], button {
   display: flex;
   align-items: center;
   border: 1px solid #eee;
-  padding: 5px;
   border-radius: 6px;
   background-color: var(--color-light);
+  overflow: hidden;
 }
 
 #avatar {
@@ -85,22 +85,40 @@ input[type="submit"], button {
   background-position: center;
   border-radius: 100%;
   border: 1px solid #eee;
+  margin: 5px;
 }
 
 #username {
-  margin-left: 5px;
   flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--color-text);
+  padding: 5px;
+  padding-left: 0px;
 }
 
 #logout {
+  height: 33px;
+  padding: 5px;
+  border-left: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+  transition: background-color .3s ease-in-out;
+}
 
+#logout:hover {
+  background-color: #eee;
+}
+
+#logout:active {
+  background-color: #ddd;
 }
 
 #logout img {
   fill: var(--color-text);
+  width: 16px;
+  display: block;
 }
 
 #avatar, #logout {
