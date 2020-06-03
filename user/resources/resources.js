@@ -59,34 +59,14 @@ ccm.files[ 'resources.js' ] = {
         "onclick": "%click%"
       }
     },
-    "loginLoading": {
-      "id": "login-form",
-      "class": "container",
-      "inner": [
-        {
-          "id": "loginbox",
-          "class": "mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2",
-          "inner": {
-            "class": "panel panel-info",
-            "inner": [
-              {
-                "id": "login-logo-wrap",
-                "inner": [
-                  {
-                    "tag": "img",
-                    "src": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
-                  }
-                ]
-              },
-              {
-                "id": "loader",
-                "class": "lds-ring",
-                "inner": [{"inner":[]},{"inner":[]},{"inner":[]},{"inner":[]}]
-              }
-            ]
-          }
-        }
-      ]
+    "loginLoader": {
+      "id": "loader",
+      "class": "lds-ring",
+      "inner": [{"inner":[]},{"inner":[]},{"inner":[]},{"inner":[]}]
+    },
+    "loginAlert": {
+      "id": "login-alert",
+      "inner": "%text%"
     },
     "login": {
       "id": "login-form",
@@ -98,6 +78,9 @@ ccm.files[ 'resources.js' ] = {
           "inner": {
             "class": "panel panel-info",
             "inner": [
+              {
+                "id": "loader-wrapper"
+              },
               {
                 "id": "login-logo-wrap",
                 "inner": [

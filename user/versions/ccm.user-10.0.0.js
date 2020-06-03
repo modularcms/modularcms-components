@@ -38,7 +38,7 @@
 //    "store": "ccm-user",
       "title": "Login",
       "url": "https://auth.modularcms.io/login",
-      "wrongLoginText": "Wrong login."
+      "wrong_login_text": "Wrong login."
     },
 
     Instance: function () {
@@ -193,6 +193,11 @@
           } ) );
 
           // wrong Login alert
+          if (wrongLogin) {
+            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
+              text: this.wrong_login_text
+            } ) );
+          }
 
           // if (this.failedLogin) {
           //   this.element.classList.add('failedLogin');
@@ -210,7 +215,7 @@
           function finish( result ) {
 
             // is not a standalone instance?
-            $.setContent( self.element, $.html( self.html.loginLoading, {} ) );
+            $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
 
             resolve( {result: result, hide: hide} );
           }
