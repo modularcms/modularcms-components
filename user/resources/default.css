@@ -194,9 +194,35 @@ input[type="submit"], button {
 
 #login-alert {
   padding: 16px;
-  background-color: #e64515;
   border-radius: 5px;
   color: var(--color-light);
   display: flex;
   margin-bottom: 25px;
+  align-items: center;
+}
+
+#login-alert.success {
+  background-color: #15e655;
+}
+
+#login-alert.failure {
+  background-color: #e64515;
+}
+
+#login-alert-icon {
+  height: 40px;
+}
+
+#login-alert-icon, #login-alert-close {
+  flex-shrink: 0;
+}
+
+#login-alert-text {
+  flex-grow: 1;
+  padding: 0px 8px;
+}
+
+#login-alert-close {
+  height: 17px;
+  cursor: pointer;
 }

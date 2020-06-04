@@ -16,6 +16,9 @@ ccm.files[ 'resources.js' ] = {
     "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
     "html": [ "ccm.get", "../user/resources/resources.js", "html" ],
 //  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ]
+    "alertLogoutSuccessIconSrc": "../user/resources/img/logout-success.svg",
+    "alertLoginFailureIconSrc": "../user/resources/img/login-failure.svg",
+    "alertCloseIconSrc": "../user/resources/img/close.svg"
   },
 
   /** HTML templates */
@@ -79,7 +82,8 @@ ccm.files[ 'resources.js' ] = {
         {
           "id": "login-alert-close",
           "tag": "img",
-          "src": "%iconsrc%"
+          "src": "%closesrc%",
+          "onclick": "%close%"
         }
       ]
     },
