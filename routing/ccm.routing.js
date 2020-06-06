@@ -70,22 +70,13 @@
                 // set shortcut to help functions
                 $ = this.ccm.helper;
 
-                // logging of 'ready' event
-                this.logger && this.logger.log( 'ready', $.privatize( this, true ) );
+                // Listen to routing sensors
+                window.addEventListener('routingSensorWasTriggered', (e) => {
+                    console.log(e)
+                });
             };
 
-            this.start = async () => {
-                //var url = location.href;
-                // var url = 'http://site.com/users/listing';
-                var url = location.href;
-
-                // this was considered a matching rule while it shouldn't
-                // var route = '/users/list';
-                // this works better
-                var route = '/users/list' + '(?:\\/|$)';
-
-                var match = url.match(new RegExp(route));
-            };
+            this.start = async () => {};
 
             /**
              * returns object route

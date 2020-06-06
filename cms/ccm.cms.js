@@ -37,6 +37,7 @@
       "logo": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg",
       //    "rating": { "apps": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] }, { "components": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] } },
       "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
+      "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
       "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js" ],
       "menu": [
         {"title": "Pages", "route": "/pages"},
@@ -75,7 +76,7 @@
         if ( this.user ) { $.append( this.element.querySelector('#user-component-wrapper'), this.user.root ); this.user.start(); }
 
         this.menu.forEach((item) => {
-          $.append(this.element.querySelector('#menu #menu-items-wrapper'), $.html(this.html.menuitem, {title: item.title}));
+          $.append(this.element.querySelector('#menu #menu-items-wrapper'), $.html(this.html.menuitem, {title: item.title, route: item.route}));
         })
 
         // hamburger button
@@ -89,27 +90,69 @@
           }
         };
 
+        // listen to routes
+        this.routing.registerRoutingCallback((detail) => {
+          // close login panel
+          if (detail.url != '/login') {
+            this.user && this.user.abortLogin();
+          }
+
+          // handle the different routes
+          switch(detail.url) {
+            case '/login':
+              // Handle the login
+              if (this.user && !this.user.isLoggedIn()) {
+                this.user.login().then(() => {
+                  this.changeLoginState(true);
+                }).catch(() => {
+                  this.changeLoginState(this.user && this.user.isLoggedIn());
+                });
+              }
+              break;
+            case '/register':
+              // @TODO handle the account registration
+
+              break;
+            case '/pages':
+              $.setContent(content, $.html(this.html.pages, {}));
+              break;
+            case '/users':
+              $.setContent(content, $.html(this.html.users, {}));
+              break;
+            case '/themes':
+              $.setContent(content, $.html(this.html.themes, {}));
+              break;
+            case '/layouts':
+              $.setContent(content, $.html(this.html.layouts, {}));
+              break;
+            case '/sites':
+              $.setContent(content, $.html(this.html.sites, {}));
+              break;
+            default:
+              $.setContent(content, $.html(this.html.error404, {}));
+              break;
+          }
+        });
+
+        // user authentication
         loggedIn = this.user && this.user.isLoggedIn();
-        this.changeLoginState(loggedIn);
-        if (!loggedIn) {
-          this.user.login().then(() => {
-            this.changeLoginState(true);
-          }).catch(() => {
-            this.changeLoginState(false);
-          });
-        }
+        this.changeLoginState(loggedIn, true);
       };
 
       let loggedIn;
-      this.changeLoginState = (newState) => {
-        loggedIn = newState;
-        if (loggedIn) {
-          //window.history.pushState({}, 'Login', '/pages');
-          $.setContent(content, $.html(this.html.pages, {}));
-          this.element.classList.add('loggedIn');
-        } else {
-          //window.history.pushState({}, 'Login', '/login');
-          this.element.classList.remove('loggedIn');
+      this.changeLoginState = (newState, force = false) => {
+        if (loggedIn != newState || force) {
+          loggedIn = newState;
+          if (loggedIn) {
+            if (window.location.pathname != 'login') {
+              // @TODO navigate to window.location.href
+            }
+            this.routing.navigateRoot('/pages');
+            this.element.classList.add('loggedIn');
+          } else {
+            this.routing.navigateRoot('/login');
+            this.element.classList.remove('loggedIn');
+          }
         }
       }
     }

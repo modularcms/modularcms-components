@@ -10,15 +10,14 @@ ccm.files[ 'resources.js' ] = {
   /** test configuration (relative paths) */
   "local": {
     "css": [ "ccm.load",
-      "../user/resources/default.css"
+      "/modularcms-components/user/resources/default.css"
     ],
-//  "map": user => user.user === 'john' ? 'Teacher' : 'Student',
     "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
-    "html": [ "ccm.get", "../user/resources/resources.js", "html" ],
-//  "logger": [ "ccm.instance", "../log/ccm.log.js", [ "ccm.get", "../log/resources/configs.js", "greedy" ] ]
-    "alertLogoutSuccessIconSrc": "../user/resources/img/logout-success.svg",
-    "alertLoginFailureIconSrc": "../user/resources/img/login-failure.svg",
-    "alertCloseIconSrc": "../user/resources/img/close.svg"
+    "html": [ "ccm.get", "/modularcms-components/user/resources/resources.js", "html" ],
+    "routing_sensor": [ "ccm.instance", "/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
+    "alertLogoutSuccessIconSrc": "/modularcms-components/user/resources/img/logout-success.svg",
+    "alertLoginFailureIconSrc": "/modularcms-components/user/resources/img/login-failure.svg",
+    "alertCloseIconSrc": "/modularcms-components/user/resources/img/close.svg"
   },
 
   /** HTML templates */
@@ -167,6 +166,20 @@ ccm.files[ 'resources.js' ] = {
                         ]
                       }
                     ]
+                  }
+                ]
+              },
+              {
+                "id": "panel-subline",
+                "inner": [
+                  {
+                    "tag": "span",
+                    "inner": "No account yet?&nbsp;"
+                  },
+                  {
+                    "tag": "a",
+                    "href": "/register",
+                    "inner": "Create an account now"
                   }
                 ]
               }

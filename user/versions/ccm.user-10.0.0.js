@@ -29,6 +29,7 @@
       "html": [ "ccm.get", "https://modularcms.github.io/modularcms-components/user/resources/resources.js", "html" ],
 //    "logged_in": true,
 //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-4.0.4.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
+      "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
 //    "norender": true,
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
@@ -84,7 +85,6 @@
       };
 
       this.start = async () => {
-
         // higher user instance with same realm exists? => redirect method call
         if ( context ) return context.start();
 
@@ -162,6 +162,8 @@
 
         return this.getValue();
 
+        this.abortLoginPanelFunction = () => {};
+
         /**
          * renders login form
          * @param {string} title - login form title
@@ -235,6 +237,8 @@
           // no password needed? => remove input field for password
           !password && $.remove( self.element.querySelector( '#password-entry' ) );
 
+          self.abortLoginPanelFunction = () => {finish()};
+
           /**
            * finishes login form
            * @param {Object} [result] - user data
@@ -243,6 +247,8 @@
 
             self.element.querySelector('#loginbox').classList.add('loading');
             $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
+
+            self.abortLoginPanelFunction = () => {};
 
             resolve( {result: result, hide: hide} );
           }
@@ -260,6 +266,14 @@
 
         } ); }
 
+      };
+
+      /**
+       * Aborts the login
+       * @returns {void}
+       */
+      this.abortLogin = () => {
+        this.abortLoginPanelFunction && this.abortLoginPanelFunction();
       };
 
       /**

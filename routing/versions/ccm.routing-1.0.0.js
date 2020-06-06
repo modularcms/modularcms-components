@@ -1,6 +1,6 @@
 /**
  * @overview ccm component for routing
- * @author Dominik Banduch <dominik.banduch89@googlemail.com> 2019
+ * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license MIT License
  * @version 1.0.0
  * @changes
@@ -14,172 +14,132 @@
         
         version: [1, 0, 0],
 
-        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-20.0.0.js',
+        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
             shadow: 'open',
             entryPoint: "/digital-maker-space/",
-            routes : {
-                'browse-apps': {
-                    component: 'browseapps'
-                },
-                'publish-app': {
-                    component: 'publishapp'
-                },
-                '': {
-                    component: 'allcomponents',
-                    entryPoint: true
-                },
-                'publish-component': {
-                    component: 'publishcomponent'
-                },
-                'detail': {
-                    component: 'listingDetailComponent',
-                    detailPage: true,
-                    '': {
-                        component: 'listingTabComponent',
-                        tabPage: true
-                    },
-                    'description': {
-                        component: 'listingTabComponent',
-                        tabPage: true
-                    },
-                    'rating': {
-                        component: 'listingTabComponent',
-                        tabPage: true
-                    },
-                    'discussion': {
-                        component: 'listingTabComponent',
-                        tabPage: true
-                    },
-                    'demo': {
-                        component: 'listingTabComponent',
-                        tabPage: true
-                    },
-                    'create-app': {
-                        component: 'listingTabComponent',
-                        tabPage: true
-                    }
-                },
-            }
+            routes : {}
         },
 
-        Instance: function(){
+        Instance: function() {
             const self = this;
             let $;
+            let routingCallbacks = [];
 
             this.ready = async () => {
                 // set shortcut to help functions
                 $ = this.ccm.helper;
 
-                // logging of 'ready' event
-                this.logger && this.logger.log( 'ready', $.privatize( this, true ) );
+                // Listen to routing sensors
+                window.addEventListener('routingSensorWasTriggered', (e) => {
+                    let href = e.detail.href;
+                    this.navigateTo(href);
+                });
+
+                //Listen to browser back event
+                window.addEventListener('popstate', (e) => {
+                    this.changeUrl(e.state.url, false, true);
+                    console.log(e);
+                });
             };
 
             this.start = async () => {
-                //var url = location.href;
-                // var url = 'http://site.com/users/listing';
-                var url = location.href;
+            };
 
-                // this was considered a matching rule while it shouldn't
-                // var route = '/users/list';
-                // this works better
-                var route = '/users/list' + '(?:\\/|$)';
+            let urlStack = [];
+            let uniqueStateIndex = 0;
+            let currentUrl = '/';
 
-                var match = url.match(new RegExp(route));
+            /**
+             * Registriert einen callback
+             * @param {void} callbackFunction
+             * @returns {Promise<void>}
+             */
+            this.registerRoutingCallback = async (callbackFunction) => {
+                routingCallbacks.push(callbackFunction);
             };
 
             /**
-             * returns object route
-             * @returns {object} route key and component
+             * Navigates by an url to root
+             * @param {string} url
              */
-            this.getComponentFromRouteAttribute = (element, key, title) => {
-                let route, routeSplit, object;
-                // Read value of route attribute
-                route = element.getAttribute('route');
-                routeSplit = route.split('/');
-
-                let keyFound = routeSplit.find(function(element) {
-                    return element === '%key%';
-                });
-
-                // Get component object from routes
-                switch(routeSplit.length) {
-                    case 2:
-                        if(keyFound) {
-                            route = route.replace(routeSplit[1], key);
-                            object = this.routes[routeSplit[0]];
-                            object.key = routeSplit[1];
-                        } else {
-                            object = this.routes[routeSplit[0]];
-                            object.key = routeSplit[1];
-                        }
-                        break;
-                    case 3:
-                        if(keyFound) {
-                            object = this.routes[routeSplit[0]];
-                            object = object[routeSplit[2]];
-                            route = route.replace(routeSplit[1], key);
-                            object.key = key;
-                        }
-                        break;
-                    default:
-                        object = this.routes[route];
+            this.navigateRoot = (url) => {
+                if (url != currentUrl) {
+                    urlStack = [url];
+                    this.changeUrl(url);
+                } else {
+                    console.warn('Did not perform navigate, because the current url is the same');
                 }
+            }
 
-                console.log(object);
-                // Build url with entryPoint
-                let url = self.entryPoint + (object.entryPoint ? '' : route);
-
-                // Change URL in browser & add to HTML5 history API pushState
-                window.history.pushState(object, title ? title : element.textContent, url);
-
-                return object;
-            };
-
-            this.get = () => {
-                let url = window.location.pathname, urlSplit, route, entryPoint, tab,
-                output = { component: '', key: '' };
-
-                urlSplit = url.slice(1).split('/');
-                entryPoint = urlSplit[0];
-                route = urlSplit[1];
-                key = urlSplit[2];
-                tab = urlSplit[3];
-
-                switch(urlSplit.length) {
-                    case 2:
-                        if (entryPoint === self.entryPoint.slice(1,-1)) {
-                            try {
-                                output.component = self.routes[route].component;
-                            } catch (err) {}
-                        }
-                        break;
-                    case 3:
-                        if (entryPoint === self.entryPoint.slice(1,-1) && this.routes[route].detailPage) {
-                            try {
-                                output.key = key;
-                                output.component = self.routes[route].component;
-                            } catch (err) {}
-                        }
-                        break;
-                    case 4:
-                        try {
-                            if (entryPoint === self.entryPoint.slice(1,-1) && this.routes[route].detailPage && this.routes[route][tab].tabPage) {
-                                output.key = key;
-                                output.tab = tab;
-                                output.component = self.routes[route][tab].component;
-                            }
-                        } catch (err) {
-                            output = {};
-                        }
-                        break;
-                    default:
-
+            /**
+             * Navigates by an url on the existing
+             * @param {string} url
+             */
+            this.navigateTo = (url) => {
+                //@TODO Check if route is valid
+                if (url != currentUrl) {
+                    urlStack.push(url);
+                    this.changeUrl(url);
+                } else {
+                    console.warn('Did not perform navigate, because the current url is the same');
                 }
+            }
 
-                return output;
-            };
+            /**
+             * Navigates back
+             * @param {string} url
+             */
+            this.navigateBack = (url = null) => {
+                if (url != currentUrl) {
+                    urlStack.pop();
+                    let goToUrl = '';
+                    if (urlStack.length > 0) {
+                        goToUrl = urlStack[urlStack.length - 1];
+                    }
+                    if (url !== null) {
+                        goToUrl = url;
+                    }
+                    this.changeUrl(goToUrl);
+                } else {
+                    console.warn('Did not perform navigate, because the current url is the same');
+                }
+            }
+
+            /**
+             * Changes the browser url
+             * @param {string} url The url
+             * @param {number} index The url stack index
+             */
+            this.changeUrl = (url, index = false, withoutHistoryPush = false) => {
+                if (url != currentUrl) {
+                    let routingDetails = {
+                        url: url,
+                        urlWithoutParameters: null, //@TODO
+                        parameters: {}, //@TODO
+                        urlStack: urlStack
+                    }
+
+                    let uniqIndex = uniqueStateIndex++;
+                    routingDetails['urlIndex'] = (index !== false)?index:uniqIndex;
+
+                    currentUrl = url;
+                    if (!withoutHistoryPush) {
+                        window.history.pushState(routingDetails, '', url);
+                    }
+
+                    callRoutingCallbacks(routingDetails);
+                } else {
+                    console.warn('Did not perform navigate, because the current url is the same');
+                }
+            }
+
+            let callRoutingCallbacks = (detail) => {
+                for (let callback of routingCallbacks) {
+                    callback(detail);
+                }
+            }
         }
     };
 

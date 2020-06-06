@@ -48,7 +48,11 @@ nav ul#menu-items-wrapper {
 
 nav ul li {
   padding: 0px 16px;
+}
+
+nav ul li a:link, nav ul li a:hover, nav ul li a:active, nav ul li a:visited {
   color: var(--color-light);
+  text-decoration: none;
 }
 
 nav #user {
@@ -115,7 +119,7 @@ footer {
   background-color: #ddd;
 }
 
-a:link, a:hover, a:active, a:visited {
+#content a:link, #content a:hover, #content a:active, #content a:visited {
   color: var(--color-primary);
 }
 
@@ -143,8 +147,11 @@ a:link, a:hover, a:active, a:visited {
 
   nav ul li {
     padding: 16px;
-    color: var(--color-text);
     width: 100%;
+  }
+
+  nav ul li a:link, nav ul li a:hover, nav ul li a:active, nav ul li a:visited {
+    color: var(--color-text);
   }
 
   nav ul li:nth-child(n+2) {
