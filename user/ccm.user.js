@@ -27,6 +27,7 @@
       "html": [ "ccm.get", "https://modularcms.github.io/modularcms-components/user/resources/resources.js", "html" ],
 //    "logged_in": true,
 //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-4.0.4.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
+      "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
 //    "norender": true,
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
@@ -36,9 +37,12 @@
 //    "store": "ccm-user",
       "title": "Login",
       "url": "https://auth.modularcms.io/login",
-      "wrongLoginText": "Wrong login.",
       "alertLogoutSuccessIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/logout-success.svg",
-      "alertLoginFailureIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/login-failure.svg"
+      "alertLoginFailureIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/login-failure.svg",
+      "alertCloseIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/close.svg",
+      "alertLogoutSuccessText": "You successfully logged out.",
+      "alertLoginFailureText": "Wrong username and password. Please try again.",
+      "successfulLogout": false
     },
 
     Instance: function () {
@@ -79,7 +83,6 @@
       };
 
       this.start = async () => {
-
         // higher user instance with same realm exists? => redirect method call
         if ( context ) return context.start();
 
@@ -129,6 +132,7 @@
             if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
             result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
+            this.successfulLogout = false;
             if (result) {
               wrongLogin = !result.success;
               if (result.success) {
@@ -137,7 +141,7 @@
                 username = formResult.user;
               }
             }
-          } while ( !( $.isObject( result ) && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
+          } while ( !( $.isObject( result ) && result.success && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
         }
 
         // remember user data
@@ -156,15 +160,17 @@
 
         return this.getValue();
 
+        this.abortLoginPanelFunction = () => {};
+
         /**
          * renders login form
          * @param {string} title - login form title
          * @param {string} username - predefined username value
          * @param {boolean} password - show input field for password
-         * @param {boolean} wrongLogin
+         * @param {boolean} wrongLogin - defines if the login failed before
          * @returns {Promise}
          */
-        async function renderLogin( title, username = '', password, wrongLogin = false ) { return new Promise( resolve => {
+        async function renderLogin( title, username = '', password, wrongLogin = false) { return new Promise( resolve => {
 
           /**
            * Shadow DOM of parent instance
@@ -197,12 +203,27 @@
             abort: () => finish()
           } ) );
 
+          let createLoginAlert = (alertType = 'loginFailure') => {
+            let close = () => {
+              wrongLogin = false;
+              self.element.querySelector('#login-alert-wrapper').innerHTML = '';
+            }
+            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
+              iconsrc: (alertType == 'loginFailure')?self.alertLoginFailureIconSrc:self.alertLogoutSuccessIconSrc,
+              closesrc: self.alertCloseIconSrc,
+              text: (alertType == 'loginFailure')?self.alertLoginFailureText:self.alertLogoutSuccessText,
+              close: close
+            } ) );
+            self.element.querySelector('#login-alert').classList.add((alertType == 'loginFailure')?'failure':'success');
+          }
+
           // wrong Login alert
           if (wrongLogin) {
-            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
-              iconsrc: self.alertLoginFailureIconSrc,
-              text: self.wrongLoginText
-            } ) );
+            createLoginAlert('loginFailure');
+          }
+          // Logout success alert
+          else if (self.successfulLogout) {
+            createLoginAlert('logoutSuccess');
           }
 
           // if (this.failedLogin) {
@@ -214,6 +235,8 @@
           // no password needed? => remove input field for password
           !password && $.remove( self.element.querySelector( '#password-entry' ) );
 
+          self.abortLoginPanelFunction = () => {finish()};
+
           /**
            * finishes login form
            * @param {Object} [result] - user data
@@ -222,6 +245,8 @@
 
             self.element.querySelector('#loginbox').classList.add('loading');
             $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
+
+            self.abortLoginPanelFunction = () => {};
 
             resolve( {result: result, hide: hide} );
           }
@@ -239,6 +264,14 @@
 
         } ); }
 
+      };
+
+      /**
+       * Aborts the login
+       * @returns {void}
+       */
+      this.abortLogin = () => {
+        this.abortLoginPanelFunction && this.abortLoginPanelFunction();
       };
 
       /**
@@ -264,6 +297,7 @@
         this.logger && this.logger.log( 'logout' );
 
         // restart after logout?
+        this.successfulLogout = true;
         if ( this.restart && this.parent ) {
           $.setContent( this.parent.element, $.loading() );   // clear parent content
           await this.parent.start();                          // restart parent
