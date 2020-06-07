@@ -110,41 +110,25 @@
              * @param {number} index The url stack index
              */
             this.changeUrl = (url, index = false, withoutHistoryPush = false) => {
-                if (url != currentUrl) {
-                    // // Split url
-                    // let urlSplit = url.split('/');
-                    //
-                    // // Search url for parameters
-                    // let urlUntilFirstParameter = '';
-                    // let firstParameterFound = false;
-                    // let parameters = {};
-                    // for (let part of urlSplit) {
-                    //     if (part.indexOf(':') === 0) {
-                    //         let parameterName = part.substring(1);
-                    //         parameters[parameterName] =
-                    //     } else {
-                    //
-                    //     }
-                    // }
+                let routingDetails = {
+                    url: url,
+                    urlWithoutParameters: null, //@TODO
+                    parameters: {}, //@TODO
+                    urlStack: urlStack
+                }
 
-                    let routingDetails = {
-                        url: url,
-                        urlWithoutParameters: null, //@TODO
-                        parameters: {}, //@TODO
-                        urlStack: urlStack
-                    }
+                let uniqIndex = uniqueStateIndex++;
+                routingDetails['urlIndex'] = (index !== false)?index:uniqIndex;
 
-                    let uniqIndex = uniqueStateIndex++;
-                    routingDetails['urlIndex'] = (index !== false)?index:uniqIndex;
+                currentUrl = url;
+                if (!withoutHistoryPush) {
+                    window.history.pushState(routingDetails, '', url);
+                }
 
-                    currentUrl = url;
-                    if (!withoutHistoryPush) {
-                        window.history.pushState(routingDetails, '', url);
-                    }
+                callRoutingCallbacks(routingDetails);
 
-                    callRoutingCallbacks(routingDetails);
-                } else {
-                    console.warn('Did not perform navigate, because the current url is the same');
+                if (url === currentUrl) {
+                    console.warn('Propagated navigate, but the current url is the same');
                 }
             }
 
