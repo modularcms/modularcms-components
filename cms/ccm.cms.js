@@ -144,9 +144,6 @@
         if (loggedIn != newState || force) {
           loggedIn = newState;
           if (loggedIn) {
-            if (window.location.pathname != 'login') {
-              // @TODO navigate to window.location.href
-            }
             this.routing.navigateRoot('/pages');
             this.element.classList.add('loggedIn');
           } else {
