@@ -34,8 +34,10 @@
 
                 //Listen to browser back event
                 window.addEventListener('popstate', (e) => {
-                    this.changeUrl(e.state.url, false, true);
-                    console.log(e);
+                    if (e.state !== null) {
+                        this.changeUrl(e.state.url, false, true);
+                        console.log(e);
+                    }
                 });
             };
 
