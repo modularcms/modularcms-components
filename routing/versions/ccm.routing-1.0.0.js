@@ -39,9 +39,6 @@
                     this.changeUrl(e.state.url, false, true);
                     console.log(e);
                 });
-
-                // check the location on start
-                this.changeUrl(window.location.pathname, false, true);
             };
 
             this.start = async () => {};
@@ -49,6 +46,7 @@
             let urlStack = [];
             let uniqueStateIndex = 0;
             let currentUrl = '/';
+            let started = false;
 
             /**
              * Registriert einen callback
@@ -57,6 +55,10 @@
              */
             this.registerRoutingCallback = async (callbackFunction) => {
                 routingCallbacks.push(callbackFunction);
+                if (!started) {
+                    started = true;
+                    this.changeUrl(window.location.pathname, false, true);
+                }
             };
 
             /**
