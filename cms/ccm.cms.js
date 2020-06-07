@@ -144,7 +144,9 @@
         if (loggedIn != newState || force) {
           loggedIn = newState;
           if (loggedIn) {
-            this.routing.navigateRoot('/pages');
+            if (window.location.pathname === '/login') {
+              this.routing.navigateRoot('/pages');
+            }
             this.element.classList.add('loggedIn');
           } else {
             this.routing.navigateRoot('/login');
