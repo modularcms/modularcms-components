@@ -123,6 +123,15 @@ footer {
   color: var(--color-primary);
 }
 
+#error404 {
+  text-align: center;
+}
+
+#error404 img {
+  width: 75%;
+  max-width: 600px;
+}
+
 @media (max-width: 800px) {
   nav {
     max-height: 0vh;
