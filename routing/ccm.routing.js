@@ -16,7 +16,7 @@
 
         config: {
             shadow: 'open',
-            entryPoint: "/digital-maker-space/",
+            entryPoint: "/",
             routes : {}
         },
 
@@ -26,9 +26,6 @@
             let routingCallbacks = [];
 
             this.ready = async () => {
-                // set shortcut to help functions
-                $ = this.ccm.helper;
-
                 // Listen to routing sensors
                 window.addEventListener('routingSensorWasTriggered', (e) => {
                     let href = e.detail.href;
@@ -40,10 +37,12 @@
                     this.changeUrl(e.state.url, false, true);
                     console.log(e);
                 });
+
+                // check the location on start
+                this.changeUrl(window.location.pathname, false, true);
             };
 
-            this.start = async () => {
-            };
+            this.start = async () => {};
 
             let urlStack = [];
             let uniqueStateIndex = 0;
@@ -112,6 +111,22 @@
              */
             this.changeUrl = (url, index = false, withoutHistoryPush = false) => {
                 if (url != currentUrl) {
+                    // // Split url
+                    // let urlSplit = url.split('/');
+                    //
+                    // // Search url for parameters
+                    // let urlUntilFirstParameter = '';
+                    // let firstParameterFound = false;
+                    // let parameters = {};
+                    // for (let part of urlSplit) {
+                    //     if (part.indexOf(':') === 0) {
+                    //         let parameterName = part.substring(1);
+                    //         parameters[parameterName] =
+                    //     } else {
+                    //
+                    //     }
+                    // }
+
                     let routingDetails = {
                         url: url,
                         urlWithoutParameters: null, //@TODO
