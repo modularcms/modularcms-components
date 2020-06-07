@@ -129,7 +129,6 @@ footer {
 
 #error404 img {
   width: 75%;
-  max-width: 600px;
 }
 
 @media (max-width: 800px) {
