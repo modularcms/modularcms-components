@@ -120,16 +120,16 @@
                 let uniqIndex = uniqueStateIndex++;
                 routingDetails['urlIndex'] = (index !== false)?index:uniqIndex;
 
+                if (url === currentUrl) {
+                    console.warn('Propagated navigate, but the current url is the same');
+                }
+
                 currentUrl = url;
                 if (!withoutHistoryPush) {
                     window.history.pushState(routingDetails, '', url);
                 }
 
                 callRoutingCallbacks(routingDetails);
-
-                if (url === currentUrl) {
-                    console.warn('Propagated navigate, but the current url is the same');
-                }
             }
 
             let callRoutingCallbacks = (detail) => {
