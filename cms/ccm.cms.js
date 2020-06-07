@@ -90,52 +90,62 @@
           }
         };
 
+        // user authentication
+        loggedIn = this.user && this.user.isLoggedIn();
+
         // listen to routes
         this.routing.registerRoutingCallback((detail) => {
-          // close login panel
-          if (detail.url != '/login') {
-            this.user && this.user.abortLogin();
+          // handle routes with user logged in
+          if (loggedIn) {
+            // handle the different routes
+            switch(detail.url) {
+              case '/pages':
+                $.setContent(content, $.html(this.html.pages, {}));
+                break;
+              case '/users':
+                $.setContent(content, $.html(this.html.users, {}));
+                break;
+              case '/themes':
+                $.setContent(content, $.html(this.html.themes, {}));
+                break;
+              case '/layouts':
+                $.setContent(content, $.html(this.html.layouts, {}));
+                break;
+              case '/sites':
+                $.setContent(content, $.html(this.html.sites, {}));
+                break;
+              default:
+                $.setContent(content, $.html(this.html.error404, {}));
+                break;
+            }
           }
+          // handle routes with user logged out
+          else {
+            if (detail.url != '/login') {
+              this.user && this.user.abortLogin();
+            }
 
-          // handle the different routes
-          switch(detail.url) {
-            case '/login':
-              // Handle the login
-              if (this.user && !this.user.isLoggedIn()) {
-                this.user.login().then(() => {
-                  this.changeLoginState(true);
-                }).catch(() => {
-                  this.changeLoginState(this.user && this.user.isLoggedIn());
-                });
-              }
-              break;
-            case '/register':
-              // @TODO handle the account registration
+            // handle the different routes
+            switch(detail.url) {
+              case '/login':
+                // Handle the login
+                if (this.user && !this.user.isLoggedIn()) {
+                  this.user.login().then(() => {
+                    this.changeLoginState(true);
+                  }).catch(() => {
+                    this.changeLoginState(this.user && this.user.isLoggedIn());
+                  });
+                }
+                break;
+              case '/register':
+                // @TODO handle the account registration
 
-              break;
-            case '/pages':
-              $.setContent(content, $.html(this.html.pages, {}));
-              break;
-            case '/users':
-              $.setContent(content, $.html(this.html.users, {}));
-              break;
-            case '/themes':
-              $.setContent(content, $.html(this.html.themes, {}));
-              break;
-            case '/layouts':
-              $.setContent(content, $.html(this.html.layouts, {}));
-              break;
-            case '/sites':
-              $.setContent(content, $.html(this.html.sites, {}));
-              break;
-            default:
-              $.setContent(content, $.html(this.html.error404, {}));
-              break;
+                break;
+            }
           }
         });
 
         // user authentication
-        loggedIn = this.user && this.user.isLoggedIn();
         this.changeLoginState(loggedIn, true);
       };
 
