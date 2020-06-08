@@ -134,24 +134,20 @@
             switch(detail.url) {
               case '/login':
                 // Handle the login
-                if (this.user && !this.user.isLoggedIn()) {
-                  this.user.login().then(() => {
-                    this.changeLoginState(true);
-                  }).catch(() => {
-                    this.changeLoginState(this.user && this.user.isLoggedIn());
-                  });
-                }
+                this.user.login().then(() => {
+                  this.changeLoginState(true);
+                }).catch(() => {
+                  this.changeLoginState(this.user && this.user.isLoggedIn());
+                });
                 break;
               case '/register':
                 // handle the account registration
-                if (this.user && !this.user.isLoggedIn()) {
-                  this.user.register().then(() => {
-                    this.changeLoginState(true);
-                    // @TODO start onboarding
-                  }).catch(() => {
-                    this.changeLoginState(this.user && this.user.isLoggedIn());
-                  });
-                }
+                this.user.register().then(() => {
+                  this.changeLoginState(true);
+                  // @TODO start onboarding
+                }).catch(() => {
+                  this.changeLoginState(this.user && this.user.isLoggedIn());
+                });
                 break;
             }
           }
