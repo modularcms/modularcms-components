@@ -281,7 +281,7 @@ ccm.files[ 'resources.js' ] = {
                                   "type": "submit",
                                   "id": "btn-login",
                                   "class": "btn btn-success",
-                                  "value": "Login"
+                                  "value": "Register"
                                 }
                               ]
                             }
