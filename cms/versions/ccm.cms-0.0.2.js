@@ -77,6 +77,7 @@
 
         if ( this.user ) { $.append( this.element.querySelector('#user-component-wrapper'), this.user.root ); this.user.start(); }
 
+        // create menu items
         this.menu.forEach((item) => {
           $.append(this.element.querySelector('#menu #menu-items-wrapper'), $.html(this.html.menuitem, {title: item.title, route: item.route}));
         })

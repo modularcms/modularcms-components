@@ -87,15 +87,6 @@
       };
 
       this.start = async () => {
-        // higher user instance with same realm exists? => redirect method call
-        if ( context ) return context.start();
-
-        // correct state is already rendered? => abort
-        if ( this.isLoggedIn() && this.element.querySelector( '#logged_in' ) || !this.isLoggedIn() && this.element.querySelector( '#logged_out' ) ) return;
-
-        // no login/logout button? => abort
-        if ( this.norender ) return;
-
         // render logged in or logged out view
         if ( this.isLoggedIn() )
           $.setContent( this.element, $.html( this.html.logged_in, {
@@ -109,6 +100,8 @@
           } ) );
 
       };
+
+      this.originalParent = null;
 
       /**
        * logs in user
@@ -193,6 +186,10 @@
             // hide content of parent instance
             self.parent.element.style.display = 'none';
 
+            if (self.root.parentElement !== null) {
+              self.originalParent = self.root.parentElement;
+            }
+
             // move own root element into Shadow DOM of parent instance
             shadow.appendChild( self.root );
 
@@ -210,7 +207,7 @@
             let close = () => {
               wrongLogin = false;
               self.element.querySelector('#login-alert-wrapper').innerHTML = '';
-            }
+            };
             $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
               iconsrc: (alertType == 'loginFailure')?self.alertLoginFailureIconSrc:self.alertLogoutSuccessIconSrc,
               closesrc: self.alertCloseIconSrc,
@@ -247,9 +244,8 @@
 
           function hide() {
             if (shadow) {
-
               // move own root element back to original position
-              parent[ parent.nodeType === 11 ? 'removeChild' : 'appendChild' ]( self.root );
+              self.originalParent && self.originalParent.appendChild( self.root );
 
               // show content of parent instance
               self.parent.element.style.removeProperty('display' );
@@ -355,6 +351,10 @@
             // move own root element into Shadow DOM of parent instance
             shadow.appendChild( self.root );
 
+            if (self.root.parentElement !== null) {
+              self.originalParent = self.root.parentElement;
+            }
+
           }
 
           // render login form
@@ -405,7 +405,7 @@
             if (shadow) {
 
               // move own root element back to original position
-              parent[ parent.nodeType === 11 ? 'removeChild' : 'appendChild' ]( self.root );
+              self.originalParent && self.originalParent.appendChild( self.root );
 
               // show content of parent instance
               self.parent.element.style.removeProperty('display' );
