@@ -142,7 +142,6 @@
                 // handle the account registration
                 this.user.register().then(() => {
                   this.changeLoginState(true);
-                  // @TODO start onboarding
                 }).catch(() => {
                   this.changeLoginState(this.user && this.user.isLoggedIn());
                 });
@@ -162,6 +161,8 @@
           if (loggedIn) {
             if (window.location.pathname === '/login') {
               this.routing.navigateRoot('/pages');
+            } else if (window.location.pathname === '/register') {
+              this.routing.navigateRoot('/setup/1');
             }
             this.element.classList.add('loggedIn');
           } else {
