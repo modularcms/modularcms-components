@@ -126,6 +126,9 @@
             if (detail.url != '/login') {
               this.user && this.user.abortLogin();
             }
+            if (detail.url != '/register') {
+              this.user && this.user.abortRegister();
+            }
 
             // handle the different routes
             switch(detail.url) {
@@ -140,8 +143,15 @@
                 }
                 break;
               case '/register':
-                // @TODO handle the account registration
-
+                // handle the account registration
+                if (this.user && !this.user.isLoggedIn()) {
+                  this.user.register().then(() => {
+                    this.changeLoginState(true);
+                    // @TODO start onboarding
+                  }).catch(() => {
+                    this.changeLoginState(this.user && this.user.isLoggedIn());
+                  });
+                }
                 break;
             }
           }

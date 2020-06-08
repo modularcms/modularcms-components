@@ -187,6 +187,127 @@ ccm.files[ 'resources.js' ] = {
           }
         }
       ]
+    },
+    "register": {
+      "id": "login-form",
+      "class": "container",
+      "inner": [
+        {
+          "id": "loginbox",
+          "class": "mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2",
+          "inner": {
+            "class": "panel panel-info",
+            "inner": [
+              {
+                "id": "loader-wrapper"
+              },
+              {
+                "id": "login-logo-wrap",
+                "inner": [
+                  {
+                    "tag": "img",
+                    "src": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg"
+                  }
+                ]
+              },
+              {
+                "id": "content",
+                "inner": [
+                  {
+                    "id": "login-alert-wrapper"
+                  },
+                  {
+                    "tag": "h1",
+                    "class": "panel-heading",
+                    "inner": "%title%"
+                  },
+                  {
+                    "class": "panel-body",
+                    "inner": [
+                      {
+                        "tag": "form",
+                        "id": "loginform",
+                        "class": "form-horizontal",
+                        "role": "form",
+                        "onsubmit": "%login%",
+                        "inner": [
+                          {
+                            "tag": "input",
+                            "id": "login-username",
+                            "type": "text",
+                            "class": "form-control",
+                            "name": "user",
+                            "placeholder": "Username",
+                            "value": "%username%",
+                            "required": true
+                          },
+                          {
+                            "tag": "input",
+                            "id": "login-email",
+                            "type": "text",
+                            "class": "form-control",
+                            "name": "email",
+                            "placeholder": "Email address",
+                            "value": "%username%",
+                            "required": true
+                          },
+                          {
+                            "tag": "input",
+                            "id": "login-password",
+                            "type": "password",
+                            "class": "form-control",
+                            "name": "password",
+                            "placeholder": "Password",
+                            "required": true
+                          },
+                          {
+                            "tag": "input",
+                            "id": "login-password-repetition",
+                            "type": "password",
+                            "class": "form-control",
+                            "name": "passwordRepetition",
+                            "placeholder": "Password repetition",
+                            "required": true
+                          },
+                          {
+                            "class": "form-group",
+                            "inner": {
+                              "class": "col-sm-12 controls",
+                              "inner": [
+                                {
+                                  "tag": "input",
+                                  "type": "submit",
+                                  "id": "btn-login",
+                                  "class": "btn btn-success",
+                                  "value": "Login"
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "panel-subline",
+                "inner": [
+                  {
+                    "tag": "span",
+                    "inner": "No account yet?&nbsp;"
+                  },
+                  {
+                    "tag": "a",
+                    "href": "/register",
+                    "inner": "Create an account now"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     }
   }
 

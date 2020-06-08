@@ -38,7 +38,8 @@
       "restart": true,
 //    "store": "ccm-user",
       "title": "Login",
-      "url": "https://auth.modularcms.io/login",
+      "loginUrl": "https://auth.modularcms.io/login",
+      "registerUrl": "https://auth.modularcms.io/register",
       "alertLogoutSuccessIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/logout-success.svg",
       "alertLoginFailureIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/login-failure.svg",
       "alertCloseIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/close.svg",
@@ -133,7 +134,7 @@
             let formResult = null;
             if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
-            result = await this.ccm.load( { url: this.url, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
+            result = await this.ccm.load( { url: this.loginUrl, method: 'POST', params: { realm: my.realm, user: formResult.user, token: formResult.token } } );
             this.successfulLogout = false;
             if (result) {
               wrongLogin = !result.success;
@@ -265,7 +266,6 @@
           }
 
         } ); }
-
       };
 
       /**
@@ -274,6 +274,174 @@
        */
       this.abortLogin = () => {
         this.abortLoginPanelFunction && this.abortLoginPanelFunction();
+      };
+
+      /**
+       * registers a user
+       * @param {boolean|function} not - prevent all or a specific onchange callback from being triggered
+       * @returns {Promise<Object>}
+       */
+      this.register = async not => {
+
+        // higher user instance with same realm exists? => redirect method call
+        if ( context ) return context.login( not || this.onchange );
+
+        // user already logged in? => abort
+        if ( this.isLoggedIn() ) return this.getValue();
+
+        // choose authentication mode and proceed login
+        let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
+        if ( result )
+          result = $.parse( result );
+        else {
+          let wrongRegister = false;
+          let username = '';
+          do {
+            let form = await renderRegister( this.title, username, true, wrongRegister );
+            let formResult = null;
+            if (form && form.result) { formResult = form.result };
+            if ( !formResult ) { await this.start(); throw new Error( 'register aborted' ); }
+            result = await this.ccm.load( { url: this.registerUrl, method: 'POST', params: { realm: my.realm, user: formResult.user, password: formResult.password, passwordRepetition: formResult.passwordRepetition } } );
+            this.successfulLogout = false;
+            if (result) {
+              if (result.success) {
+                wrongRegister = false;
+                form.hide();
+              } else {
+                username = formResult.user;
+                wrongRegister = result.message;
+              }
+            }
+          } while ( !( $.isObject( result ) && result.success && result.user && $.regex( 'key' ).test( result.user ) && typeof result.token === 'string' ) );
+        }
+
+        // remember user data
+        data = $.clone( result );
+        delete data.apps;
+        data.realm = my.realm;
+        if ( !data.picture && this.picture ) data.picture = this.picture;
+
+        sessionStorage.setItem( 'ccm-user-' + my.realm, $.stringify( data ) );
+
+        // (re)render own content
+        await this.start();
+
+        // perform 'onchange' callbacks
+        not !== true && await $.asyncForEach( this.onchange, async onchange => onchange !== not && await onchange( this.isLoggedIn() ) );
+
+        return this.getValue();
+
+        this.abortRegisterPanelFunction = () => {};
+
+        /**
+         * renders login form
+         * @param {string} title - login form title
+         * @param {string} username - predefined username value
+         * @param {boolean} password - show input field for password
+         * @param {boolean} wrongLogin - defines if the login failed before
+         * @returns {Promise}
+         */
+        async function renderRegister( title, username = '', password, wrongRegister = false) { return new Promise( resolve => {
+
+          /**
+           * Shadow DOM of parent instance
+           * @type {Element}
+           */
+          const shadow = self.parent && self.parent.element && self.parent.element.parentNode;
+
+          /**
+           * parent of own root element
+           * @type {Element}
+           */
+          const parent = shadow ? self.root.parentNode || document.createElement( 'div' ) : null;
+
+          // is not a standalone instance? => show login form in website area of parent instance
+          if ( shadow ) {
+
+            // hide content of parent instance
+            self.parent.element.style.display = 'none';
+
+            // move own root element into Shadow DOM of parent instance
+            shadow.appendChild( self.root );
+
+          }
+
+          // render login form
+          $.setContent( self.element, $.html( self.html.register, {
+            username: username,
+            title: title,
+            login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
+            abort: () => finish()
+          } ) );
+
+          let createLoginAlert = (alertType = 'loginFailure') => {
+            let close = () => {
+              wrongLogin = false;
+              self.element.querySelector('#login-alert-wrapper').innerHTML = '';
+            }
+            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
+              iconsrc: (alertType == 'loginFailure')?self.alertLoginFailureIconSrc:self.alertLogoutSuccessIconSrc,
+              closesrc: self.alertCloseIconSrc,
+              text: (alertType == 'loginFailure')?self.alertLoginFailureText:self.alertLogoutSuccessText,
+              close: close
+            } ) );
+            self.element.querySelector('#login-alert').classList.add((alertType == 'loginFailure')?'failure':'success');
+          }
+
+          // wrong Login alert
+          if (wrongLogin) {
+            createLoginAlert('loginFailure');
+          }
+          // Logout success alert
+          else if (self.successfulLogout) {
+            createLoginAlert('logoutSuccess');
+          }
+
+          // if (this.failedLogin) {
+          //   this.element.classList.add('failedLogin');
+          // } else {
+          //   this.element.classList.remove('failedLogin');
+          // }
+
+          // no password needed? => remove input field for password
+          !password && $.remove( self.element.querySelector( '#password-entry' ) );
+
+          self.abortRegisterPanelFunction = () => {finish()};
+
+          /**
+           * finishes login form
+           * @param {Object} [result] - user data
+           */
+          function finish( result ) {
+
+            self.element.querySelector('#loginbox').classList.add('loading');
+            $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
+
+            self.abortRegisterPanelFunction = () => {};
+
+            resolve( {result: result, hide: hide} );
+          }
+
+          function hide() {
+            if (shadow) {
+
+              // move own root element back to original position
+              parent[ parent.nodeType === 11 ? 'removeChild' : 'appendChild' ]( self.root );
+
+              // show content of parent instance
+              self.parent.element.style.removeProperty('display' );
+            }
+          }
+
+        } ); }
+      };
+
+      /**
+       * Aborts the login
+       * @returns {void}
+       */
+      this.abortRegister = () => {
+        this.abortRegisterPanelFunction && this.abortRegisterPanelFunction();
       };
 
       /**
