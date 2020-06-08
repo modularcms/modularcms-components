@@ -244,11 +244,11 @@ ccm.files[ 'resources.js' ] = {
                           {
                             "tag": "input",
                             "id": "login-email",
-                            "type": "text",
+                            "type": "email",
                             "class": "form-control",
                             "name": "email",
                             "placeholder": "Email address",
-                            "value": "%username%",
+                            "value": "%email%",
                             "required": true
                           },
                           {
@@ -258,7 +258,8 @@ ccm.files[ 'resources.js' ] = {
                             "class": "form-control",
                             "name": "password",
                             "placeholder": "Password",
-                            "required": true
+                            "required": true,
+                            "minlength": 8
                           },
                           {
                             "tag": "input",
@@ -267,7 +268,8 @@ ccm.files[ 'resources.js' ] = {
                             "class": "form-control",
                             "name": "passwordRepetition",
                             "placeholder": "Password repetition",
-                            "required": true
+                            "required": true,
+                            "minlength": 8
                           },
                           {
                             "class": "form-group",
@@ -295,12 +297,12 @@ ccm.files[ 'resources.js' ] = {
                 "inner": [
                   {
                     "tag": "span",
-                    "inner": "No account yet?&nbsp;"
+                    "inner": "Want to login instead?&nbsp;"
                   },
                   {
                     "tag": "a",
-                    "href": "/register",
-                    "inner": "Create an account now"
+                    "href": "/login",
+                    "inner": "Go to login"
                   }
                 ]
               }

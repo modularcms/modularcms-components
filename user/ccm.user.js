@@ -280,7 +280,6 @@
        * @returns {Promise<Object>}
        */
       this.register = async not => {
-
         // higher user instance with same realm exists? => redirect method call
         if ( context ) return context.login( not || this.onchange );
 
@@ -289,9 +288,9 @@
 
         // choose authentication mode and proceed login
         let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
-        if ( result )
-          result = $.parse( result );
-        else {
+        if ( result ) {
+          result = $.parse(result);
+        } else {
           let wrongRegister = false;
           let username = '';
           do {
@@ -374,7 +373,7 @@
 
           let createLoginAlert = (alertType = 'loginFailure') => {
             let close = () => {
-              wrongLogin = false;
+              wrongRegister = false;
               self.element.querySelector('#login-alert-wrapper').innerHTML = '';
             }
             $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
@@ -387,7 +386,7 @@
           }
 
           // wrong Login alert
-          if (wrongLogin) {
+          if (wrongRegister) {
             createLoginAlert('loginFailure');
           }
           // Logout success alert

@@ -37,7 +37,8 @@
       "realm": "modularcms",
       "restart": true,
 //    "store": "ccm-user",
-      "title": "Login",
+      "titleLogin": "Login",
+      "titleRegister": "Register",
       "loginUrl": "https://auth.modularcms.io/login",
       "registerUrl": "https://auth.modularcms.io/register",
       "alertLogoutSuccessIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/logout-success.svg",
@@ -130,7 +131,7 @@
           let wrongLogin = false;
           let username = '';
           do {
-            let form = await renderLogin( this.title, username, true, wrongLogin );
+            let form = await renderLogin( this.titleLogin, username, wrongLogin );
             let formResult = null;
             if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'login aborted' ); }
@@ -169,11 +170,10 @@
          * renders login form
          * @param {string} title - login form title
          * @param {string} username - predefined username value
-         * @param {boolean} password - show input field for password
          * @param {boolean} wrongLogin - defines if the login failed before
          * @returns {Promise}
          */
-        async function renderLogin( title, username = '', password, wrongLogin = false) { return new Promise( resolve => {
+        async function renderLogin( title, username = '', wrongLogin = false) { return new Promise( resolve => {
 
           /**
            * Shadow DOM of parent instance
@@ -229,15 +229,6 @@
             createLoginAlert('logoutSuccess');
           }
 
-              // if (this.failedLogin) {
-          //   this.element.classList.add('failedLogin');
-          // } else {
-          //   this.element.classList.remove('failedLogin');
-          // }
-
-          // no password needed? => remove input field for password
-          !password && $.remove( self.element.querySelector( '#password-entry' ) );
-
           self.abortLoginPanelFunction = () => {finish()};
 
           /**
@@ -282,7 +273,6 @@
        * @returns {Promise<Object>}
        */
       this.register = async not => {
-
         // higher user instance with same realm exists? => redirect method call
         if ( context ) return context.login( not || this.onchange );
 
@@ -291,24 +281,25 @@
 
         // choose authentication mode and proceed login
         let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
-        if ( result )
-          result = $.parse( result );
-        else {
+        if ( result ) {
+          result = $.parse(result);
+        } else {
           let wrongRegister = false;
           let username = '';
+          let email = '';
           do {
-            let form = await renderRegister( this.title, username, true, wrongRegister );
+            let form = await renderRegister( this.titleRegister, username, email, wrongRegister );
             let formResult = null;
             if (form && form.result) { formResult = form.result };
             if ( !formResult ) { await this.start(); throw new Error( 'register aborted' ); }
-            result = await this.ccm.load( { url: this.registerUrl, method: 'POST', params: { realm: my.realm, user: formResult.user, password: formResult.password, passwordRepetition: formResult.passwordRepetition } } );
-            this.successfulLogout = false;
+            result = await this.ccm.load( { url: this.registerUrl, method: 'POST', params: { realm: my.realm, user: formResult.user, email: formResult.email, password: formResult.password, passwordRepetition: formResult.passwordRepetition } } );
             if (result) {
               if (result.success) {
                 wrongRegister = false;
                 form.hide();
               } else {
                 username = formResult.user;
+                email = formResult.email;
                 wrongRegister = result.message;
               }
             }
@@ -337,11 +328,11 @@
          * renders login form
          * @param {string} title - login form title
          * @param {string} username - predefined username value
-         * @param {boolean} password - show input field for password
+         * @param {string} email - predefined email value
          * @param {boolean} wrongLogin - defines if the login failed before
          * @returns {Promise}
          */
-        async function renderRegister( title, username = '', password, wrongRegister = false) { return new Promise( resolve => {
+        async function renderRegister( title, username = '', email, wrongRegister = false) { return new Promise( resolve => {
 
           /**
            * Shadow DOM of parent instance
@@ -369,42 +360,30 @@
           // render login form
           $.setContent( self.element, $.html( self.html.register, {
             username: username,
+            email: email,
             title: title,
             login: event => { event.preventDefault(); finish( $.formData( self.element ) ); },
             abort: () => finish()
           } ) );
 
-          let createLoginAlert = (alertType = 'loginFailure') => {
+          let createRegisterAlert = (message = '') => {
             let close = () => {
-              wrongLogin = false;
+              wrongRegister = false;
               self.element.querySelector('#login-alert-wrapper').innerHTML = '';
             }
             $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
-              iconsrc: (alertType == 'loginFailure')?self.alertLoginFailureIconSrc:self.alertLogoutSuccessIconSrc,
+              iconsrc: self.alertLoginFailureIconSrc,
               closesrc: self.alertCloseIconSrc,
-              text: (alertType == 'loginFailure')?self.alertLoginFailureText:self.alertLogoutSuccessText,
+              text: message,
               close: close
             } ) );
-            self.element.querySelector('#login-alert').classList.add((alertType == 'loginFailure')?'failure':'success');
+            self.element.querySelector('#login-alert').classList.add('failure');
           }
 
           // wrong Login alert
-          if (wrongLogin) {
-            createLoginAlert('loginFailure');
+          if (wrongRegister) {
+            createRegisterAlert(wrongRegister);
           }
-          // Logout success alert
-          else if (self.successfulLogout) {
-            createLoginAlert('logoutSuccess');
-          }
-
-          // if (this.failedLogin) {
-          //   this.element.classList.add('failedLogin');
-          // } else {
-          //   this.element.classList.remove('failedLogin');
-          // }
-
-          // no password needed? => remove input field for password
-          !password && $.remove( self.element.querySelector( '#password-entry' ) );
 
           self.abortRegisterPanelFunction = () => {finish()};
 

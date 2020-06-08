@@ -121,10 +121,8 @@
           }
           // handle routes with user logged out
           else {
-            if (detail.url != '/login') {
+            if (detail.url != '/login' && detail.url != '/register') {
               this.user && this.user.abortLogin();
-            }
-            if (detail.url != '/register') {
               this.user && this.user.abortRegister();
             }
 
