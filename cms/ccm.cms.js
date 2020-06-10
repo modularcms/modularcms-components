@@ -96,6 +96,13 @@
 
         // listen to routes
         this.routing.registerRoutingCallback((detail) => {
+          let menuItems = menu.querySelectorAll('#menu-items-wrapper li');
+          menuItems.forEach((elem) => elem.classList.remove('active'));
+          menuItems.forEach((elem) => {
+            if (elem.querySelector('a').getAttribute('href') == detail.url) {
+              elem.classList.add('active')
+            }
+          });
           // handle routes with user logged in
           if (loggedIn) {
             // handle the different routes
