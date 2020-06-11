@@ -17,7 +17,8 @@
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/page_manager.html" ],
             "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/css/style.css"],
-            "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ]
+            "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
+            "pages": [ "ccm.store", { "name": "fbroeh2s_pages", "url": "https://ccm2.inf.h-brs.de" } ],
         },
 
         Instance: function () {
@@ -27,9 +28,40 @@
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
 
+            /**
+             * Starts the component
+             * @returns {Promise<void>}
+             */
             this.start = async () => {
                 $.setContent(this.element, $.html(this.html.main, {}));
+                //this.createNewPage();
+                //this.getAllPages();
             };
+
+            /**
+             * Creates a new page
+             * @returns {Promise<void>}
+             */
+            this.createNewPage = async () => {
+                console.log(this.pages.set({
+                    value: 'test'
+                }));
+            }
+
+            /**
+             * Loads all Pages
+             * @returns {Promise<void>}
+             */
+            this.loadAllPages = async () => {
+                const data = self.store.get();
+
+                /*
+                 * Iterate through all data
+                 */
+                data.forEach(function (element) {
+                    console.log(element);
+                });
+            }
 
         }
 

@@ -9,9 +9,9 @@ ccm.files[ 'resources.js' ] = {
 
     /** test configuration (relative paths) */
     "local": {
-        "css.1": "/modularcms-components/cms/resources/css/style.css",
+        "css.1": "/modularcms-components/page_manager/resources/css/style.css",
         "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
-        "html.1": "/modularcms-components/cms/resources/html/page_manager.html",
+        "html.1": "/modularcms-components/page_manager/resources/html/page_manager.html",
         "routing_sensor": ["ccm.instance", "/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js"],
     }
 };
