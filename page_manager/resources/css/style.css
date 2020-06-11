@@ -15,31 +15,13 @@
 
 #search {
     flex-grow: 1;
+    position: relative;
 }
 
-#search input[type="text"] {
-    padding: 10px;
-}
-
-.button {
-    display: flex;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid;
-    align-items: center;
-}
-
-.button .icon {
+#search img {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
     height: 25px;
-    margin-right: 5px;
-}
-
-.button-primary {
-    background-color: var(--color-primary);
-    color: var(--color-light);
-    border-color: var(--color-primary-shade);
-}
-
-.button-primary .icon {
-    filter: invert(100%);
 }
