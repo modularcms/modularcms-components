@@ -8,6 +8,9 @@
     border-radius: 5px;
     border: 1px solid;
     align-items: center;
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity .3s ease-in-out;
 }
 
 .button .icon {
@@ -23,6 +26,10 @@
 
 .button-primary .icon {
     filter: invert(100%);
+}
+
+.button:hover {
+    opacity: 0.8;
 }
 
 input[type="text"], input[type="password"], input[type="email"] {

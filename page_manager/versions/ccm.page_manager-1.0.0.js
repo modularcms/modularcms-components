@@ -66,6 +66,14 @@
                 });
             }
 
+            /**
+             * Searches for a page
+             * @returns {Promise<void>}
+             */
+            this.search = async () => {
+                //@TODO
+            }
+
         }
 
     };

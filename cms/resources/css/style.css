@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+#element, #main, #content, #content div:first-child {
+  height: 100%
+}
+
 header {
   background-color: var(--color-primary);
   display: flex !important;
