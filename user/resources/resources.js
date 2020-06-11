@@ -1,6 +1,6 @@
 /**
  * @overview data-based resources of ccm component for user authentication
- * @author André Kless <andre.kless@web.de> 2019-2020
+ * @author André Kless <andre.kless@web.de> 2019-2020, Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */
 

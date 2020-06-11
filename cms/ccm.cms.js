@@ -45,7 +45,8 @@
         {"title": "Themes", "route": "/themes"},
         {"title": "Layouts", "route": "/layouts"},
         {"title": "Sites", "route": "/sites"}
-      ]
+      ],
+      "page_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js" ],
     },
 
     Instance: function () {
@@ -108,7 +109,8 @@
             // handle the different routes
             switch(detail.url) {
               case '/pages':
-                $.setContent(content, $.html(this.html.pages, {}));
+                $.setContent(content, this.page_manager.root, {});
+                this.page_manager.start();
                 break;
               case '/users':
                 $.setContent(content, $.html(this.html.users, {}));
