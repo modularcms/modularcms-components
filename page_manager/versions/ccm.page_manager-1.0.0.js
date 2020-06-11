@@ -34,7 +34,6 @@
              */
             this.start = async () => {
                 $.setContent(this.element, $.html(this.html.main, {}));
-                //this.createNewPage();
                 //this.getAllPages();
             };
 
@@ -54,12 +53,13 @@
              */
             this.loadAllPages = async () => {
                 const data = self.store.get();
+                const list = this.element.querySelector('#list');
 
                 /*
                  * Iterate through all data
                  */
                 data.forEach(function (element) {
-                    console.log(element);
+                    $.append(list, $.html(this.html.listItem, {title: element.title, route: item.route}))
                 });
             }
 

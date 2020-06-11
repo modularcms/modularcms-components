@@ -4,14 +4,24 @@
 -->
 
 <ccm-template key="main">
-    <div id="head">
-        <div id="search">
-            <input type="text" />
-            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
+    <div id="main">
+        <div id="head">
+            <div id="search">
+                <input type="text" />
+                <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
+            </div>
+            <div id="create-button" class="button button-primary">
+                <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/plus-icon.svg" />
+                <span>Create new page</span>
+            </div>
         </div>
-        <div id="create-button" class="button button-primary">
-            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/plus-icon.svg" />
-            <span>Create new page</span>
-        </div>
+        <div id="list"></div>
+    </div>
+</ccm-template>
+<ccm-template key="listItem">
+    <div class="list-item">
+        <div class="list-item-title">%title%</div>
+        <div class="list-item-subline">%layoutTypeName% – %route%</div>
+        <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
     </div>
 </ccm-template>

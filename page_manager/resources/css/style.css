@@ -1,0 +1,26 @@
+#main {
+    display: flex;
+    flex-direction: column;
+}
+
+#head {
+    display: flex;
+}
+
+#list {
+    display: flex;
+    flex-direction: column;
+}
+
+.button {
+    display: flex;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid;
+}
+
+.button-primary {
+    background-color: var(--color-primary);
+    color: var(--color-light);
+    border-color: var(--color-primary-shade);
+}

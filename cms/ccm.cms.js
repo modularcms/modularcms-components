@@ -77,8 +77,9 @@
         if ( this.user ) { $.append( this.element.querySelector('#user-component-wrapper'), this.user.root ); this.user.start(); }
 
         // create menu items
+        let menuWrapper = this.element.querySelector('#menu #menu-items-wrapper')
         this.menu.forEach((item) => {
-          $.append(this.element.querySelector('#menu #menu-items-wrapper'), $.html(this.html.menuitem, {title: item.title, route: item.route}));
+          $.append(menuWrapper, $.html(this.html.menuitem, {title: item.title, route: item.route}));
         })
 
         // hamburger button
