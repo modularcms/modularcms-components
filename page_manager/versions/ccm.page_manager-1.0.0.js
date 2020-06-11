@@ -16,7 +16,10 @@
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/page_manager.html" ],
-            "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/css/style.css"],
+            "css": [ "ccm.load",
+                "https://modularcms.github.io/modularcms-components/page_manager/resources/css/style.css",
+                "https://modularcms.github.io/modularcms-components/cms/resources/css/inputs.css"
+            ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "pages": [ "ccm.store", { "name": "fbroeh2s_pages", "url": "https://ccm2.inf.h-brs.de" } ],
         },
