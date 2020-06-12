@@ -162,3 +162,17 @@ input[type="submit"], button {
     transform: translateY(-50%);
     cursor: pointer;
 }
+
+.modal .modal-inner .modal-head .modal-back {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.modal .modal-inner .modal-head .modal-back .modal-back-text {
+    margin-left: 5px;
+}

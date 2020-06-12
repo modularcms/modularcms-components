@@ -94,6 +94,9 @@
                         .replace(/ü/g, 'ue')
                         .replace(/ö/g, 'oe')
                         .replace(/ß/g, 'ss');
+                    if (pageUrlEntry == '') {
+                        pageUrlEntry = '-';
+                    }
 
                     this.element.querySelector('#create-modal-page-url').value = baseUrl + pageUrlEntry;
                 });
