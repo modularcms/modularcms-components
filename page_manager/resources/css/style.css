@@ -16,7 +16,7 @@
     margin-right: 10px;
 }
 
-#create-new-page-modal .modal-inner {
+#create-new-page-modal #create-modal-step-1 {
     height: 500px;
     max-height: calc(100% - 25px);
 }
@@ -25,7 +25,7 @@
     margin-bottom: 10px;
 }
 
-#modal-create-button {
+.modal-footer .button {
     display: inline-flex;
     margin-left: 50%;
     transform: translateX(-50%);

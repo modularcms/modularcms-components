@@ -42,18 +42,7 @@
                 this.element.querySelector('#create-button').addEventListener('click', () => {this.openCreateNewPageModal();});
 
                 //this.loadAllPages();
-                this.createNewPage();
             };
-
-            /**
-             * Creates a new page
-             * @returns {Promise<void>}
-             */
-            this.createNewPage = async () => {
-                console.log(await this.pages.set({
-                    value: 'test'
-                }));
-            }
 
             /**
              * Loads all Pages
@@ -84,7 +73,62 @@
              * @returns {Promise<void>}
              */
             this.openCreateNewPageModal = async () => {
+                // Append modal html
                 $.append(this.element, $.html(this.html.newPageModal, {}));
+
+                // Add events for close
+                this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{this.closeCreateNewPageModal();}));
+
+                // Add events for back
+                this.element.querySelectorAll('.modal-back').forEach(elem => elem.addEventListener('click', () =>{window.history.back()}));
+
+                // Add auto creation of url
+                const titleInput = this.element.querySelector('#create-modal-page-title')
+                titleInput.addEventListener('keyup', () => {
+                    let baseUrl = '/demopage/'
+                    let value = titleInput.value;
+                    let pageUrlEntry = value.toLowerCase()
+                        .replace(/[#?&/=+.*'{}()%$§"!;,:´`]+/g, '')
+                        .replace(/ /g, '-')
+                        .replace(/ä/g, 'ae')
+                        .replace(/ü/g, 'ue')
+                        .replace(/ö/g, 'oe')
+                        .replace(/ß/g, 'ss');
+
+                    this.element.querySelector('#create-modal-page-url').value = baseUrl + pageUrlEntry;
+                });
+
+                // Prevent the removal of the base url
+                const urlInput = this.element.querySelector('#create-modal-page-url')
+                urlInput.addEventListener('keyup', () => {
+                    let baseUrl = '/demopage/'
+                    let inputSplit = urlInput.value.split('/');
+
+                    let value = inputSplit[inputSplit.length - 1];
+                    let pageUrlEntry = value.toLowerCase()
+                        .replace(/[#?&/=+.*'{}()%$§"!;,:´`]+/g, '')
+                        .replace(/ /g, '-')
+                        .replace(/ä/g, 'ae')
+                        .replace(/ü/g, 'ue')
+                        .replace(/ö/g, 'oe')
+                        .replace(/ß/g, 'ss');
+                    if (pageUrlEntry == '') {
+                        pageUrlEntry = '-';
+                    }
+
+                    this.element.querySelector('#create-modal-page-url').value = '/demopage/' + pageUrlEntry;
+                });
+
+                // Add events for finish
+                this.element.querySelector('#modal-select-button').addEventListener('click', () => {
+                    this.element.querySelector('#create-modal-step-1').style.display = 'none';
+                    this.element.querySelector('#create-modal-step-2').style.display = 'flex';
+                });
+
+                // Add events for finish
+                this.element.querySelector('#modal-create-button').addEventListener('click', () => {
+                    this.createNewPage
+                })
             }
 
             /**
@@ -92,7 +136,19 @@
              * @returns {Promise<void>}
              */
             this.closeCreateNewPageModal = async () => {
-                $.append(this.element, $.html(this.html.newPageModal, {}));
+                $.remove(this.element.querySelector('#create-new-page-modal'));
+            }
+
+            /**
+             * Creates a new page
+             * @returns {Promise<void>}
+             */
+            this.createNewPage = async () => {
+                console.log(await this.pages.set({
+                    value: 'test'
+                }));
+
+                this.closeCreateNewPageModal();
             }
         }
 

@@ -27,8 +27,9 @@
 </ccm-template>
 <ccm-template key="newPageModal">
     <div id="create-new-page-modal" class="modal">
-        <div class="modal-inner">
-            <div id="panel-head">
+        <div class="modal-bg"></div>
+        <div class="modal-inner" id="create-modal-step-1">
+            <div class="modal-head">
                 <h2>Create new page</h2>
                 <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
             </div>
@@ -38,7 +39,27 @@
                 <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
             </div>
             <div id="list-modal" class="list"></div>
+            <div class="modal-footer">
+                <div id="modal-select-button" class="button button-primary"><!-- button-disabled-->
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
+                    <div>Select as parent page</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-inner" id="create-modal-step-2" style="display: none;">
+            <div class="modal-head">
+                <h2>Create new page</h2>
+                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
+            </div>
+            <div>Please enter a title for the new page</div>
             <div>
+                <input type="text" id="create-modal-page-title" />
+            </div>
+            <div>Please enter a url for the new page</div>
+            <div>
+                <input type="text" id="create-modal-page-url" value="/demopage/-" />
+            </div>
+            <div class="modal-footer">
                 <div id="modal-create-button" class="button button-primary button-disabled">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
                     <div>Create new page</div>
