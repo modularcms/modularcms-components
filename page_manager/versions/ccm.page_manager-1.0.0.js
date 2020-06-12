@@ -86,6 +86,14 @@
             this.openCreateNewPageModal = async () => {
                 $.append(this.element, $.html(this.html.newPageModal, {}));
             }
+
+            /**
+             * Closes the modal
+             * @returns {Promise<void>}
+             */
+            this.closeCreateNewPageModal = async () => {
+                $.append(this.element, $.html(this.html.newPageModal, {}));
+            }
         }
 
     };

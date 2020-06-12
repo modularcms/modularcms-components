@@ -44,8 +44,7 @@
         {"title": "Pages", "route": "/pages"},
         {"title": "Users", "route": "/users"},
         {"title": "Themes", "route": "/themes"},
-        {"title": "Layouts", "route": "/layouts"},
-        {"title": "Sites", "route": "/sites"}
+        {"title": "Layouts", "route": "/layouts"}
       ],
       "page_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js" ],
     },
