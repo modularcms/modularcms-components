@@ -22,7 +22,7 @@
 
       "css": [ "ccm.load",
         "https://modularcms.github.io/modularcms-components/user/resources/default.css",
-        "https://modularcms.github.io/modularcms-components/cms/resources/inputs.css"
+        "https://modularcms.github.io/modularcms-components/cms/resources/global.css"
       ],
 //    "guest": "guest",
 //    "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],

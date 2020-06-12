@@ -4,6 +4,7 @@ ccm.files[ 'resources.js' ] = {
     "local": {
         "css.1": "/modularcms-components/cms/resources/css/colors.css",
         "css.2": "/modularcms-components/cms/resources/css/style.css",
+        "css.3": "/modularcms-components/cms/resources/css/global.css",
         "default_icon": "/modularcms-components/cms/resources/img/default.png",
         "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
         "html.1": "/modularcms-components/cms/resources/html/cms.html",

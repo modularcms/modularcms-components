@@ -16,7 +16,7 @@
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/page_manager.html" ],
             "css": [ "ccm.load",
                 "https://modularcms.github.io/modularcms-components/page_manager/resources/css/style.css",
-                "https://modularcms.github.io/modularcms-components/cms/resources/css/inputs.css"
+                "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "pages": [ "ccm.store", { "name": "fbroeh2s_pages", "url": "https://ccm2.inf.h-brs.de" } ],
@@ -35,7 +35,12 @@
              */
             this.start = async () => {
                 $.setContent(this.element, $.html(this.html.main, {}));
-                //this.getAllPages();
+
+                // Add click event for create button
+                this.element.querySelector('#create-button').addEventListener('click', () => {this.openCreateNewPageModal();});
+
+                //this.loadAllPages();
+                this.createNewPage();
             };
 
             /**
@@ -43,7 +48,7 @@
              * @returns {Promise<void>}
              */
             this.createNewPage = async () => {
-                console.log(this.pages.set({
+                console.log(await this.pages.set({
                     value: 'test'
                 }));
             }
@@ -64,6 +69,21 @@
                 });
             }
 
+            /**
+             * Searches for a page
+             * @returns {Promise<void>}
+             */
+            this.search = async () => {
+                //@TODO
+            }
+
+            /**
+             * Creates the modal to create a new page
+             * @returns {Promise<void>}
+             */
+            this.openCreateNewPageModal = async () => {
+                $.append(this.element, $.html(this.html.newPageModal, {}));
+            }
         }
 
     };

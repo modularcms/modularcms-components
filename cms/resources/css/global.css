@@ -1,6 +1,12 @@
 * {
+    font-family: 'Open Sans', sans-serif;
     box-sizing: border-box;
 }
+
+
+/**
+ * Inputs
+ */
 
 .button {
     display: flex;
@@ -28,8 +34,14 @@
     filter: invert(100%);
 }
 
-.button:hover {
+.button:not(.button-disabled):hover {
     opacity: 0.8;
+}
+
+.button-disabled {
+    filter: grayscale(1);
+    opacity: 0.5;
+    pointer-events: none;
 }
 
 input[type="text"], input[type="password"], input[type="email"] {
@@ -65,4 +77,67 @@ input[type="submit"], button {
 
 ::placeholder {
     color: #BEBEBE;
+}
+
+
+/**
+ * List and search
+ */
+
+.list {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin-top: 10px;
+    border: 1px solid #c4c4c4;
+}
+
+.search {
+    flex-grow: 1;
+    position: relative;
+}
+
+.search input[type="text"] {
+    margin-bottom: 0;
+}
+
+.search img {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    height: 25px;
+    cursor: pointer;
+}
+
+
+/**
+ * Modals
+ */
+
+.modal {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background-color: rgba(0,0,0,0.38);
+}
+
+.modal .modal-inner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 15px;
+    width: 700px;
+    max-width: calc(100% - 25px);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal .modal-inner h2 {
+    text-align: center;
+    margin-top: 0;
 }

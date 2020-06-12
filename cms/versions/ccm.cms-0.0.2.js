@@ -26,7 +26,7 @@
       "css": [ "ccm.load",
         "https://modularcms.github.io/modularcms-components/cms/resources/css/colors.css",
         "https://modularcms.github.io/modularcms-components/cms/resources/css/style.css",
-        "https://modularcms.github.io/modularcms-components/cms/resources/css/inputs.css"
+        "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
       ],
       //    "component_manager": [ "ccm.component", "https://ccmjs.github.io/akless-components/component_manager/versions/ccm.component_manager-3.4.1.js" ],
       // "components": [ "ccm.store", { "name": "dms-components", "url": "https://ccm2.inf.h-brs.de" } ],
