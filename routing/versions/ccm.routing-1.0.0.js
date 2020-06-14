@@ -25,9 +25,19 @@
         Instance: function() {
             const self = this;
             let $;
-            let routingCallbacks = [];
 
             this.ready = async () => {
+                // Init static vars
+                if (!window.ccmRouting) {
+                    window.ccmRouting = {
+                        urlStack: [],
+                        uniqueStateIndex: 0,
+                        currentUrl: '/',
+                        started: false,
+                        routingCallbacks: []
+                    };
+                }
+
                 // Listen to routing sensors
                 window.addEventListener('routingSensorWasTriggered', (e) => {
                     let href = e.detail.href;
@@ -45,20 +55,15 @@
 
             this.start = async () => {};
 
-            let urlStack = [];
-            let uniqueStateIndex = 0;
-            let currentUrl = '/';
-            let started = false;
-
             /**
              * Registriert einen callback
              * @param {void} callbackFunction
              * @returns {Promise<void>}
              */
             this.registerRoutingCallback = async (callbackFunction) => {
-                routingCallbacks.push(callbackFunction);
-                if (!started) {
-                    started = true;
+                window.ccmRouting.routingCallbacks.push(callbackFunction);
+                if (!window.ccmRouting.started) {
+                    window.ccmRouting.started = true;
                     this.changeUrl(window.location.pathname, false, true);
                 }
             };
@@ -68,8 +73,8 @@
              * @param {string} url
              */
             this.navigateRoot = (url) => {
-                if (url != currentUrl) {
-                    urlStack = [url];
+                if (url != window.ccmRouting.currentUrl) {
+                    window.ccmRouting.urlStack = [url];
                     this.changeUrl(url);
                 } else {
                     console.warn('Did not perform navigate, because the current url is the same');
@@ -82,8 +87,8 @@
              */
             this.navigateTo = (url) => {
                 //@TODO Check if route is valid
-                if (url != currentUrl) {
-                    urlStack.push(url);
+                if (url != window.ccmRouting.currentUrl) {
+                    window.ccmRouting.urlStack.push(url);
                     this.changeUrl(url);
                 } else {
                     console.warn('Did not perform navigate, because the current url is the same');
@@ -95,13 +100,13 @@
              * @param {string} url
              */
             this.navigateBack = (url = null) => {
-                if (url != currentUrl) {
-                    urlStack.pop();
+                if (url != window.ccmRouting.currentUrl) {
+                    window.ccmRouting.urlStack.pop();
                     let goToUrl = '';
-                    if (urlStack.length > 0) {
-                        goToUrl = urlStack[urlStack.length - 1];
+                    if (window.ccmRouting.urlStack.length > 0) {
+                        goToUrl = window.ccmRouting.urlStack[window.ccmRouting.urlStack.length - 1];
                     }
-                    if (url !== null) {
+                    if (url != null) {
                         goToUrl = url;
                     }
                     this.changeUrl(goToUrl);
@@ -120,17 +125,17 @@
                     url: url,
                     urlWithoutParameters: null, //@TODO
                     parameters: {}, //@TODO
-                    urlStack: urlStack
+                    urlStack: window.ccmRouting.urlStack
                 }
 
-                let uniqIndex = uniqueStateIndex++;
+                let uniqIndex = window.ccmRouting.uniqueStateIndex++;
                 routingDetails['urlIndex'] = (index !== false)?index:uniqIndex;
 
-                if (url === currentUrl) {
+                if (url === window.ccmRouting.currentUrl) {
                     console.warn('Propagated navigate, but the current url is the same');
                 }
 
-                currentUrl = url;
+                window.ccmRouting.currentUrl = url;
                 if (!withoutHistoryPush) {
                     window.history.pushState(routingDetails, '', url);
                 }
@@ -139,7 +144,7 @@
             }
 
             let callRoutingCallbacks = (detail) => {
-                for (let callback of routingCallbacks) {
+                for (let callback of window.ccmRouting.routingCallbacks) {
                     callback(detail);
                 }
             }

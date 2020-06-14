@@ -10,20 +10,23 @@
                 <input type="text" />
                 <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
             </div>
-            <div id="create-button" class="button button-primary">
+            <div id="create-button" class="button button-primary button-responsive-hide-text">
                 <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-                <div>Create new page</div>
+                <div class="button-text">Create new page</div>
             </div>
         </div>
         <div id="list" class="list"></div>
     </div>
 </ccm-template>
 <ccm-template key="listItem">
-    <div class="list-item">
+    <div class="list-item list-item-with-more-button">
         <div class="list-item-title">%title%</div>
-        <div class="list-item-subline">%layoutTypeName% – %route%</div>
+        <div class="list-item-subline">%layoutTypeName% – <i>%urlName%</i></div>
         <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
     </div>
+</ccm-template>
+<ccm-template key="loader">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </ccm-template>
 <ccm-template key="newPageModal">
     <div id="create-new-page-modal" class="modal">
@@ -33,16 +36,16 @@
                 <h2>Create new page</h2>
                 <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
             </div>
-            <div>Please select the parent page of the new page</div>
+            <label for="create-modal-search">Please select the parent page of the new page</label>
             <div class="search">
-                <input type="text" />
+                <input type="text" id="create-modal-search" />
                 <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
             </div>
-            <div id="list-modal" class="list"></div>
+            <div id="list-modal" class="list list-without-more-button"></div>
             <div class="modal-footer">
                 <div id="modal-select-button" class="button button-primary"><!-- button-disabled-->
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
-                    <div>Select as parent page</div>
+                    <div class="button-text">Select as parent page</div>
                 </div>
             </div>
         </div>
@@ -55,18 +58,18 @@
                 <h2>Create new page</h2>
                 <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
             </div>
-            <div>Please enter a title for the new page</div>
             <div>
+                <label for="create-modal-page-title">Please enter a title for the new page</label>
                 <input type="text" id="create-modal-page-title" />
             </div>
-            <div>Please enter a url for the new page</div>
             <div>
+                <label for="create-modal-page-url">Please enter a url for the new page</label>
                 <input type="text" id="create-modal-page-url" value="/demopage/-" />
             </div>
             <div class="modal-footer">
                 <div id="modal-create-button" class="button button-primary button-disabled">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-                    <div>Create new page</div>
+                    <div class="button-text">Create new page</div>
                 </div>
             </div>
         </div>

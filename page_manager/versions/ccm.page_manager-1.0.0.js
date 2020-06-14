@@ -31,6 +31,8 @@
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
 
+            this.modalCreated = false;
+
             /**
              * Starts the component
              * @returns {Promise<void>}
@@ -39,25 +41,56 @@
                 $.setContent(this.element, $.html(this.html.main, {}));
 
                 // Add click event for create button
-                this.element.querySelector('#create-button').addEventListener('click', () => {this.openCreateNewPageModal();});
+                this.element.querySelector('#create-button').addEventListener('click', () => {
+                    this.routing.navigateTo('/pages/create/1');
+                });
 
-                //this.loadAllPages();
+                // Add routing
+                this.routing.registerRoutingCallback((detail) => {
+                    if (detail.url.indexOf('/pages/create') == 0) {
+                        if (!this.modalCreated) {
+                            this.modalCreated = true;
+                            this.openCreateNewPageModal();
+                        }
+                        if (detail.url == '/pages/create/1') {
+                            this.element.querySelector('#create-modal-step-2').style.display = 'none';
+                            this.element.querySelector('#create-modal-step-1').style.display = 'flex';
+                        }
+                        if (detail.url == '/pages/create/2') {
+                            this.element.querySelector('#create-modal-step-1').style.display = 'none';
+                            this.element.querySelector('#create-modal-step-2').style.display = 'flex';
+                        }
+                    } else if (detail.url.indexOf('/pages') == 0) {
+                        this.closeCreateNewPageModal();
+
+                        //Load page selection
+                        this.loadAllPages('#list');
+                    }
+                });
             };
 
             /**
              * Loads all Pages
+             * @param {string}  target   Target element
              * @returns {Promise<void>}
              */
-            this.loadAllPages = async () => {
-                const data = self.store.get();
-                const list = this.element.querySelector('#list');
+            this.loadAllPages = async (target) => {
+                const list = this.element.querySelector(target);
+                list.classList.add('loading');
+                $.append(list, $.html(this.html.loader, {}));
 
-                /*
-                 * Iterate through all data
-                 */
-                data.forEach(function (element) {
-                    $.append(list, $.html(this.html.listItem, {title: element.title, route: item.route}))
+                const data = await this.pages.get();
+
+                list.innerHTML = '';
+
+                // Iterate through all data
+                data.forEach((element) => {
+                    let page = element.value;
+                    //this.pages.del(element.key);
+                    $.append(list, $.html(this.html.listItem, {title: page.title, urlName: page.urlName}))
                 });
+
+                list.classList.remove('loading');
             }
 
             /**
@@ -76,29 +109,55 @@
                 // Append modal html
                 $.append(this.element, $.html(this.html.newPageModal, {}));
 
+                //Load page selection
+                this.loadAllPages('#list-modal');
+
                 // Add events for close
-                this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{this.closeCreateNewPageModal();}));
+                this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
+                    this.routing.navigateBack('/pages');
+                }));
 
                 // Add events for back
-                this.element.querySelectorAll('.modal-back').forEach(elem => elem.addEventListener('click', () =>{window.history.back()}));
+                this.element.querySelectorAll('.modal-back').forEach(elem => elem.addEventListener('click', () =>{
+                    this.routing.navigateBack();
+                }));
 
-                // Add auto creation of url
-                const titleInput = this.element.querySelector('#create-modal-page-title')
-                titleInput.addEventListener('keyup', () => {
-                    let baseUrl = '/demopage/'
-                    let value = titleInput.value;
-                    let pageUrlEntry = value.toLowerCase()
+                // Closure for enabling and disabling the create button
+                const enableCreateButton = () => {
+                    let urlSplit = urlInput.value.split('/');
+                    if (titleInput.value != '' && urlSplit[urlSplit.length - 1] != '-') {
+                        this.element.querySelector('#modal-create-button').classList.remove('button-disabled');
+                    } else {
+                        this.element.querySelector('#modal-create-button').classList.add('button-disabled');
+                    }
+                }
+
+                //Closure for urlEntryReplacements
+                const generateUrl = (baseUrl, value) => {
+                    let re = value.toLowerCase()
                         .replace(/[#?&/=+.*'{}()%$§"!;,:´`]+/g, '')
                         .replace(/ /g, '-')
                         .replace(/ä/g, 'ae')
                         .replace(/ü/g, 'ue')
                         .replace(/ö/g, 'oe')
                         .replace(/ß/g, 'ss');
-                    if (pageUrlEntry == '') {
-                        pageUrlEntry = '-';
+                    if (re == '') {
+                        re = '-';
                     }
+                    return baseUrl + re;
+                }
 
-                    this.element.querySelector('#create-modal-page-url').value = baseUrl + pageUrlEntry;
+                // Add auto creation of url
+                const titleInput = this.element.querySelector('#create-modal-page-title')
+                titleInput.addEventListener('keyup', () => {
+                    let baseUrl = '/demopage/'
+                    let value = titleInput.value;
+                    let pageUrl = generateUrl(baseUrl, value);
+
+                    this.element.querySelector('#create-modal-page-url').value = pageUrl;
+
+                    // Enable button
+                    enableCreateButton();
                 });
 
                 // Prevent the removal of the base url
@@ -108,29 +167,28 @@
                     let inputSplit = urlInput.value.split('/');
 
                     let value = inputSplit[inputSplit.length - 1];
-                    let pageUrlEntry = value.toLowerCase()
-                        .replace(/[#?&/=+.*'{}()%$§"!;,:´`]+/g, '')
-                        .replace(/ /g, '-')
-                        .replace(/ä/g, 'ae')
-                        .replace(/ü/g, 'ue')
-                        .replace(/ö/g, 'oe')
-                        .replace(/ß/g, 'ss');
-                    if (pageUrlEntry == '') {
-                        pageUrlEntry = '-';
-                    }
+                    let pageUrl = generateUrl(baseUrl, value);
 
-                    this.element.querySelector('#create-modal-page-url').value = '/demopage/' + pageUrlEntry;
+                    this.element.querySelector('#create-modal-page-url').value = pageUrl;
+
+                    // Enable button
+                    enableCreateButton();
                 });
 
                 // Add events for finish
                 this.element.querySelector('#modal-select-button').addEventListener('click', () => {
-                    this.element.querySelector('#create-modal-step-1').style.display = 'none';
-                    this.element.querySelector('#create-modal-step-2').style.display = 'flex';
+                    this.routing.navigateTo('/pages/create/2');
                 });
 
                 // Add events for finish
                 this.element.querySelector('#modal-create-button').addEventListener('click', () => {
-                    this.createNewPage
+                    this.createNewPage(
+                        0,
+                        0,
+                        this.element.querySelector('#create-modal-page-title').value,
+                        this.element.querySelector('#create-modal-page-url').value,
+                        0
+                    );
                 })
             }
 
@@ -140,18 +198,35 @@
              */
             this.closeCreateNewPageModal = async () => {
                 $.remove(this.element.querySelector('#create-new-page-modal'));
+                this.modalCreated = false;
             }
 
             /**
              * Creates a new page
              * @returns {Promise<void>}
              */
-            this.createNewPage = async () => {
-                console.log(await this.pages.set({
-                    value: 'test'
-                }));
-
-                this.closeCreateNewPageModal();
+            this.createNewPage = async (websiteId, parentId, title, urlName, layoutId) => {
+                let pageId = await this.pages.set({
+                    value: {
+                        title: title,
+                        urlName: urlName,
+                        parentId: parentId,
+                        layoutId: layoutId
+                    },
+                    "_": {
+                        creator: 'test',
+                        realm: 'modularcms',
+                        group: {
+                            admins: [ 'broehl', 'test' ]
+                        },
+                        access: {
+                            get: 'all',
+                            set: 'admins',
+                            del: 'test'
+                        }
+                    }
+                });
+                this.routing.navigateTo('/pages/edit/' + pageId);
             }
         }
 

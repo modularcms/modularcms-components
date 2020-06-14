@@ -69,6 +69,11 @@
         // render main HTML structure
         $.setContent(this.element, $.html(this.html.main, {logo: this.logo, title: this.title}));
 
+        // load editor.js
+        let editorJsScriptElement = document.createElement('script');
+        editorJsScriptElement.src = 'https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest';
+        document.head.appendChild(editorJsScriptElement);
+
         // select content area
         content = this.element.querySelector('#content');
         const menu = this.element.querySelector('#menu');
@@ -97,37 +102,36 @@
         loggedIn = this.user && this.user.isLoggedIn();
 
         // listen to routes
+        let currentContent = '';
         this.routing.registerRoutingCallback((detail) => {
-          let menuItems = menu.querySelectorAll('#menu-items-wrapper li');
-          menuItems.forEach((elem) => elem.classList.remove('active'));
-          menuItems.forEach((elem) => {
-            if (elem.querySelector('a').getAttribute('href') == detail.url) {
-              elem.classList.add('active')
-            }
-          });
           // handle routes with user logged in
           if (loggedIn) {
             // handle the different routes
-            switch(detail.url) {
-              case '/pages':
+            if (detail.url.indexOf('/pages') == 0) {
+              if (currentContent != '/pages') {
                 $.setContent(content, this.page_manager.root, {});
                 this.page_manager.start();
-                break;
-              case '/users':
-                $.setContent(content, $.html(this.html.users, {}));
-                break;
-              case '/themes':
-                $.setContent(content, $.html(this.html.themes, {}));
-                break;
-              case '/layouts':
-                $.setContent(content, $.html(this.html.layouts, {}));
-                break;
-              case '/sites':
-                $.setContent(content, $.html(this.html.sites, {}));
-                break;
-              default:
-                $.setContent(content, $.html(this.html.error404, {}));
-                break;
+                currentContent = '/pages';
+              }
+            } else {
+              currentContent = detail.url;
+              switch(detail.url) {
+                case '/users':
+                  $.setContent(content, $.html(this.html.users, {}));
+                  break;
+                case '/themes':
+                  $.setContent(content, $.html(this.html.themes, {}));
+                  break;
+                case '/layouts':
+                  $.setContent(content, $.html(this.html.layouts, {}));
+                  break;
+                case '/sites':
+                  $.setContent(content, $.html(this.html.sites, {}));
+                  break;
+                default:
+                  $.setContent(content, $.html(this.html.error404, {}));
+                  break;
+              }
             }
           }
           // handle routes with user logged out
@@ -156,6 +160,21 @@
                 });
                 break;
             }
+          }
+
+          //mark the right menu item as active
+          let menuItems = menu.querySelectorAll('#menu-items-wrapper li');
+          menuItems.forEach((elem) => elem.classList.remove('active'));
+          menuItems.forEach((elem) => {
+            if (elem.querySelector('a').getAttribute('href') == currentContent) {
+              elem.classList.add('active')
+            }
+          });
+
+          //hide the mobile menu on routing change
+          if (hamburger.classList.contains('active')) {
+            menu.classList.remove('active');
+            hamburger.classList.remove('active');
           }
         });
 

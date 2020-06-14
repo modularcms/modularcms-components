@@ -16,12 +16,15 @@
     align-items: center;
     cursor: pointer;
     opacity: 1;
-    transition: opacity .3s ease-in-out;
+    transition: opacity .3s ease-in-out, filter .3s ease-in-out;
 }
 
 .button .icon {
     height: 25px;
-    margin-right: 5px;
+}
+
+.button .icon + .button-text {
+    margin-left: 5px;
 }
 
 .button-primary {
@@ -32,6 +35,12 @@
 
 .button-primary .icon {
     filter: invert(100%);
+}
+
+@media (max-width: 500px) {
+    .button-responsive-hide-text .button-text {
+        display: none;
+    }
 }
 
 .button:not(.button-disabled):hover {
@@ -90,6 +99,57 @@ input[type="submit"], button {
     height: 100%;
     margin-top: 10px;
     border: 1px solid #c4c4c4;
+    overflow: auto;
+    position: relative;
+}
+
+.list .list-item {
+    padding: 15px;
+    position: relative;
+}
+
+.list .list-item.list-item-with-more-button {
+    padding-right: 55px;
+}
+
+.list .list-item:nth-child(2n) {
+    background-color: #F7F7F7;
+}
+
+.list .list-item .list-item-title {
+    font-size: 20px;
+}
+
+.list .list-item .list-item-subline {
+    color: #707070;
+    font-size: 16px;
+}
+
+.list .list-item .list-item-more-button {
+    position: absolute;
+    height: 25px;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.list.list-without-more-button .list-item .list-item-more-button {
+    display: none;
+}
+
+.list.list-without-more-button .list-item {
+    padding-right: 15px;
+}
+
+.list .lds-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.list.loading .list-item {
+    filter: blur(5px);
 }
 
 .search {
@@ -173,6 +233,50 @@ input[type="submit"], button {
     align-items: center;
 }
 
+.modal .modal-inner .modal-head .modal-back > img {
+    height: 25px;
+}
+
 .modal .modal-inner .modal-head .modal-back .modal-back-text {
     margin-left: 5px;
+}
+
+
+/**
+ * Loading spinner
+ */
+.lds-ring {
+    display: block;
+    position: relative;
+    width: 62px;
+    height: 62px;
+}
+.lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    margin: 6px;
+    border: 6px solid var(--color-primary);
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: var(--color-primary) transparent transparent transparent;
+}
+.lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+}
+.lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+}
+.lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+}
+@keyframes lds-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
