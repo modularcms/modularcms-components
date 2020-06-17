@@ -56,7 +56,7 @@
 input[type="text"], input[type="password"], input[type="email"] {
     padding: 15px;
     font-size: 20px;
-    font-family: 'OpenSans';
+    font-family: 'Open Sans';
     width: 100%;
     border: 1px solid #C4C4C4;
     color: var(--color-text);
@@ -74,7 +74,7 @@ input[type="submit"], button {
     min-width: 200px;
     height: 50px;
     font-size: 20px;
-    font-family: 'OpenSans';
+    font-family: 'Open Sans';
     color: var(--color-light);
     background-color: var(--color-primary);
     border: none;
@@ -114,6 +114,14 @@ input[type="submit"], button {
 
 .list .list-item:nth-child(2n) {
     background-color: #F7F7F7;
+}
+
+.list .list-item.selected {
+    background-color: rgba(21, 146, 230, 0.29);
+}
+
+.list .list-item.hidden {
+    display: none;
 }
 
 .list .list-item .list-item-title {
@@ -167,7 +175,6 @@ input[type="submit"], button {
     right: 10px;
     transform: translateY(-50%);
     height: 25px;
-    cursor: pointer;
 }
 
 

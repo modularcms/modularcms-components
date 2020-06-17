@@ -38,13 +38,16 @@
             this.start = async () => {
                 $.setContent(this.element, $.html(this.html.main, {}));
 
+                // Add search
+                this.initSearch('#list-search', '#list');
+
                 // Add click event for create button
                 this.element.querySelector('#create-button').addEventListener('click', () => {
                     this.routing.navigateTo('/pages/create/1');
                 });
 
                 // Add routing
-                this.routing.registerRoutingCallback((detail) => {
+                this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url.indexOf('/pages/create') == 0) {
                         if (!this.modalCreated) {
                             this.modalCreated = true;
@@ -58,18 +61,29 @@
                             this.element.querySelector('#create-modal-step-1').style.display = 'none';
                             this.element.querySelector('#create-modal-step-2').style.display = 'flex';
                         }
+                    } else if (detail.url.indexOf('/pages/edit/') == 0) {
+                        // @TODO
                     } else if (detail.url.indexOf('/pages') == 0) {
-                        this.closeCreateNewPageModal();
+                        // Close modal
+                        await this.closeCreateNewPageModal();
 
-                        //Load page selection
-                        this.loadAllPages('#list');
+                        // load page selection
+                        await this.loadAllPages('#list');
+
+                        // add click events for list
+                        this.element.querySelectorAll('#list .list-item').forEach(elem => {
+                            elem.addEventListener('click', () => {
+                                let pageKey = elem.getAttribute('data-page-key');
+                                this.routing.navigateTo('/pages/edit/' + pageKey);
+                            });
+                        })
                     }
                 });
             };
 
             /**
              * Loads all Pages
-             * @param {string}  target   Target element
+             * @param {string}  target          Target element
              * @returns {Promise<void>}
              */
             this.loadAllPages = async (target) => {
@@ -85,18 +99,44 @@
                 data.forEach((element) => {
                     let page = element.value;
                     //this.pages.del(element.key);
-                    $.append(list, $.html(this.html.listItem, {title: page.title, urlName: page.urlName}))
+                    $.append(list, $.html(this.html.listItem, {title: page.title, urlName: page.urlName, pageKey: element.key}));
                 });
 
                 list.classList.remove('loading');
             }
 
             /**
-             * Searches for a page
+             * Initiates the search handling
+             * @param   {string}    targetSearchInput   the target search input descriptor
+             * @param   {string}    targetList   the target list descriptor
              * @returns {Promise<void>}
              */
-            this.search = async () => {
-                //@TODO
+            this.initSearch = async (targetSearchInput, targetList) => {
+                const listSearchInput = this.element.querySelector(targetSearchInput);
+                listSearchInput.addEventListener('keyup', () => {
+                    let searchTerms = listSearchInput.value.split(' ');
+                    this.element.querySelectorAll(targetList + ' .list-item').forEach(elem => {
+                        let title = elem.getAttribute('data-page-title');
+                        let layoutType = elem.getAttribute('data-page-layout-type');
+                        let pagePath = elem.getAttribute('data-page-path');
+
+                        let allMatching = false;
+                        for (let searchTerm of searchTerms) {
+                            if (searchTerm == '' || title.indexOf(searchTerm) >= 0 || layoutType.indexOf(searchTerm) >= 0 || pagePath.indexOf(searchTerm) >= 0) {
+                                allMatching = true;
+                            } else {
+                                allMatching = false;
+                                break;
+                            }
+                        }
+
+                        if (allMatching) {
+                            elem.classList.remove('hidden');
+                        } else {
+                            elem.classList.add('hidden');
+                        }
+                    });
+                });
             }
 
             /**
@@ -104,11 +144,26 @@
              * @returns {Promise<void>}
              */
             this.openCreateNewPageModal = async () => {
+                let selectedParentPageKey = null;
+                let selectedParentPagePath = null;
+
                 // Append modal html
                 $.append(this.element, $.html(this.html.newPageModal, {}));
 
                 //Load page selection
-                this.loadAllPages('#list-modal');
+                this.loadAllPages('#list-modal').then(() => {
+                    //Add events for page parent list select
+                    this.element.querySelectorAll('#list-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
+                        let previousSelectedElement = this.element.querySelector('#list-modal .list-item.selected');
+                        previousSelectedElement && previousSelectedElement.classList.remove('selected');
+                        elem.classList.add('selected');
+                        selectedParentPageKey = elem.getAttribute('data-page-key');
+                        selectedParentPagePath = elem.getAttribute('data-page-path') + '/';
+
+                        // Enable button
+                        enableSelectButton();
+                    }));
+                })
 
                 // Add events for close
                 this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
@@ -120,13 +175,24 @@
                     this.routing.navigateBack();
                 }));
 
+                // Closure for enabling and disabling the select button
+                const enableSelectButton = () => {
+                    let target = '#modal-select-button';
+                    if (selectedParentPageKey != null) {
+                        this.element.querySelector(target).classList.remove('button-disabled');
+                    } else {
+                        this.element.querySelector(target).classList.add('button-disabled');
+                    }
+                }
+
                 // Closure for enabling and disabling the create button
                 const enableCreateButton = () => {
+                    let target = '#modal-create-button';
                     let urlSplit = urlInput.value.split('/');
                     if (titleInput.value != '' && urlSplit[urlSplit.length - 1] != '-') {
-                        this.element.querySelector('#modal-create-button').classList.remove('button-disabled');
+                        this.element.querySelector(target).classList.remove('button-disabled');
                     } else {
-                        this.element.querySelector('#modal-create-button').classList.add('button-disabled');
+                        this.element.querySelector(target).classList.add('button-disabled');
                     }
                 }
 
@@ -148,9 +214,8 @@
                 // Add auto creation of url
                 const titleInput = this.element.querySelector('#create-modal-page-title')
                 titleInput.addEventListener('keyup', () => {
-                    let baseUrl = '/demopage/'
                     let value = titleInput.value;
-                    let pageUrl = generateUrl(baseUrl, value);
+                    let pageUrl = generateUrl(selectedParentPagePath, value);
 
                     this.element.querySelector('#create-modal-page-url').value = pageUrl;
 
@@ -161,11 +226,10 @@
                 // Prevent the removal of the base url
                 const urlInput = this.element.querySelector('#create-modal-page-url')
                 urlInput.addEventListener('keyup', () => {
-                    let baseUrl = '/demopage/'
                     let inputSplit = urlInput.value.split('/');
 
                     let value = inputSplit[inputSplit.length - 1];
-                    let pageUrl = generateUrl(baseUrl, value);
+                    let pageUrl = generateUrl(selectedParentPagePath, value);
 
                     this.element.querySelector('#create-modal-page-url').value = pageUrl;
 
@@ -175,6 +239,7 @@
 
                 // Add events for finish
                 this.element.querySelector('#modal-select-button').addEventListener('click', () => {
+                    this.element.querySelector('#create-modal-page-url').value = generateUrl(selectedParentPagePath, titleInput.value);
                     this.routing.navigateTo('/pages/create/2');
                 });
 
@@ -182,12 +247,15 @@
                 this.element.querySelector('#modal-create-button').addEventListener('click', () => {
                     this.createNewPage(
                         0,
-                        0,
+                        selectedParentPageKey,
                         this.element.querySelector('#create-modal-page-title').value,
                         this.element.querySelector('#create-modal-page-url').value,
                         0
                     );
                 })
+
+                // Add search
+                this.initSearch('#create-modal-list-search', '#list-modal');
             }
 
             /**
@@ -204,7 +272,7 @@
              * @returns {Promise<void>}
              */
             this.createNewPage = async (websiteId, parentId, title, urlName, layoutId) => {
-                let pageId = await this.pages.set({
+                let pageKey = await this.pages.set({
                     value: {
                         title: title,
                         urlName: urlName,
@@ -224,7 +292,7 @@
                         }
                     }
                 });
-                this.routing.navigateTo('/pages/edit/' + pageId);
+                this.routing.navigateTo('/pages/edit/' + pageKey);
             }
         }
 

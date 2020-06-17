@@ -12,6 +12,10 @@
     width: 100%;
 }
 
+#list .list-item {
+    cursor: pointer;
+}
+
 #main .search {
     margin-right: 10px;
 }
