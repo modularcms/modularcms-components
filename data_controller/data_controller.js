@@ -10,8 +10,6 @@
 
         name: 'data_controller',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
@@ -178,16 +176,65 @@
                     await this.addUserToWebsite(websiteKey, username, 'admin');
 
                     // Create standard theme
-                    const standardTheme = {}; //@TODO set right theme object
+                    const standardTheme = {
+                        name: 'Standard theme',
+                        ccmComponent: {
+                            url: '', // TODO
+                            config: {} // TODO
+                        },
+                        custom: {
+                            htmlUrl: null,
+                            cssUrl: null
+                        }
+                    };
                     const themeKey = await this.createTheme(websiteKey, standardTheme);
 
                     // TODO Create standard layouts
-                    const standardLayout = {}; //@TODO set right layout object
+                    const standardLayout = {
+                        name: 'Standard layout 1',
+                        ccmComponent: {
+                            url: '', // TODO
+                            config: {} // TODO
+                        },
+                        custom: {
+                            htmlUrl: null,
+                            cssUrl: null
+                        }
+                    };; //@TODO set right layout object
                     const layoutKey = await this.createLayout(websiteKey, themeKey, standardLayout);
 
                     // TODO Create start page
-                    const startPage = {}; //@TODO set right page object
+                    const startPage = {
+                        parentKey: null,
+                        title: 'Hello world!',
+                        urlPart: '/',
+                        meta: {
+                            description: '',
+                            keywords: '',
+                            robots: true
+                        },
+                        themeKey: themeKey,
+                        layoutKey: layoutKey,
+                        blocks: [
+                            {
+                                "type" : "header",
+                                "data" : {
+                                    "text" : "Hello world!",
+                                    "level" : 1
+                                }
+                            },
+                            {
+                                "type" : "paragraph",
+                                "data" : {
+                                    "text" : "This is a new website made with <b>modularcms</b>."
+                                }
+                            }
+                        ]
+                    };
                     const pageKey = await this.createPage(websiteKey, startPage);
+
+                    // Publish page
+                    await this.publishPage(websiteKey, pageKey, username, 'Initial start page commit');
 
                     resolve();
                 });
@@ -698,7 +745,8 @@
                     pageObject.changeLog.push({
                         timestamp: (new Date()).getTime(),
                         username: username,
-                        commitMessage: commitMessage
+                        commitMessage: commitMessage,
+                        publish: false
                     });
                 }
                 await websitePagesDataStore.set({
@@ -725,7 +773,8 @@
                     page.changeLog.push({
                         timestamp: (new Date()).getTime(),
                         username: username,
-                        commitMessage: commitMessage
+                        commitMessage: commitMessage,
+                        publish: true
                     });
                 }
                 await websitePagesDataStore.set({

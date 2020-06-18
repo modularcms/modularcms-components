@@ -232,7 +232,7 @@
                                 }
                             }
                         ]
-                    }; //@TODO set right page object
+                    };
                     const pageKey = await this.createPage(websiteKey, startPage);
 
                     // Publish page
