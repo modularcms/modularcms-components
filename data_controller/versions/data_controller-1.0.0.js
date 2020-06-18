@@ -72,6 +72,26 @@
                 return re;
             }
 
+            /**
+             * Returns the data store for the corresponding website pages table
+             * @param {string} websiteKey   The website key
+             * @returns {Promise<Credential>}
+             */
+            this.getWebsitePagesDataStore = async (websiteKey) => {
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages'});
+                return re;
+            }
+
+            /**
+             * Returns the data store for the corresponding website page url mapping table
+             * @param {string} websiteKey   The website key
+             * @returns {Promise<Credential>}
+             */
+            this.getWebsitePageUrlMappingDataStore = async (websiteKey) => {
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping'});
+                return re;
+            }
+
 
             /**
              * -----------------
@@ -127,15 +147,16 @@
              * Creates a new website
              * @param {string} domain   the website domain
              * @param {string} baseUrl  the base url
+             * @param {string} username the username of the user that is creating the website
              * @returns {Promise<string>}
              */
-            this.createWebsite = (domain, baseUrl) => new Promise(async (resolve, reject) => {
+            this.createWebsite = (domain, baseUrl, username) => new Promise(async (resolve, reject) => {
                 // Check if domain is not already existing
                 this.domains_websites_mapping.get(domain).then(() => {
                     reject();
                 }).catch(async () => {
                     // Add website
-                    let websiteKey = await this.websites.set({
+                    const websiteKey = await this.websites.set({
                         value: {
                             domain: domain,
                             baseUrl: baseUrl
@@ -153,17 +174,69 @@
                         "_": await this.getWebsitePermissions()
                     });
 
-                    // TODO Add user to website
+                    // Add user to website
+                    await this.addUserToWebsite(websiteKey, username, 'admin');
 
+                    // Create standard theme
+                    const standardTheme = {
+                        name: 'Standard theme',
+                        ccmComponent: {
+                            url: '', // TODO
+                            config: {} // TODO
+                        },
+                        custom: {
+                            htmlUrl: null,
+                            cssUrl: null
+                        }
+                    };
+                    const themeKey = await this.createTheme(websiteKey, standardTheme);
 
-                    // TODO Add standard theme
+                    // TODO Create standard layouts
+                    const standardLayout = {
+                        name: 'Standard layout 1',
+                        ccmComponent: {
+                            url: '', // TODO
+                            config: {} // TODO
+                        },
+                        custom: {
+                            htmlUrl: null,
+                            cssUrl: null
+                        }
+                    };; //@TODO set right layout object
+                    const layoutKey = await this.createLayout(websiteKey, themeKey, standardLayout);
 
+                    // TODO Create start page
+                    const startPage = {
+                        parentKey: null,
+                        title: 'Hello world!',
+                        urlPart: '/',
+                        meta: {
+                            description: '',
+                            keywords: '',
+                            robots: true
+                        },
+                        themeKey: themeKey,
+                        layoutKey: layoutKey,
+                        blocks: [
+                            {
+                                "type" : "header",
+                                "data" : {
+                                    "text" : "Hello world!",
+                                    "level" : 1
+                                }
+                            },
+                            {
+                                "type" : "paragraph",
+                                "data" : {
+                                    "text" : "This is a new website made with <b>modularcms</b>."
+                                }
+                            }
+                        ]
+                    }; //@TODO set right page object
+                    const pageKey = await this.createPage(websiteKey, startPage);
 
-                    // TODO Add standard layouts
-
-
-                    // TODO Add startpage
-
+                    // Publish page
+                    await this.publishPage(websiteKey, pageKey, username, 'Initial start page commit');
 
                     resolve();
                 });
@@ -418,7 +491,7 @@
              * @param {string}  themeKey    The theme key
              * @returns {Promise<{}>}
              */
-            this.getThemeOfWebsite = async (websiteKey, themeKey) => {
+            this.getTheme = async (websiteKey, themeKey) => {
                 const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
                 let themeGet = await websiteThemesDataStore.get(themeKey);
                 let theme = themeGet.value;
@@ -427,12 +500,29 @@
             }
 
             /**
+             * Get all themes of a website
+             * @param {string}  websiteKey  The website key
+             * @returns {Promise<{}>}
+             */
+            this.getAllThemesOfWebsite = async (websiteKey) => {
+                const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
+                let themesGet = await websiteThemesDataStore.get();
+                let re = [];
+                for (let themeGet of themesGet) {
+                    let theme = themeGet.value;
+                    theme.themeKey = themeGet.key;
+                    re.push(theme);
+                }
+                return re;
+            }
+
+            /**
              * Creates a theme for a website
              * @param {string}  websiteKey  The website key
              * @param {{}}      themeObject The theme object
              * @returns {Promise<string>}
              */
-            this.createThemeForWebsite = async (websiteKey, themeObject) => {
+            this.createTheme = async (websiteKey, themeObject) => {
                 const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
                 let themeKey = await websiteThemesDataStore.set({
                     value: themeObject
@@ -441,13 +531,13 @@
             }
 
             /**
-             * Creates a theme for a website
+             * Sets a theme object
              * @param {string}  websiteKey  The website key
              * @param {string}  themeKey    The theme key
              * @param {{}}      themeObject The theme object
              * @returns {Promise<void>}
              */
-            this.setThemeObjectForWebsite = async (websiteKey, themeKey, themeObject) => {
+            this.setThemeObject = async (websiteKey, themeKey, themeObject) => {
                 const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
                 themeObject['themeKey'] !== undefined && delete themeObject['themeKey'];
                 await websiteThemesDataStore.set({
@@ -457,12 +547,12 @@
             }
 
             /**
-             * Creates a theme for a website
+             * Removes a theme
              * @param {string}  websiteKey  The website key
              * @param {string}  themeKey    The theme key
              * @returns {Promise<void>}
              */
-            this.removeThemeForWebsite = async (websiteKey, themeKey) => {
+            this.removeTheme = async (websiteKey, themeKey) => {
                 const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
                 await websiteThemesDataStore.del(themeKey);
             }
@@ -478,15 +568,33 @@
              * Get layout of website theme
              * @param {string}  websiteKey  The website key
              * @param {string}  themeKey    The theme key
-             * @param {string}  layoutKey   The theme key
+             * @param {string}  layoutKey   The layout key
              * @returns {Promise<{}>}
              */
-            this.getLayoutOfWebsiteTheme = async (websiteKey, themeKey, layoutKey) => {
+            this.getLayout = async (websiteKey, themeKey, layoutKey) => {
                 const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutGet = await websiteThemeLayoutsDataStore.get(layoutKey);
                 let layout = layoutGet.value;
-                layout.themeKey = layoutGet.key;
+                layout.layoutKey = layoutGet.key;
                 return layout;
+            }
+
+            /**
+             * Get all layouts of a website theme
+             * @param {string}  websiteKey  The website key
+             * @param {string}  themeKey    The theme key
+             * @returns {Promise<{}>}
+             */
+            this.getAllLayoutsOfTheme = async (websiteKey, themeKey) => {
+                const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
+                let layoutsGet = await websiteThemeLayoutsDataStore.get();
+                let re = [];
+                for (let layoutGet of layoutsGet) {
+                    let layout = layoutGet.value;
+                    layout.layoutKey = layoutGet.key;
+                    re.push(layout);
+                }
+                return re;
             }
 
             /**
@@ -496,7 +604,7 @@
              * @param {{}}      layoutObject    The layout object
              * @returns {Promise<string>}
              */
-            this.createLayoutForWebsiteTheme = async (websiteKey, themeKey, layoutObject) => {
+            this.createLayout = async (websiteKey, themeKey, layoutObject) => {
                 const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutKey = await websiteThemeLayoutsDataStore.set({
                     value: layoutObject
@@ -512,7 +620,7 @@
              * @param {{}}      layoutObject    The layout object
              * @returns {Promise<void>}
              */
-            this.setLayoutObjectForWebsiteTheme = async (websiteKey, themeKey, layoutKey, layoutObject) => {
+            this.setLayoutObject = async (websiteKey, themeKey, layoutKey, layoutObject) => {
                 const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 layoutObject['layoutKey'] !== undefined && delete layoutObject['layoutKey'];
                 await websiteThemeLayoutsDataStore.set({
@@ -527,7 +635,7 @@
              * @param {string}  themeKey    The theme key
              * @returns {Promise<void>}
              */
-            this.removeLayoutForWebsiteTheme = async (websiteKey, themeKey) => {
+            this.removeLayout = async (websiteKey, themeKey) => {
                 const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 await websiteThemeLayoutsDataStore.del(themeKey);
             }
@@ -538,6 +646,175 @@
              *  P A G E S
              * ------------
              */
+
+            /**
+             * Get page of website
+             * @param {string}  websiteKey  The website key
+             * @param {string}  pageKey     The page key
+             * @returns {Promise<any>}
+             */
+            this.getPage = async (websiteKey, pageKey) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                let pageGet = await websitePagesDataStore.get(pageKey);
+                let page = pageGet.value;
+                page.pageKey = pageGet.key;
+                return page;
+            }
+
+            /**
+             * Get page by page url
+             * @param {string}  websiteKey  The website key
+             * @param {string}  pageUrl     The page url
+             * @returns {Promise<any>}
+             */
+            this.getPageByUrl = async (websiteKey, pageUrl) => {
+                const websitePageUrlMappingDataStore = this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const pageUrlMappingGet = websitePageUrlMappingDataStore.get(pageUrl);
+                const pageKey = pageUrlMappingGet.key;
+                const page = this.getPage(websiteKey, pageKey);
+                return page;
+            }
+
+            /**
+             * Get complete page url of website
+             * @param {string}  websiteKey  The website key
+             * @param {string}  pageKey     The page key
+             * @returns {Promise<string>}
+             */
+            this.getFullPageUrl = async (websiteKey, pageKey) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+
+                // Build url the tree up
+                let url = '';
+                let currentPageKey = pageKey;
+                do {
+                    let page = await this.getPage(websiteKey, currentPageKey);
+                    url = page.urlPart + url;
+                    currentPageKey = page.parentKey;
+                } while(currentPageKey != null)
+
+                return url;
+            }
+
+            /**
+             * Get all pages of a website
+             * @param {string}  websiteKey  The website key
+             * @returns {Promise<{}>}
+             */
+            this.getAllPagesOfWebsite = async (websiteKey) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                let pagesGet = await websitePagesDataStore.get();
+                let re = [];
+                for (let pageGet of pagesGet) {
+                    let page = pageGet.value;
+                    page.pageKey = pageGet.key;
+                    re.push(page);
+                }
+                return re;
+            }
+
+            /**
+             * Creates a page for a website
+             * @param {string}  websiteKey  The website key
+             * @param {string}  pageKey     The page key
+             * @param {{}}      pageObject  The page object
+             * @returns {Promise<string>}
+             */
+            this.createPage = async (websiteKey, pageObject) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                let pageKey = await websitePagesDataStore.set({
+                    value: pageObject
+                });
+                return pageKey;
+            }
+
+            /**
+             * Sets the page object for a website
+             * @param {string}          websiteKey      The website key
+             * @param {string}          pageKey         The page key
+             * @param {{}}              pageObject      The layout object
+             * @param {string|false}    username        The editing username
+             * @param {string|false}    commitMessage   The commit message
+             * @returns {Promise<void>}
+             */
+            this.setPageObject = async (websiteKey, pageKey, pageObject, username = false, commitMessage = false) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
+                if (username !== false && commitMessage !== false) {
+                    if (pageObject.changeLog === undefined) {
+                        pageObject['changeLog'] = [];
+                    }
+                    pageObject.changeLog.push({
+                        timestamp: (new Date()).getTime(),
+                        username: username,
+                        commitMessage: commitMessage,
+                        publish: false
+                    });
+                }
+                await websitePagesDataStore.set({
+                    key: pageKey,
+                    value: pageObject
+                });
+            }
+
+            /**
+             * Publishs the page for a website
+             * @param {string}          websiteKey      The website key
+             * @param {string}          pageKey         The page key
+             * @param {string|false}    username        The editing username
+             * @param {string|false}    commitMessage   The commit message
+             * @returns {Promise<void>}
+             */
+            this.publishPage = async (websiteKey, pageKey, username = false, commitMessage = false) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                let page = this.getPage(websiteKey, pageKey);
+                if (username !== false && commitMessage !== false) {
+                    if (page.changeLog === undefined) {
+                        page['changeLog'] = [];
+                    }
+                    page.changeLog.push({
+                        timestamp: (new Date()).getTime(),
+                        username: username,
+                        commitMessage: commitMessage,
+                        publish: true
+                    });
+                }
+                await websitePagesDataStore.set({
+                    key: pageKey + '_live',
+                    value: page
+                });
+
+                // Set page url mapping
+                const websitePageUrlMappingDataStore = this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
+                await websitePageUrlMappingDataStore.set({
+                    key: pageUrl,
+                    value: pageKey
+                })
+            }
+
+            /**
+             * removes a page from a website
+             * @param {string}  websiteKey  The website key
+             * @param {string}  pageKey     The page key
+             * @returns {Promise<void>}
+             */
+            this.removePage = async (websiteKey, pageKey) => {
+                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                await websitePagesDataStore.del(pageKey);
+
+                // Delete live version
+                try {
+                    await websitePagesDataStore.del(pageKey + '_live');
+                } catch(e) {}
+
+                // Delete url mapping
+                const websitePageUrlMappingDataStore = this.getWebsitePageUrlMappingDataStore(websiteKey);
+                try {
+                    const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
+                    websitePageUrlMappingDataStore.del(pageUrl);
+                } catch(e) {}
+            }
 
         }
     };

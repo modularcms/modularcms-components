@@ -1,0 +1,36 @@
+#element, #main {
+    height: 100%;
+}
+
+#main {
+    display: flex;
+    flex-direction: column;
+}
+
+#head {
+    display: flex;
+    width: 100%;
+}
+
+#list .list-item {
+    cursor: pointer;
+}
+
+#main .search {
+    margin-right: 10px;
+}
+
+#create-new-page-modal #create-modal-step-1 {
+    height: 500px;
+    max-height: calc(100% - 25px);
+}
+
+#list-modal {
+    margin-bottom: 10px;
+}
+
+.modal-footer .button {
+    display: inline-flex;
+    margin-left: 50%;
+    transform: translateX(-50%);
+}
