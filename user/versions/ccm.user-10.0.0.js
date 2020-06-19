@@ -122,7 +122,6 @@
         let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
         if ( result ) {
           result = $.parse(result);
-          console.log(result);
         } else {
           let wrongLogin = false;
           let username = '';

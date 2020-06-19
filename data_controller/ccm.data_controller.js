@@ -15,8 +15,7 @@
         config: {
             "domains_websites_mapping": ["ccm.store", { "name": "fbroeh2s_domains_websites_mapping", "url": "https://ccm2.inf.h-brs.de" } ],
             "websites": ["ccm.store", { "name": "fbroeh2s_websites", "url": "https://ccm2.inf.h-brs.de" } ],
-            "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ],
-            "localDataStore": ["ccm.store", { "name": "localDb" } ]
+            "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ]
         },
 
         Instance: function () {
@@ -872,20 +871,8 @@
              * @returns {Promise<any>}
              */
             this.getCurrentWorkingUsername = async () => {
-                const username = await this.localDataStore.get('username');
-                return username;
-            }
-
-            /**
-             * Set the current working username
-             * @param {string}  username    The username
-             * @returns {Promise<any>}
-             */
-            this.setCurrentWorkingUsername = async (username) => {
-                await this.localDataStore.set({
-                    key: 'username',
-                    value: username
-                });
+                let result = sessionStorage.getItem( 'ccm-user-modularcms' );
+                return result.user;
             }
         }
     };
