@@ -19,8 +19,7 @@
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
-            "pages": [ "ccm.store", { "name": "fbroeh2s_pages", "url": "https://ccm2.inf.h-brs.de" } ],
-            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ]
         },
 
         Instance: function () {
@@ -30,270 +29,166 @@
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
 
-            this.modalCreated = false;
+            this.createPanelCreated = false;
+            this.installPanelCreated = false;
 
             /**
              * Starts the component
              * @returns {Promise<void>}
              */
             this.start = async () => {
-                $.setContent(this.element, $.html(this.html.main, {}));
-
-                // Add search
-                this.initSearch('#list-search', '#list');
-
-                // Add click event for create button
-                this.element.querySelector('#create-button').addEventListener('click', () => {
-                    this.routing.navigateTo('/pages/create/1');
-                });
-
                 // Add routing
                 this.routing.registerRoutingCallback(async (detail) => {
-                    if (detail.url.indexOf('/website/create') == 0) {
-                        if (!this.modalCreated) {
-                            this.modalCreated = true;
-                            this.openCreateNewPageModal();
+                    if (detail.url.indexOf('/websites/create') == 0) {
+                        if (detail.url == '/websites/create') {
+                            if (!this.createPanelCreated) {
+                                this.panelCreated = true;
+                                await this.openCreateWebsitePanel();
+                            } else {
+                                this.element.querySelector('#website-create-panel').classList.remove('hidden');
+                            }
+                            if (this.installPanelCreated) {
+                                this.element.querySelector('#website-install-panel').classList.add('hidden');
+                            }
                         }
-                        if (detail.url == '/website/create/1') {
-                            this.element.querySelector('#create-modal-step-2').style.display = 'none';
-                            this.element.querySelector('#create-modal-step-1').style.display = 'flex';
+                        if (detail.url.indexOf('/websites/install/')) {
+                            if (!this.installPanelCreated) {
+                                this.panelCreated = true;
+                                await this.openInstallWebsitePanel(detail.urlParts[2]);
+                            } else {
+                                this.element.querySelector('#website-install-panel').classList.remove('hidden');
+                            }
+                            if (this.createPanelCreated) {
+                                this.element.querySelector('#website-create-panel').classList.add('hidden');
+                            }
                         }
-                        if (detail.url == '/website/create/2') {
-                            this.element.querySelector('#create-modal-step-1').style.display = 'none';
-                            this.element.querySelector('#create-modal-step-2').style.display = 'flex';
-                        }
-                    } else if (detail.url.indexOf('/pages/edit/') == 0) {
+                    } else if (detail.url.indexOf('/websites/edit/') == 0) {
                         // @TODO
-                    } else if (detail.url.indexOf('/pages') == 0) {
+                    } else {
                         // Close modal
-                        await this.closeCreateNewPageModal();
-
-                        // load page selection
-                        await this.loadAllPages('#list');
-
-                        // add click events for list
-                        this.element.querySelectorAll('#list .list-item').forEach(elem => {
-                            elem.addEventListener('click', () => {
-                                let pageKey = elem.getAttribute('data-page-key');
-                                this.routing.navigateTo('/pages/edit/' + pageKey);
-                            });
-                        })
+                        await this.closePanels();
                     }
                 });
+
+                // Start add select render
+                let selectWrapper = document.createElement('div');
+                selectWrapper.id = 'website-select-wrapper';
+                this.element.appendChild(selectWrapper);
+                await this.renderWebsiteSelect();
             };
 
             /**
-             * Loads all Pages
+             * Renders the website select box
              * @param {string}  target          Target element
              * @returns {Promise<void>}
              */
-            this.loadAllPages = async (target) => {
-                const list = this.element.querySelector(target);
-                list.classList.add('loading');
-                $.append(list, $.html(this.html.loader, {}));
+            this.renderWebsiteSelect = async () => {
+                const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
+                const website = this.data_controller.getWebsite(selectedWebsiteKey);
+                const websites = this.data_controller.getUserWebsites();
 
-                const data = await this.pages.get();
+                // Render select box
+                const wrapper = this.element.querySelector('#website-select-wrapper');
+                $.setContent(wrapper, $.html(this.html.selectBox, {
+                    domain: website.domain
+                }));
 
-                list.innerHTML = '';
+                // Add items to select list
+                const selectList = this.element.querySelector('#website-select-list');
+                for (let website of websites) {
+                    $.append(selectList, $.html(this.html.listItem, {
+                        websiteKey: website.websiteKey,
+                        domain: website.domain
+                    }));
+                }
 
-                // Iterate through all data
-                data.forEach((element) => {
-                    let page = element.value;
-                    //this.pages.del(element.key);
-                    $.append(list, $.html(this.html.listItem, {title: page.title, urlName: page.urlName, pageKey: element.key}));
-                });
-
-                list.classList.remove('loading');
+                // TODO Add list click events
             }
 
             /**
-             * Initiates the search handling
-             * @param   {string}    targetSearchInput   the target search input descriptor
-             * @param   {string}    targetList   the target list descriptor
+             * Creates the panel to create a new website
              * @returns {Promise<void>}
              */
-            this.initSearch = async (targetSearchInput, targetList) => {
-                const listSearchInput = this.element.querySelector(targetSearchInput);
-                listSearchInput.addEventListener('keyup', () => {
-                    let searchTerms = listSearchInput.value.split(' ');
-                    this.element.querySelectorAll(targetList + ' .list-item').forEach(elem => {
-                        let title = elem.getAttribute('data-page-title');
-                        let layoutType = elem.getAttribute('data-page-layout-type');
-                        let pagePath = elem.getAttribute('data-page-path');
+            this.openCreateWebsitePanel = async () => {
+                // Append modal html
+                $.append(this.element, $.html(this.html.createWebsitePanel, {}));
 
-                        let allMatching = false;
-                        for (let searchTerm of searchTerms) {
-                            if (searchTerm == '' || title.indexOf(searchTerm) >= 0 || layoutType.indexOf(searchTerm) >= 0 || pagePath.indexOf(searchTerm) >= 0) {
-                                allMatching = true;
-                            } else {
-                                allMatching = false;
-                                break;
-                            }
-                        }
+                // Add event for finish
+                this.element.querySelector('#website-create-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
 
-                        if (allMatching) {
-                            elem.classList.remove('hidden');
-                        } else {
-                            elem.classList.add('hidden');
-                        }
-                    });
+                    // Get values
+                    const domain = this.element.querySelector('#website-create-domain').value;
+                    const baseUrl = this.element.querySelector('website-create-base-url').value;
+
+                    // Add the website
+                    try {
+                        // Show loader
+                        $.setContent(this.element.querySelector('#panel-loader-wrapper'), $.html(this.html.loader, {}));
+
+                        // Create the website
+                        const websiteKey = await this.data_controller.createNewWebsite(domain, baseUrl);
+
+                        // Set the created website as the current working target website
+                        await this.data_controller.setSelectedWebsiteKey(websiteKey);
+
+                        // Navigate to install panel
+                        this.routing.navigateTo('/websites/install/' + websiteKey);
+                    } catch (e) {
+                        // TODO Errorhandling
+                    }
                 });
             }
 
             /**
-             * Creates the modal to create a new page
+             * Creates the panel to create a new website
+             * @param   {string}    websiteKey  The websiteKey
              * @returns {Promise<void>}
              */
-            this.openCreateNewPageModal = async () => {
-                let selectedParentPageKey = null;
-                let selectedParentPagePath = null;
+            this.openInstallWebsitePanel = async (websiteKey) => {
+                // Assert that the create panel is in the dom
+                if (!this.createPanelCreated) {
+                    this.routing.navigateTo('/websites/create');
+                    return;
+                }
+
+                // Fetch the website object
+                const website = this.data_controller.getWebsite(websiteKey);
 
                 // Append modal html
-                $.append(this.element, $.html(this.html.newPageModal, {}));
-
-                //Load page selection
-                this.loadAllPages('#list-modal').then(() => {
-                    //Add events for page parent list select
-                    this.element.querySelectorAll('#list-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
-                        let previousSelectedElement = this.element.querySelector('#list-modal .list-item.selected');
-                        previousSelectedElement && previousSelectedElement.classList.remove('selected');
-                        elem.classList.add('selected');
-                        selectedParentPageKey = elem.getAttribute('data-page-key');
-                        selectedParentPagePath = elem.getAttribute('data-page-path') + '/';
-
-                        // Enable button
-                        enableSelectButton();
-                    }));
-                })
-
-                // Add events for close
-                this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
-                    this.routing.navigateBack('/pages');
+                $.append(this.element, $.html(this.html.installWebsitePanel, {
+                    domain: website.domain,
+                    baseUrl: website.baseUrl
                 }));
 
-                // Add events for back
-                this.element.querySelectorAll('.modal-back').forEach(elem => elem.addEventListener('click', () =>{
-                    this.routing.navigateBack();
-                }));
-
-                // Closure for enabling and disabling the select button
-                const enableSelectButton = () => {
-                    let target = '#modal-select-button';
-                    if (selectedParentPageKey != null) {
-                        this.element.querySelector(target).classList.remove('button-disabled');
-                    } else {
-                        this.element.querySelector(target).classList.add('button-disabled');
-                    }
-                }
-
-                // Closure for enabling and disabling the create button
-                const enableCreateButton = () => {
-                    let target = '#modal-create-button';
-                    let urlSplit = urlInput.value.split('/');
-                    if (titleInput.value != '' && urlSplit[urlSplit.length - 1] != '-') {
-                        this.element.querySelector(target).classList.remove('button-disabled');
-                    } else {
-                        this.element.querySelector(target).classList.add('button-disabled');
-                    }
-                }
-
-                //Closure for urlEntryReplacements
-                const generateUrl = (baseUrl, value) => {
-                    let re = value.toLowerCase()
-                        .replace(/[#?&/=+.*'{}()%$§"!;,:´`]+/g, '')
-                        .replace(/ /g, '-')
-                        .replace(/ä/g, 'ae')
-                        .replace(/ü/g, 'ue')
-                        .replace(/ö/g, 'oe')
-                        .replace(/ß/g, 'ss');
-                    if (re == '') {
-                        re = '-';
-                    }
-                    return baseUrl + re;
-                }
-
-                // Add auto creation of url
-                const titleInput = this.element.querySelector('#create-modal-page-title')
-                titleInput.addEventListener('keyup', () => {
-                    let value = titleInput.value;
-                    let pageUrl = generateUrl(selectedParentPagePath, value);
-
-                    this.element.querySelector('#create-modal-page-url').value = pageUrl;
-
-                    // Enable button
-                    enableCreateButton();
+                // Add event for download
+                const downloadButton = this.element.querySelector('#website-install-download');
+                const nextButton = this.element.querySelector('#website-install-next');
+                downloadButton.addEventListener('click', () => {
+                    // TODO Download
+                    nextButton.classList.remove('button-disabled');
                 });
 
-                // Prevent the removal of the base url
-                const urlInput = this.element.querySelector('#create-modal-page-url')
-                urlInput.addEventListener('keyup', () => {
-                    let inputSplit = urlInput.value.split('/');
-
-                    let value = inputSplit[inputSplit.length - 1];
-                    let pageUrl = generateUrl(selectedParentPagePath, value);
-
-                    this.element.querySelector('#create-modal-page-url').value = pageUrl;
-
-                    // Enable button
-                    enableCreateButton();
+                // Add event for finish
+                nextButton.addEventListener('click', () => {
+                    // TODO Switch to right website
+                    this.routing.navigateTo('/pages');
                 });
-
-                // Add events for finish
-                this.element.querySelector('#modal-select-button').addEventListener('click', () => {
-                    this.element.querySelector('#create-modal-page-url').value = generateUrl(selectedParentPagePath, titleInput.value);
-                    this.routing.navigateTo('/pages/create/2');
-                });
-
-                // Add events for finish
-                this.element.querySelector('#modal-create-button').addEventListener('click', () => {
-                    this.createNewPage(
-                        0,
-                        selectedParentPageKey,
-                        this.element.querySelector('#create-modal-page-title').value,
-                        this.element.querySelector('#create-modal-page-url').value,
-                        0
-                    );
-                })
-
-                // Add search
-                this.initSearch('#create-modal-list-search', '#list-modal');
             }
 
             /**
-             * Closes the modal
+             * Closes all create/install panels
              * @returns {Promise<void>}
              */
-            this.closeCreateNewPageModal = async () => {
-                $.remove(this.element.querySelector('#create-new-page-modal'));
-                this.modalCreated = false;
-            }
-
-            /**
-             * Creates a new page
-             * @returns {Promise<void>}
-             */
-            this.createNewPage = async (websiteId, parentId, title, urlName, layoutId) => {
-                let pageKey = await this.pages.set({
-                    value: {
-                        title: title,
-                        urlName: urlName,
-                        parentId: parentId,
-                        layoutId: layoutId
-                    },
-                    "_": {
-                        creator: 'test',
-                        realm: 'modularcms',
-                        group: {
-                            admins: [ 'broehl', 'test' ]
-                        },
-                        access: {
-                            get: 'all',
-                            set: 'admins',
-                            del: 'test'
-                        }
-                    }
-                });
-                this.routing.navigateTo('/pages/edit/' + pageKey);
+            this.closePanels = async () => {
+                try {
+                    $.remove(this.element.querySelector('#website-create-panel'));
+                } catch (e) {}
+                try {
+                    $.remove(this.element.querySelector('#website-install-panel'));
+                } catch (e) {}
+                this.createPanelCreated = false;
+                this.installPanelCreated = false;
             }
         }
 

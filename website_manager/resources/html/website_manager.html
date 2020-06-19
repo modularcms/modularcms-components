@@ -1,34 +1,24 @@
 <!--
-@overview default HTML template of ccm component for page_manager modularcms
+@overview default HTML template of ccm component for website_manager modularcms
 @author Felix Bröhl <broehl@everoo.io> 2020
 -->
 
-<ccm-template key="main">
-    <div id="main">
-        <div id="head">
-            <div class="search">
-                <input id="list-search" type="text" />
-                <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
-            </div>
-            <div id="create-button" class="button button-primary button-responsive-hide-text">
-                <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-                <div class="button-text">Create new page</div>
-            </div>
-        </div>
-        <div id="list" class="list"></div>
+<ccm-template key="selectBox">
+    <div id="website-select-box">
+        <div id="website-select-domain">%domain%</div>
+        <div id="website-select-icon"></div>
+        <div id="website-select-list"></div>
     </div>
 </ccm-template>
 <ccm-template key="listItem">
-    <div class="list-item list-item-with-more-button" data-page-key="%pageKey%" data-page-title="%title%" data-page-layout-type="%layoutTypeName%" data-page-path="%urlName%">
-        <div class="list-item-title">%title%</div>
-        <div class="list-item-subline">%layoutTypeName% – <i>%urlName%</i></div>
-        <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
+    <div class="website-select-list-item" data-website-key="%websiteKey%" data-website-domain="%domain%">
+        <div class="website-select-list-item-domain">%domain%</div>
     </div>
 </ccm-template>
 <ccm-template key="loader">
     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </ccm-template>
-<ccm-template key="newWebsitePanel">
+<ccm-template key="createWebsitePanel">
     <div id="website-create-panel" class="panel-container">
         <div class="panel-box">
             <div class="panel-loader-wrapper"></div>
@@ -39,17 +29,20 @@
                 <div class="panel-alert-wrapper"></div>
                 <h1 class="panel-heading">Enter a domain</h1>
                 <div class="panel-body">
-                    <form id="website-create-domain-form" class="form-horizontal" role="form">
-                        <input id="website-create-domain" type="text" class="form-control" name="user" placeholder="Enter a domain e.g. mydomain.com or subdomain.mydomain.com" value="" required="">
+                    <form id="website-create-form" role="form">
+                        <label for="website-create-domain">Enter a domain</label>
+                        <input id="website-create-domain" type="text" name="user" placeholder="Enter a domain e.g. mydomain.com or subdomain.mydomain.com" value="" required="">
+                        <label for="website-create-base-url">Enter a base url (default is '/' representing the entry point on your website e.g. mydomain.com<b>/</b></label>
+                        <input id="website-create-base-url" type="text" name="user" placeholder="Enter a domain e.g. mydomain.com or subdomain.mydomain.com" value="" required="">
                         <input type="submit" value="Login">
                     </form>
                 </div>
             </div>
-            <div class="panel-subline">
-                <span>No account yet?&nbsp;</span>
-                <a href="/register">Create an account now</a>
-            </div>
         </div>
+    </div>
+</ccm-template>
+<ccm-template key="installWebsitePanel">
+    <div id="website-install-panel" class="panel-container">
         <div class="panel-box">
             <div class="panel-loader-wrapper"></div>
             <div class="panel-logo-wrapper">
@@ -57,61 +50,13 @@
             </div>
             <div class="panel-content">
                 <div class="panel-alert-wrapper"></div>
-                <h1 class="panel-heading">Enter a domain</h1>
+                <h1 class="panel-heading">Setup your webhost</h1>
                 <div class="panel-body">
-                    <form id="website-create-baseurl-form" class="form-horizontal" role="form">
-                        <input id="website-create-baseurl" type="text" class="form-control" name="user" placeholder="Enter a domain e.g. mydomain.com or subdomain.mydomain.com" value="" required="">
-                        <input type="submit" value="Login">
-                    </form>
-                </div>
-            </div>
-            <div class="panel-subline">
-                <span>No account yet?&nbsp;</span>
-                <a href="/register">Create an account now</a>
-            </div>
-        </div>
-    </div>
-    <div id="create-new-page-modal" class="modal">
-        <div class="modal-bg"></div>
-        <div class="modal-inner" id="create-modal-step-1">
-            <div class="modal-head">
-                <h2>Create new page</h2>
-                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
-            </div>
-            <label for="create-modal-list-search">Please select the parent page of the new page</label>
-            <div class="search">
-                <input type="text" id="create-modal-list-search" />
-                <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
-            </div>
-            <div id="list-modal" class="list list-without-more-button"></div>
-            <div class="modal-footer">
-                <div id="modal-select-button" class="button button-primary button-disabled">
-                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
-                    <div class="button-text">Select as parent page</div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-inner" id="create-modal-step-2" style="display: none;">
-            <div class="modal-head">
-                <div class="modal-back">
-                    <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/back-icon.svg" />
-                    <div class="modal-back-text">Back</div>
-                </div>
-                <h2>Create new page</h2>
-                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
-            </div>
-            <div>
-                <label for="create-modal-page-title">Please enter a title for the new page</label>
-                <input type="text" id="create-modal-page-title" />
-            </div>
-            <div>
-                <label for="create-modal-page-url">Please enter a url for the new page</label>
-                <input type="text" id="create-modal-page-url" />
-            </div>
-            <div class="modal-footer">
-                <div id="modal-create-button" class="button button-primary button-disabled">
-                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-                    <div class="button-text">Create new page</div>
+                    <p>In order to connect your domain with modularcms you need to own a webhost that is related to your domain. Furthermore you must be able to upload the following files to your webhost.</p>
+                    <p>First you need to download the following .zip package</p>
+                    <div id="website-install-download" class="button button-primary">Download .zip package</div>
+                    <p>After that you need to extract the .zip file and upload the contained files to your web host folder that’s representing for your defined base url (<b><pre>https://%domain%%baseUrl%</pre></b>)</p>
+                    <div id="website-install-next" class="button button-primary button-disabled">Ok, I have done that</div>
                 </div>
             </div>
         </div>

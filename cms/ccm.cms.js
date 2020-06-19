@@ -47,6 +47,7 @@
         {"title": "Layouts", "route": "/layouts"}
       ],
       "page_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js" ],
+      "website_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/website_manager/versions/ccm.website_manager-1.0.0.js" ],
     },
 
     Instance: function () {
@@ -68,6 +69,9 @@
 
         // render main HTML structure
         $.setContent(this.element, $.html(this.html.main, {logo: this.logo, title: this.title}));
+
+        // init website manager
+        if ( this.website_manager ) { $.append( this.element.querySelector('#website-manager-wrapper'), this.website_manager.root ); this.website_manager.start(); }
 
         // load editor.js
         let editorJsScriptElement = document.createElement('script');

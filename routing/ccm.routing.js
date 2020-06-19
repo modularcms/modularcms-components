@@ -28,7 +28,6 @@
                 // Init static vars
                 if (!window.ccmRouting) {
                     window.ccmRouting = {
-                        urlStack: [],
                         uniqueStateIndex: 0,
                         currentUrl: '/',
                         started: false,
@@ -42,11 +41,10 @@
                     this.navigateTo(href);
                 });
 
-                //Listen to browser back event
+                // Listen to browser back event
                 window.addEventListener('popstate', (e) => {
                     if (e.state !== null) {
-                        this.changeUrl(e.state.url, false, true);
-                        console.log(e);
+                        this.changeUrl(e.state.url, true);
                     }
                 });
             };
@@ -62,7 +60,7 @@
                 window.ccmRouting.routingCallbacks.push(callbackFunction);
                 if (!window.ccmRouting.started) {
                     window.ccmRouting.started = true;
-                    this.changeUrl(window.location.pathname, false, true);
+                    this.changeUrl(window.location.pathname, true);
                 }
             };
 
@@ -72,7 +70,6 @@
              */
             this.navigateRoot = (url) => {
                 if (url != window.ccmRouting.currentUrl) {
-                    window.ccmRouting.urlStack = [url];
                     this.changeUrl(url);
                 } else {
                     console.warn('Did not perform navigate, because the current url is the same');
@@ -86,7 +83,6 @@
             this.navigateTo = (url) => {
                 //@TODO Check if route is valid
                 if (url != window.ccmRouting.currentUrl) {
-                    window.ccmRouting.urlStack.push(url);
                     this.changeUrl(url);
                 } else {
                     console.warn('Did not perform navigate, because the current url is the same');
@@ -99,15 +95,11 @@
              */
             this.navigateBack = (url = null) => {
                 if (url != window.ccmRouting.currentUrl) {
-                    window.ccmRouting.urlStack.pop();
-                    let goToUrl = '';
-                    if (window.ccmRouting.urlStack.length > 0) {
-                        goToUrl = window.ccmRouting.urlStack[window.ccmRouting.urlStack.length - 1];
-                    }
                     if (url != null) {
-                        goToUrl = url;
+                        this.changeUrl(url);
+                    } else {
+                        window.history.back();
                     }
-                    this.changeUrl(goToUrl);
                 } else {
                     console.warn('Did not perform navigate, because the current url is the same');
                 }
@@ -115,19 +107,16 @@
 
             /**
              * Changes the browser url
-             * @param {string} url The url
-             * @param {number} index The url stack index
+             * @param {string}  url                 The url
+             * @param {boolean} withoutHistoryPush  The url
              */
-            this.changeUrl = (url, index = false, withoutHistoryPush = false) => {
+            this.changeUrl = (url, withoutHistoryPush = false) => {
                 let routingDetails = {
                     url: url,
+                    urlParts: url.split('/').filter((item, index) => index != 0 || item != ''),
                     urlWithoutParameters: null, //@TODO
                     parameters: {}, //@TODO
-                    urlStack: window.ccmRouting.urlStack
                 }
-
-                let uniqIndex = window.ccmRouting.uniqueStateIndex++;
-                routingDetails['urlIndex'] = (index !== false)?index:uniqIndex;
 
                 if (url === window.ccmRouting.currentUrl) {
                     console.warn('Propagated navigate, but the current url is the same');

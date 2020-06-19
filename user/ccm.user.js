@@ -29,6 +29,7 @@
 //    "logged_in": true,
 //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-4.0.4.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
       "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
+      "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
 //    "norender": true,
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
@@ -117,9 +118,10 @@
 
         // choose authentication mode and proceed login
         let result = sessionStorage.getItem( 'ccm-user-' + my.realm );
-        if ( result )
-          result = $.parse( result );
-        else {
+        if ( result ) {
+          result = $.parse(result);
+          console.log(result);
+        } else {
           let wrongLogin = false;
           let username = '';
           do {
@@ -205,15 +207,15 @@
           let createLoginAlert = (alertType = 'loginFailure') => {
             let close = () => {
               wrongLogin = false;
-              self.element.querySelector('#login-alert-wrapper').innerHTML = '';
+              self.element.querySelector('.panel-alert-wrapper').innerHTML = '';
             };
-            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
+            $.setContent( self.element.querySelector('.panel-alert-wrapper'), $.html( self.html.loginAlert, {
               iconsrc: (alertType == 'loginFailure')?self.alertLoginFailureIconSrc:self.alertLogoutSuccessIconSrc,
               closesrc: self.alertCloseIconSrc,
               text: (alertType == 'loginFailure')?self.alertLoginFailureText:self.alertLogoutSuccessText,
               close: close
             } ) );
-            self.element.querySelector('#login-alert').classList.add((alertType == 'loginFailure')?'failure':'success');
+            self.element.querySelector('.panel-alert').classList.add((alertType == 'loginFailure')?'failure':'success');
           }
 
           // wrong Login alert
@@ -233,8 +235,8 @@
            */
           function finish( result ) {
 
-            self.element.querySelector('#loginbox').classList.add('loading');
-            $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
+            self.element.querySelector('.panel-box').classList.add('loading');
+            $.setContent( self.element.querySelector('.panel-loader-wrapper'), $.html( self.html.loginLoader, {} ) );
 
             self.abortLoginPanelFunction = () => {};
 
@@ -368,15 +370,15 @@
           let createRegisterAlert = (message = '') => {
             let close = () => {
               wrongRegister = false;
-              self.element.querySelector('#login-alert-wrapper').innerHTML = '';
+              self.element.querySelector('.panel-alert-wrapper').innerHTML = '';
             }
-            $.setContent( self.element.querySelector('#login-alert-wrapper'), $.html( self.html.loginAlert, {
+            $.setContent( self.element.querySelector('.panel-alert-wrapper'), $.html( self.html.loginAlert, {
               iconsrc: self.alertLoginFailureIconSrc,
               closesrc: self.alertCloseIconSrc,
               text: message,
               close: close
             } ) );
-            self.element.querySelector('#login-alert').classList.add('failure');
+            self.element.querySelector('.panel-alert').classList.add('failure');
           }
 
           // wrong Login alert
@@ -392,8 +394,8 @@
            */
           function finish( result ) {
 
-            self.element.querySelector('#loginbox').classList.add('loading');
-            $.setContent( self.element.querySelector('#loader-wrapper'), $.html( self.html.loginLoader, {} ) );
+            self.element.querySelector('.panel-box').classList.add('loading');
+            $.setContent( self.element.querySelector('.panel-loader-wrapper'), $.html( self.html.loginLoader, {} ) );
 
             self.abortRegisterPanelFunction = () => {};
 

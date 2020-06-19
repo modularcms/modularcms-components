@@ -64,7 +64,10 @@
                             this.element.querySelector('#create-modal-step-2').style.display = 'flex';
                         }
                     } else if (detail.url.indexOf('/pages/edit/') == 0) {
+                        // Close modal
+                        await this.closeCreateNewPageModal();
                         // @TODO
+
                     } else if (detail.url.indexOf('/pages') == 0) {
                         // Close modal
                         await this.closeCreateNewPageModal();
@@ -293,7 +296,7 @@
                             del: 'test'
                         }
                     }
-                });
+                }); // TODO replace with data_controller and add loading spinner before create method
                 this.routing.navigateTo('/pages/edit/' + pageKey);
             }
         }

@@ -16,6 +16,7 @@
             "domains_websites_mapping": ["ccm.store", { "name": "fbroeh2s_domains_websites_mapping", "url": "https://ccm2.inf.h-brs.de" } ],
             "websites": ["ccm.store", { "name": "fbroeh2s_websites", "url": "https://ccm2.inf.h-brs.de" } ],
             "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ],
+            "localDataStore": ["ccm.store", { "name": "localDb" } ]
         },
 
         Instance: function () {
@@ -35,7 +36,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsiteUsersDataStore = async (key) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_users'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_users', url: 'https://ccm2.inf.h-brs.de'});
                 return re;
             }
 
@@ -45,7 +46,7 @@
              * @returns {Promise<Credential>}
              */
             this.getUserWebsitesDataStore = async (username) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_user_' + username + '_websites'});
+                let re = await this.ccm.store({name: 'fbroeh2s_user_' + username + '_websites', url: 'https://ccm2.inf.h-brs.de'});
                 return re;
             }
 
@@ -55,7 +56,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsiteThemesDataStore = async (key) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_themes'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_themes', url: 'https://ccm2.inf.h-brs.de'});
                 return re;
             }
 
@@ -66,7 +67,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsiteThemeLayoutDataStore = async (websiteKey, themeKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_theme_' + themeKey});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_theme_' + themeKey, url: 'https://ccm2.inf.h-brs.de'});
                 return re;
             }
 
@@ -76,7 +77,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsitePagesDataStore = async (websiteKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages', url: 'https://ccm2.inf.h-brs.de'});
                 return re;
             }
 
@@ -86,7 +87,17 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsitePageUrlMappingDataStore = async (websiteKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping', url: 'https://ccm2.inf.h-brs.de'});
+                return re;
+            }
+
+            /**
+             * Returns the data store for the corresponding website page url mapping table
+             * @param {string} username     The username
+             * @returns {Promise<Credential>}
+             */
+            this.getUserLocalDataStore = async (username) => {
+                let re = await this.ccm.store({name: 'localDb_' + username});
                 return re;
             }
 
@@ -814,6 +825,68 @@
                 } catch(e) {}
             }
 
+
+            /**
+             * -----------------------------------
+             *  L O C A L   E N V I R O N M E N T
+             * -----------------------------------
+             */
+
+            /**
+             * Get selected website key
+             * @returns {Promise<any>}
+             */
+            this.getSelectedWebsiteKey = async () => {
+                const username = await this.getCurrentWorkingUsername();
+                const localUserDataStore = this.getUserLocalDataStore(username);
+                try {
+                    let websiteKey = await localUserDataStore.get('selectedWebsite');
+                    return websiteKey;
+                } catch (e) {
+                    try {
+                        let userWebsites = this.getUserWebsites(username);
+                        if (userWebsites.length >= 1) {
+                            return userWebsites[0].websiteKey;
+                        }
+                    } catch (e) {}
+                }
+                return null;
+            }
+
+            /**
+             * Set the selected website key
+             * @param {string}  username    The username
+             * @returns {Promise<any>}
+             */
+            this.setSelectedWebsiteKey = async (websiteKey) => {
+                const username = await this.getCurrentWorkingUsername();
+                const localUserDataStore = this.getUserLocalDataStore(username);
+                await localUserDataStore.set({
+                    key: 'selectedWebsite',
+                    value: websiteKey
+                });
+            }
+
+            /**
+             * Get the current working username
+             * @returns {Promise<any>}
+             */
+            this.getCurrentWorkingUsername = async () => {
+                const username = await this.localDataStore.get('username');
+                return username;
+            }
+
+            /**
+             * Set the current working username
+             * @param {string}  username    The username
+             * @returns {Promise<any>}
+             */
+            this.setCurrentWorkingUsername = async (username) => {
+                await this.localDataStore.set({
+                    key: 'username',
+                    value: username
+                });
+            }
         }
     };
 

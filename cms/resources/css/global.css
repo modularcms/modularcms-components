@@ -184,6 +184,7 @@ input[type="submit"], button {
 
 .modal {
     position: fixed;
+    z-index: 1000001;
 }
 
 .modal, .modal-bg {
@@ -286,4 +287,120 @@ input[type="submit"], button {
     100% {
         transform: rotate(360deg);
     }
+}
+
+
+/**
+ * Panel
+ */
+.panel-container {
+    background-color: var(--color-primary);
+    min-height: 100vh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 10000000;
+}
+
+.panel-box {
+    width: 100%;
+    max-width: 600px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    position: absolute;
+    background-color: var(--color-light);
+    padding: 25px;
+    border-radius: 5px;
+    box-shadow: 0px 3px 6px rgba(0,0,0,0.16);
+}
+
+.panel-heading {
+    font-size: 30px;
+    font-weight: 600;
+    margin: 0;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.panel-logo-wrapper {
+    position: absolute;
+    left: 0;
+    height: 60px;
+    top: -76px;
+    width: 100%;
+}
+
+.panel-logo-wrapper img {
+    margin: 0 auto;
+    height: 100%;
+    display: block;
+}
+
+.panel-box.loading .panel-loader-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.panel-box.loading .panel-content {
+    filter: blur(5px);
+    opacity: 0.4;
+    z-index: 1;
+}
+
+.panel-alert {
+    padding: 16px;
+    border-radius: 5px;
+    color: var(--color-light);
+    display: flex;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.panel-alert.success {
+    background-color: #1fa748;
+}
+
+.panel-alert.failure {
+    background-color: #e64515;
+}
+
+.panel-alert-icon {
+    height: 40px;
+}
+
+.panel-alert-icon, .panel-alert-close {
+    flex-shrink: 0;
+}
+
+.panel-alert-text {
+    flex-grow: 1;
+    padding: 0px 8px;
+}
+
+.panel-alert-close {
+    height: 17px;
+    cursor: pointer;
+}
+
+.panel-subline {
+    position: absolute;
+    color: var(--color-light);
+    bottom: -33px;
+    text-align: center;
+    width: 100%;
+    left: 0;
+}
+
+.panel-subline a, .panel-subline a:link {
+    font-weight: 600;
+    color: var(--color-light);
 }
