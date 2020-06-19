@@ -86,8 +86,8 @@
              */
             this.renderWebsiteSelect = async () => {
                 const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
-                const website = this.data_controller.getWebsite(selectedWebsiteKey);
-                const websites = this.data_controller.getUserWebsites();
+                const website = await this.data_controller.getWebsite(selectedWebsiteKey);
+                const websites = await this.data_controller.getUserWebsites();
 
                 // Render select box
                 const wrapper = this.element.querySelector('#website-select-wrapper');

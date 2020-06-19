@@ -136,7 +136,7 @@
              * @returns {Promise<{}>}
              */
             this.getWebsitePermissions = async (key) => {
-                let admins = this.getWebsiteAdminNames(key);
+                let admins = await this.getWebsiteAdminNames(key);
                 let allowedEditUsers = admins;
                 allowedEditUsers.push('%user%');
                 return {
@@ -271,11 +271,8 @@
              * @returns {Promise<Array<{}>>}
              */
             this.getWebsiteUsers = async (key) => {
-                const websiteUsersDataStore = this.getWebsiteUsersDataStore(key);
-                let usersGet = await websiteUsersDataStore.get();
-                if (usersGet === 0) {
-                    usersGet = [];
-                }
+                const websiteUsersDataStore = await this.getWebsiteUsersDataStore(key);
+                const usersGet = await websiteUsersDataStore.get();
                 let re = [];
                 for (let userGet of usersGet) {
                     let user = userGet.value;
@@ -291,7 +288,7 @@
              * @returns {Promise<Array<{}>>}
              */
             this.getWebsiteAdminNames = async (key) => {
-                const websiteUsers = this.getWebsiteUsers(key);
+                const websiteUsers = await this.getWebsiteUsers(key);
                 let re = [];
                 for (let user of websiteUsers) {
                     if (user.role == 'admin') {
@@ -307,20 +304,17 @@
              * @returns {Promise<void>}
              */
             this.removeWebsite = async (key) => {
-                let website = this.getWebsite(key);
+                let website = await this.getWebsite(key);
                 await this.websites.del(key);
                 await this.domains_websites_mapping.del(website.domain);
 
                 // Remove all data from user_<username>_websites
-                const websiteUsersDataStore = this.getWebsiteUsersDataStore(key);
-                let websiteUsersDataStoreData = websiteUsersDataStore.get();
-                if (websiteUsersDataStoreData === 0) {
-                    websiteUsersDataStoreData = [];
-                }
+                const websiteUsersDataStore = await this.getWebsiteUsersDataStore(key);
+                const websiteUsersDataStoreData = websiteUsersDataStore.get();
                 for (let entry of websiteUsersDataStoreData) {
                     websiteUsersDataStore.del(entry.key);
 
-                    const userWebsitesDataStore = this.getUserWebsitesDataStore(entry.key);
+                    const userWebsitesDataStore = await this.getUserWebsitesDataStore(entry.key);
                     userWebsitesDataStore.del(key);
                 }
 
@@ -391,11 +385,8 @@
              * @returns {Promise<Array<{}>>}
              */
             this.getUserWebsites = async (username) => {
-                const userWebsitesDataStore = this.getUserWebsitesDataStore(username);
-                let websitesGet = await userWebsitesDataStore.get();
-                if (websitesGet === 0) {
-                    websitesGet = [];
-                }
+                const userWebsitesDataStore = await this.getUserWebsitesDataStore(username);
+                const websitesGet = await userWebsitesDataStore.get();
                 let re = [];
                 for (let websiteGet of websitesGet) {
                     let website = websiteGet.value;
@@ -429,15 +420,12 @@
                 await this.users.del(username);
 
                 //Remove all data from user_<username>_websites
-                const userWebsitesDataStore = this.getUserWebsitesDataStore(username);
-                let userWebsitesDataStoreData = userWebsitesDataStore.get();
-                if (userWebsitesDataStoreData === 0) {
-                    userWebsitesDataStoreData = [];
-                }
+                const userWebsitesDataStore = await this.getUserWebsitesDataStore(username);
+                const userWebsitesDataStoreData = userWebsitesDataStore.get();
                 for (let entry of userWebsitesDataStoreData) {
                     userWebsitesDataStore.del(entry.key);
 
-                    const websiteUsersDataStore = this.getWebsiteUsersDataStore(entry.key);
+                    const websiteUsersDataStore = await this.getWebsiteUsersDataStore(entry.key);
                     websiteUsersDataStore.del(username);
                 }
             };
@@ -448,7 +436,7 @@
              * @returns {Promise<{}>}
              */
             this.getUserWebsiteMappingPermissions = async (key) => {
-                let admins = this.getWebsiteAdminNames(key);
+                let admins = await this.getWebsiteAdminNames(key);
                 let allowedEditUsers = admins;
                 allowedEditUsers.push('%user%');
                 return {
@@ -472,7 +460,7 @@
              */
             this.addUserToWebsite = async (websiteKey, username, role) => {
                 // Add entry to user_<username>_websites
-                const userWebsitesDataStore = this.getUserWebsitesDataStore(username)
+                const userWebsitesDataStore = await this.getUserWebsitesDataStore(username)
                 userWebsitesDataStore.set({
                     key: websiteKey,
                     value: {
@@ -482,7 +470,7 @@
                 });
 
                 // Add entry to website_<websiteKey>_users
-                const websitesUserDataStore = this.getWebsiteUsersDataStore(websiteKey)
+                const websitesUserDataStore = await this.getWebsiteUsersDataStore(websiteKey)
                 websitesUserDataStore.set({
                     key: username,
                     value: {
@@ -512,7 +500,7 @@
              * @returns {Promise<{}>}
              */
             this.getTheme = async (websiteKey, themeKey) => {
-                const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
+                const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 let themeGet = await websiteThemesDataStore.get(themeKey);
                 let theme = themeGet.value;
                 theme.themeKey = themeGet.key;
@@ -525,11 +513,8 @@
              * @returns {Promise<{}>}
              */
             this.getAllThemesOfWebsite = async (websiteKey) => {
-                const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
+                const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 let themesGet = await websiteThemesDataStore.get();
-                if (themesGet === 0) {
-                    themesGet = [];
-                }
                 let re = [];
                 for (let themeGet of themesGet) {
                     let theme = themeGet.value;
@@ -546,7 +531,7 @@
              * @returns {Promise<string>}
              */
             this.createTheme = async (websiteKey, themeObject) => {
-                const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
+                const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 let themeKey = await websiteThemesDataStore.set({
                     value: themeObject
                 });
@@ -561,7 +546,7 @@
              * @returns {Promise<void>}
              */
             this.setThemeObject = async (websiteKey, themeKey, themeObject) => {
-                const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
+                const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 themeObject['themeKey'] !== undefined && delete themeObject['themeKey'];
                 await websiteThemesDataStore.set({
                     key: themeKey,
@@ -576,7 +561,7 @@
              * @returns {Promise<void>}
              */
             this.removeTheme = async (websiteKey, themeKey) => {
-                const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
+                const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 await websiteThemesDataStore.del(themeKey);
             }
 
@@ -595,7 +580,7 @@
              * @returns {Promise<{}>}
              */
             this.getLayout = async (websiteKey, themeKey, layoutKey) => {
-                const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
+                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutGet = await websiteThemeLayoutsDataStore.get(layoutKey);
                 let layout = layoutGet.value;
                 layout.layoutKey = layoutGet.key;
@@ -609,11 +594,8 @@
              * @returns {Promise<{}>}
              */
             this.getAllLayoutsOfTheme = async (websiteKey, themeKey) => {
-                const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
+                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutsGet = await websiteThemeLayoutsDataStore.get();
-                if (layoutsGet === 0) {
-                    layoutsGet = [];
-                }
                 let re = [];
                 for (let layoutGet of layoutsGet) {
                     let layout = layoutGet.value;
@@ -631,7 +613,7 @@
              * @returns {Promise<string>}
              */
             this.createLayout = async (websiteKey, themeKey, layoutObject) => {
-                const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
+                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutKey = await websiteThemeLayoutsDataStore.set({
                     value: layoutObject
                 });
@@ -647,7 +629,7 @@
              * @returns {Promise<void>}
              */
             this.setLayoutObject = async (websiteKey, themeKey, layoutKey, layoutObject) => {
-                const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
+                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 layoutObject['layoutKey'] !== undefined && delete layoutObject['layoutKey'];
                 await websiteThemeLayoutsDataStore.set({
                     key: layoutKey,
@@ -662,7 +644,7 @@
              * @returns {Promise<void>}
              */
             this.removeLayout = async (websiteKey, themeKey) => {
-                const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
+                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 await websiteThemeLayoutsDataStore.del(themeKey);
             }
 
@@ -680,7 +662,7 @@
              * @returns {Promise<any>}
              */
             this.getPage = async (websiteKey, pageKey) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let pageGet = await websitePagesDataStore.get(pageKey);
                 let page = pageGet.value;
                 page.pageKey = pageGet.key;
@@ -694,7 +676,7 @@
              * @returns {Promise<any>}
              */
             this.getPageByUrl = async (websiteKey, pageUrl) => {
-                const websitePageUrlMappingDataStore = this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                 const pageUrlMappingGet = websitePageUrlMappingDataStore.get(pageUrl);
                 const pageKey = pageUrlMappingGet.key;
                 const page = this.getPage(websiteKey, pageKey);
@@ -708,7 +690,7 @@
              * @returns {Promise<string>}
              */
             this.getFullPageUrl = async (websiteKey, pageKey) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
 
                 // Build url the tree up
                 let url = '';
@@ -728,11 +710,8 @@
              * @returns {Promise<{}>}
              */
             this.getAllPagesOfWebsite = async (websiteKey) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let pagesGet = await websitePagesDataStore.get();
-                if (pagesGet === 0) {
-                    pagesGet = [];
-                }
                 let re = [];
                 for (let pageGet of pagesGet) {
                     let page = pageGet.value;
@@ -750,7 +729,7 @@
              * @returns {Promise<string>}
              */
             this.createPage = async (websiteKey, pageObject) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let pageKey = await websitePagesDataStore.set({
                     value: pageObject
                 });
@@ -767,7 +746,7 @@
              * @returns {Promise<void>}
              */
             this.setPageObject = async (websiteKey, pageKey, pageObject, username = false, commitMessage = false) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
                 if (username !== false && commitMessage !== false) {
                     if (pageObject.changeLog === undefined) {
@@ -795,8 +774,8 @@
              * @returns {Promise<void>}
              */
             this.publishPage = async (websiteKey, pageKey, username = false, commitMessage = false) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
-                let page = this.getPage(websiteKey, pageKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
+                let page = await this.getPage(websiteKey, pageKey);
                 if (username !== false && commitMessage !== false) {
                     if (page.changeLog === undefined) {
                         page['changeLog'] = [];
@@ -814,7 +793,7 @@
                 });
 
                 // Set page url mapping
-                const websitePageUrlMappingDataStore = this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                 const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
                 await websitePageUrlMappingDataStore.set({
                     key: pageUrl,
@@ -829,7 +808,7 @@
              * @returns {Promise<void>}
              */
             this.removePage = async (websiteKey, pageKey) => {
-                const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
+                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 await websitePagesDataStore.del(pageKey);
 
                 // Delete live version
@@ -838,7 +817,7 @@
                 } catch(e) {}
 
                 // Delete url mapping
-                const websitePageUrlMappingDataStore = this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                 try {
                     const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
                     websitePageUrlMappingDataStore.del(pageUrl);
@@ -858,13 +837,13 @@
              */
             this.getSelectedWebsiteKey = async () => {
                 const username = await this.getCurrentWorkingUsername();
-                const localUserDataStore = this.getUserLocalDataStore(username);
+                const localUserDataStore = await this.getUserLocalDataStore(username);
                 try {
                     let websiteKey = await localUserDataStore.get('selectedWebsite');
                     return websiteKey;
                 } catch (e) {
                     try {
-                        let userWebsites = this.getUserWebsites(username);
+                        let userWebsites = await this.getUserWebsites(username);
                         if (userWebsites.length >= 1) {
                             return userWebsites[0].websiteKey;
                         }
@@ -880,7 +859,7 @@
              */
             this.setSelectedWebsiteKey = async (websiteKey) => {
                 const username = await this.getCurrentWorkingUsername();
-                const localUserDataStore = this.getUserLocalDataStore(username);
+                const localUserDataStore = await this.getUserLocalDataStore(username);
                 await localUserDataStore.set({
                     key: 'selectedWebsite',
                     value: websiteKey
