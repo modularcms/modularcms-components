@@ -274,7 +274,10 @@
              */
             this.getWebsiteUsers = async (key) => {
                 const websiteUsersDataStore = this.getWebsiteUsersDataStore(key);
-                const usersGet = await websiteUsersDataStore.get();
+                let usersGet = await websiteUsersDataStore.get();
+                if (usersGet === 0) {
+                    usersGet = [];
+                }
                 let re = [];
                 for (let userGet of usersGet) {
                     let user = userGet.value;
@@ -312,7 +315,10 @@
 
                 // Remove all data from user_<username>_websites
                 const websiteUsersDataStore = this.getWebsiteUsersDataStore(key);
-                const websiteUsersDataStoreData = websiteUsersDataStore.get();
+                let websiteUsersDataStoreData = websiteUsersDataStore.get();
+                if (websiteUsersDataStoreData === 0) {
+                    websiteUsersDataStoreData = [];
+                }
                 for (let entry of websiteUsersDataStoreData) {
                     websiteUsersDataStore.del(entry.key);
 
@@ -388,7 +394,10 @@
              */
             this.getUserWebsites = async (username) => {
                 const userWebsitesDataStore = this.getUserWebsitesDataStore(username);
-                const websitesGet = await userWebsitesDataStore.get();
+                let websitesGet = await userWebsitesDataStore.get();
+                if (websitesGet === 0) {
+                    websitesGet = [];
+                }
                 let re = [];
                 for (let websiteGet of websitesGet) {
                     let website = websiteGet.value;
@@ -423,7 +432,10 @@
 
                 //Remove all data from user_<username>_websites
                 const userWebsitesDataStore = this.getUserWebsitesDataStore(username);
-                const userWebsitesDataStoreData = userWebsitesDataStore.get();
+                let userWebsitesDataStoreData = userWebsitesDataStore.get();
+                if (userWebsitesDataStoreData === 0) {
+                    userWebsitesDataStoreData = [];
+                }
                 for (let entry of userWebsitesDataStoreData) {
                     userWebsitesDataStore.del(entry.key);
 
@@ -517,6 +529,9 @@
             this.getAllThemesOfWebsite = async (websiteKey) => {
                 const websiteThemesDataStore = this.getWebsiteThemesDataStore(websiteKey);
                 let themesGet = await websiteThemesDataStore.get();
+                if (themesGet === 0) {
+                    themesGet = [];
+                }
                 let re = [];
                 for (let themeGet of themesGet) {
                     let theme = themeGet.value;
@@ -598,6 +613,9 @@
             this.getAllLayoutsOfTheme = async (websiteKey, themeKey) => {
                 const websiteThemeLayoutsDataStore = this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutsGet = await websiteThemeLayoutsDataStore.get();
+                if (layoutsGet === 0) {
+                    layoutsGet = [];
+                }
                 let re = [];
                 for (let layoutGet of layoutsGet) {
                     let layout = layoutGet.value;
@@ -714,6 +732,9 @@
             this.getAllPagesOfWebsite = async (websiteKey) => {
                 const websitePagesDataStore = this.getWebsitePagesDataStore(websiteKey);
                 let pagesGet = await websitePagesDataStore.get();
+                if (pagesGet === 0) {
+                    pagesGet = [];
+                }
                 let re = [];
                 for (let pageGet of pagesGet) {
                     let page = pageGet.value;
