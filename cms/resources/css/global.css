@@ -17,6 +17,7 @@
     cursor: pointer;
     opacity: 1;
     transition: opacity .3s ease-in-out, filter .3s ease-in-out;
+    text-decoration: none;
 }
 
 .button .icon {
@@ -112,7 +113,7 @@ input[type="submit"], button {
     padding-right: 55px;
 }
 
-.list .list-item:nth-child(2n) {
+.list .list-item.odd {
     background-color: #F7F7F7;
 }
 
@@ -296,7 +297,7 @@ input[type="submit"], button {
 .panel-container {
     background-color: var(--color-primary);
     min-height: 100vh;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
@@ -403,4 +404,9 @@ input[type="submit"], button {
 .panel-subline a, .panel-subline a:link {
     font-weight: 600;
     color: var(--color-light);
+}
+
+.panel-button-wrapper {
+    display: flex;
+    justify-content: space-around;
 }

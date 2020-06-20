@@ -15,7 +15,7 @@
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/page_manager.html" ],
             "css": [ "ccm.load",
-                "https://modularcms.github.io/modularcms-components/page_manager/resources/css/style.css",
+                "https://modularcms.github.io/modularcms-components/website_manager/resources/css/style.css",
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
@@ -39,28 +39,25 @@
             this.start = async () => {
                 // Add routing
                 this.routing.registerRoutingCallback(async (detail) => {
-                    if (detail.url.indexOf('/websites/create') == 0) {
-                        if (detail.url == '/websites/create') {
-                            if (!this.createPanelCreated) {
-                                this.panelCreated = true;
-                                await this.openCreateWebsitePanel();
-                            } else {
-                                this.element.querySelector('#website-create-panel').classList.remove('hidden');
-                            }
-                            if (this.installPanelCreated) {
-                                this.element.querySelector('#website-install-panel').classList.add('hidden');
-                            }
+                    if (detail.url == '/websites/create') {
+                        if (!this.createPanelCreated) {
+                            this.createPanelCreated = true;
+                            await this.openCreateWebsitePanel();
+                        } else {
+                            this.element.querySelector('#website-create-panel').classList.remove('hidden');
                         }
-                        if (detail.url.indexOf('/websites/install/')) {
-                            if (!this.installPanelCreated) {
-                                this.panelCreated = true;
-                                await this.openInstallWebsitePanel(detail.urlParts[2]);
-                            } else {
-                                this.element.querySelector('#website-install-panel').classList.remove('hidden');
-                            }
-                            if (this.createPanelCreated) {
-                                this.element.querySelector('#website-create-panel').classList.add('hidden');
-                            }
+                        if (this.installPanelCreated) {
+                            this.element.querySelector('#website-install-panel').classList.add('hidden');
+                        }
+                    } else if (detail.url.indexOf('/websites/install/') == 0) {
+                        if (!this.installPanelCreated) {
+                            this.installPanelCreated = true;
+                            await this.openInstallWebsitePanel(detail.urlParts[2]);
+                        } else {
+                            this.element.querySelector('#website-install-panel').classList.remove('hidden');
+                        }
+                        if (this.createPanelCreated) {
+                            this.element.querySelector('#website-create-panel').classList.add('hidden');
                         }
                     } else if (detail.url.indexOf('/websites/edit/') == 0) {
                         // @TODO
@@ -73,7 +70,7 @@
                 // Start add select render
                 let selectWrapper = document.createElement('div');
                 selectWrapper.id = 'website-select-wrapper';
-                this.element.appendChild(selectWrapper);
+                $.setContent(this.element, selectWrapper);
                 await this.renderWebsiteSelect();
             };
 
@@ -83,26 +80,34 @@
              * @returns {Promise<void>}
              */
             this.renderWebsiteSelect = async () => {
-                const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
-                const website = await this.data_controller.getWebsite(selectedWebsiteKey);
-                const websites = await this.data_controller.getUserWebsites();
-
-                // Render select box
                 const wrapper = this.element.querySelector('#website-select-wrapper');
-                $.setContent(wrapper, $.html(this.html.selectBox, {
-                    domain: website.domain
-                }));
 
-                // Add items to select list
-                const selectList = this.element.querySelector('#website-select-list');
-                for (let website of websites) {
-                    $.append(selectList, $.html(this.html.listItem, {
-                        websiteKey: website.websiteKey,
+                const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
+                if (selectedWebsiteKey != null) {
+                    const website = await this.data_controller.getWebsite(selectedWebsiteKey);
+                    const websites = await this.data_controller.getUserWebsites();
+
+                    // Render select box
+                    $.setContent(wrapper, $.html(this.html.selectBox, {
                         domain: website.domain
                     }));
-                }
 
-                // TODO Add list click events
+                    // Add items to select list
+                    const selectList = this.element.querySelector('#website-select-list');
+                    for (let website of websites) {
+                        $.append(selectList, $.html(this.html.listItem, {
+                            websiteKey: website.websiteKey,
+                            domain: website.domain
+                        }));
+                    }
+
+                    // TODO Add list click events
+                } else {
+                    // Render no website select box
+                    $.setContent(wrapper, $.html(this.html.selectBox, {
+                        domain: '-- No website existing --'
+                    }));
+                }
             }
 
             /**
@@ -119,15 +124,16 @@
 
                     // Get values
                     const domain = this.element.querySelector('#website-create-domain').value;
-                    const baseUrl = this.element.querySelector('website-create-base-url').value;
+                    const baseUrl = this.element.querySelector('#website-create-base-url').value;
 
                     // Add the website
                     try {
                         // Show loader
-                        $.setContent(this.element.querySelector('#panel-loader-wrapper'), $.html(this.html.loader, {}));
+                        this.element.querySelector('.panel-box').classList.add('loading');
+                        $.setContent(this.element.querySelector('.panel-loader-wrapper'), $.html(this.html.loader, {}));
 
                         // Create the website
-                        const websiteKey = await this.data_controller.createNewWebsite(domain, baseUrl);
+                        const websiteKey = await this.data_controller.createWebsite(domain, baseUrl);
 
                         // Set the created website as the current working target website
                         await this.data_controller.setSelectedWebsiteKey(websiteKey);
@@ -153,7 +159,7 @@
                 }
 
                 // Fetch the website object
-                const website = this.data_controller.getWebsite(websiteKey);
+                const website = await this.data_controller.getWebsite(websiteKey);
 
                 // Append modal html
                 $.append(this.element, $.html(this.html.installWebsitePanel, {
@@ -165,14 +171,7 @@
                 const downloadButton = this.element.querySelector('#website-install-download');
                 const nextButton = this.element.querySelector('#website-install-next');
                 downloadButton.addEventListener('click', () => {
-                    // TODO Download
                     nextButton.classList.remove('button-disabled');
-                });
-
-                // Add event for finish
-                nextButton.addEventListener('click', () => {
-                    // TODO Switch to right website
-                    this.routing.navigateTo('/pages');
                 });
             }
 

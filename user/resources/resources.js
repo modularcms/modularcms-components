@@ -14,6 +14,7 @@ ccm.files[ 'resources.js' ] = {
     "helper.1": "https://ccmjs.github.io/akless-components/modules/helper.mjs",
     "html": [ "ccm.get", "/modularcms-components/user/resources/resources.js", "html" ],
     "routing_sensor": [ "ccm.instance", "/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
+    "routing": [ "ccm.instance", "/modularcms-components/routing/versions/ccm.routing-1.0.0.js" ],
     "data_controller": [ "ccm.instance", "/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
     "alertLogoutSuccessIconSrc": "/modularcms-components/user/resources/img/logout-success.svg",
     "alertLoginFailureIconSrc": "/modularcms-components/user/resources/img/login-failure.svg",

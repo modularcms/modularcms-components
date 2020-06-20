@@ -6,7 +6,7 @@
 <ccm-template key="selectBox">
     <div id="website-select-box">
         <div id="website-select-domain">%domain%</div>
-        <div id="website-select-icon"></div>
+        <img id="website-select-icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/expand-arrow-icon.svg" />
         <div id="website-select-list"></div>
     </div>
 </ccm-template>
@@ -30,11 +30,11 @@
                 <h1 class="panel-heading">Enter a domain</h1>
                 <div class="panel-body">
                     <form id="website-create-form" role="form">
-                        <label for="website-create-domain">Enter a domain</label>
-                        <input id="website-create-domain" type="text" name="user" placeholder="Enter a domain e.g. mydomain.com or subdomain.mydomain.com" value="" required="">
-                        <label for="website-create-base-url">Enter a base url (default is '/' representing the entry point on your website e.g. mydomain.com<b>/</b></label>
-                        <input id="website-create-base-url" type="text" name="user" placeholder="Enter a domain e.g. mydomain.com or subdomain.mydomain.com" value="" required="">
-                        <input type="submit" value="Login">
+                        <label for="website-create-domain">Enter a domain e.g. mydomain.com or subdomain.mydomain.com</label>
+                        <input id="website-create-domain" type="text" name="user" placeholder="Enter a domain" value="" required="" pattern="(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]">
+                        <label for="website-create-base-url">Enter a base url (default is '/' representing the entry point on your website e.g. mydomain.com<b>/</b>)</label>
+                        <input id="website-create-base-url" type="text" name="user" placeholder="Enter a base url" value="/" required="" pattern="[A-Za-z0-9/_-]+">
+                        <input type="submit" value="Create website">
                     </form>
                 </div>
             </div>
@@ -54,9 +54,13 @@
                 <div class="panel-body">
                     <p>In order to connect your domain with modularcms you need to own a webhost that is related to your domain. Furthermore you must be able to upload the following files to your webhost.</p>
                     <p>First you need to download the following .zip package</p>
-                    <div id="website-install-download" class="button button-primary">Download .zip package</div>
-                    <p>After that you need to extract the .zip file and upload the contained files to your web host folder that’s representing for your defined base url (<b><pre>https://%domain%%baseUrl%</pre></b>)</p>
-                    <div id="website-install-next" class="button button-primary button-disabled">Ok, I have done that</div>
+                    <div class="panel-button-wrapper">
+                        <a id="website-install-download" class="button button-primary" href="https://github.com/modularcms/site-template/archive/master.zip" target="_blank">Download .zip package</a>
+                    </div>
+                    <p>After that you need to extract the .zip file and upload the contained files to your web host folder that’s representing for your defined base url (<b>https://%domain%%baseUrl%</b>)</p>
+                    <div class="panel-button-wrapper">
+                        <a id="website-install-next" class="button button-primary button-disabled" href="/pages">Ok, I have done that</a>
+                    </div>
                 </div>
             </div>
         </div>

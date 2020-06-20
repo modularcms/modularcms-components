@@ -38,7 +38,7 @@ nav {
   overflow: auto;
   flex-grow: 1;
   display: flex;
-  justify-content: space-between;
+  width: 100%;
 }
 
 nav ul#menu-items-wrapper {
@@ -49,6 +49,7 @@ nav ul#menu-items-wrapper {
   align-items: center;
   height: 100%;
   order: 1;
+  flex-grow: 1;
 }
 
 nav ul li {
@@ -65,10 +66,21 @@ nav ul li.active a {
   border-top: 2px solid transparent;
 }
 
-nav #user {
+nav #website-manager-wrapper {
   order: 2;
+  flex-shrink: 0;
+  margin: 0px 8px;
+}
+
+nav #website-manager-wrapper > div {
+  height: 100%;
+}
+
+nav #user {
+  order: 3;
   align-items: center;
   display: flex;
+  flex-shrink: 0;
 }
 
 #hamburger-button {

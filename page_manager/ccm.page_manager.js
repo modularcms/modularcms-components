@@ -19,7 +19,7 @@
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
-            "pages": [ "ccm.store", { "name": "fbroeh2s_pages", "url": "https://ccm2.inf.h-brs.de" } ],
+            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ]
         },
 
         Instance: function () {
@@ -94,16 +94,50 @@
                 list.classList.add('loading');
                 $.append(list, $.html(this.html.loader, {}));
 
-                const data = await this.pages.get();
+                const websiteKey = await this.data_controller.getSelectedWebsiteKey();
 
-                list.innerHTML = '';
+                let uniqueItemIndex = 0;
+                // Closure for adding a page item
+                const getPageListItemElement = async (page, depth = 0) => {
+                    let pageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.pageKey);
+                    let itemWrapper = $.html(this.html.listItem, {
+                        title: page.title,
+                        urlName: pageUrl,
+                        pageKey: page.pageKey
+                    });
+                    const item = itemWrapper.querySelector('.list-item');
+                    item.style.paddingLeft = ((depth * 20) + 15) + 'px';
+                    item.classList.add((uniqueItemIndex++ % 2 == 0)?'even':'odd');
+                    return itemWrapper;
+                };
 
-                // Iterate through all data
-                data.forEach((element) => {
-                    let page = element.value;
-                    //this.pages.del(element.key);
-                    $.append(list, $.html(this.html.listItem, {title: page.title, urlName: page.urlName, pageKey: element.key}));
-                });
+                // Closure for adding a page item
+                const addPageListItem = async (page, element, depth = 0) => {
+                    let item = await getPageListItemElement(page, depth);
+                    $.append(element, item);
+                    return item;
+                };
+
+                // Closure to load page children
+                const loadPageChildren = async (pageKey, element, depth = 0) => {
+                    // Get children of page
+                    const pages = await this.data_controller.getPageChildren(websiteKey, pageKey);
+
+                    // Iterate through all children pages
+                    const childrenWrapper = element.querySelector('.list-item-children');
+                    for (let page of pages) {
+                        const item = await addPageListItem(page, childrenWrapper, depth + 1);
+                        await loadPageChildren(page.pageKey, item, depth + 1);
+                    }
+                }
+
+                // Get page with url mapping '/'
+                const entryPage = await this.data_controller.getPageByUrl(websiteKey, '/');
+
+                const entryElement = await getPageListItemElement(entryPage);
+                await loadPageChildren(entryPage.pageKey, entryElement);
+
+                $.setContent(list, entryElement);
 
                 list.classList.remove('loading');
             }
@@ -161,7 +195,7 @@
                         previousSelectedElement && previousSelectedElement.classList.remove('selected');
                         elem.classList.add('selected');
                         selectedParentPageKey = elem.getAttribute('data-page-key');
-                        selectedParentPagePath = elem.getAttribute('data-page-path') + '/';
+                        selectedParentPagePath = (elem.getAttribute('data-page-path') == '/'?'':elem.getAttribute('data-page-path')) + '/';
 
                         // Enable button
                         enableSelectButton();
@@ -247,14 +281,45 @@
                 });
 
                 // Add events for finish
-                this.element.querySelector('#modal-create-button').addEventListener('click', () => {
-                    this.createNewPage(
-                        0,
-                        selectedParentPageKey,
-                        this.element.querySelector('#create-modal-page-title').value,
-                        this.element.querySelector('#create-modal-page-url').value,
-                        0
-                    );
+                this.element.querySelector('#modal-create-button').addEventListener('click', async () => {
+                    const username = await this.data_controller.getCurrentWorkingUsername();
+                    const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+                    const pathSplit = this.element.querySelector('#create-modal-page-url').value.split('/');
+                    const urlPart = '/' + pathSplit[pathSplit.length - 1];
+                    const pageKey = await this.data_controller.createPage(websiteKey, {
+                        parentKey: selectedParentPageKey,
+                        title: titleInput.value,
+                        urlPart: urlPart,
+                        meta: {
+                            description: '',
+                            keywords: '',
+                            robots: true
+                        },
+                        themeKey: null, // TODO
+                        layoutKey: null,// TODO
+                        block: [
+                            {
+                                "type": "header",
+                                "data": {
+                                    "text": "New page",
+                                    "level": 1
+                                }
+                            },
+                            {
+                                "type": "paragraph",
+                                "data": {
+                                    "text": "This is a new page made with <b>modularcms</b>."
+                                }
+                            }
+                        ],
+                        changeLog: [{
+                            timestamp: (new Date()).getTime(),
+                            username: username,
+                            commitMessage: 'Created page',
+                            publish: false
+                        }]
+                    })
+                    this.routing.navigateTo('/pages/edit/' + pageKey);
                 })
 
                 // Add search
@@ -295,7 +360,7 @@
                         }
                     }
                 }); // TODO replace with data_controller and add loading spinner before create method
-                this.routing.navigateTo('/pages/edit/' + pageKey);
+
             }
         }
 

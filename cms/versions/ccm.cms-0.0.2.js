@@ -196,7 +196,7 @@
             if (window.location.pathname === '/login') {
               this.routing.navigateRoot('/pages');
             } else if (window.location.pathname === '/register') {
-              this.routing.navigateRoot('/setup/1');
+              this.routing.navigateRoot('/websites/create');
             }
             this.element.classList.add('loggedIn');
           } else {
