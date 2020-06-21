@@ -35,7 +35,6 @@ nav, #hamburger-button {
 }
 
 nav {
-  overflow: auto;
   flex-grow: 1;
   display: flex;
   width: 100%;

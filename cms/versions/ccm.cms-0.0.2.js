@@ -109,7 +109,8 @@
 
         // listen to routes
         let currentContent = '';
-        this.routing.registerRoutingCallback((detail) => {
+
+        await this.routing.registerRoutingCallback((detail) => {
           // handle routes with user logged in
           if (loggedIn) {
             // handle the different routes
@@ -182,7 +183,10 @@
             menu.classList.remove('active');
             hamburger.classList.remove('active');
           }
-        });
+        }, this.index);
+        window.addEventListener('selectedWebsiteChanged', () => {
+          this.routing.changeUrl(window.location.pathname, true);
+        })
 
         // user authentication
         this.changeLoginState(loggedIn, true);
@@ -195,7 +199,9 @@
           if (loggedIn) {
             if (window.location.pathname === '/login') {
               this.routing.navigateRoot('/pages');
+              this.website_manager.start();
             } else if (window.location.pathname === '/register') {
+              this.website_manager.start();
               this.routing.navigateRoot('/websites/create');
             }
             this.element.classList.add('loggedIn');

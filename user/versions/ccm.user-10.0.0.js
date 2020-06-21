@@ -294,6 +294,7 @@
             if (result) {
               if (result.success) {
                 wrongRegister = false;
+                await this.data_controller.createUser(formResult.user);
                 form.hide();
               } else {
                 username = formResult.user;

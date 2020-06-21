@@ -40,7 +40,7 @@
              */
             this.start = async () => {
                 // Add routing
-                this.routing.registerRoutingCallback(async (detail) => {
+                await this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url == '/websites/create') {
                         if (!this.createPanelCreated) {
                             this.createPanelCreated = true;
@@ -67,7 +67,7 @@
                         // Close modal
                         await this.closePanels();
                     }
-                });
+                }, this.index);
 
                 // Start add select render
                 let selectWrapper = document.createElement('div');
@@ -86,21 +86,51 @@
 
                 const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
                 if (selectedWebsiteKey != null) {
-                    const website = await this.data_controller.getWebsite(selectedWebsiteKey);
-                    const websites = await this.data_controller.getUserWebsites();
+                    const selectedWebsite = await this.data_controller.getWebsite(selectedWebsiteKey);
+                    const username = await this.data_controller.getCurrentWorkingUsername();
+
+                    let websites = await this.data_controller.getUserWebsites(username);
+                    websites.sort((a, b) => {
+                        if (a.domain < b.domain) {
+                            return -1;
+                        }
+                        if (a.domain > b.domain) {
+                            return 1;
+                        }
+                        return 0;
+                    });
 
                     // Render select box
                     $.setContent(wrapper, $.html(this.html.selectBox, {
-                        domain: website.domain
+                        domain: selectedWebsite.domain
                     }));
 
                     // Add items to select list
                     const selectList = this.element.querySelector('#website-select-list');
                     for (let website of websites) {
-                        $.append(selectList, $.html(this.html.listItem, {
+                        const item = $.html(this.html.listItem, {
                             websiteKey: website.websiteKey,
                             domain: website.domain
-                        }));
+                        });
+                        $.append(selectList, item);
+
+                        // Add selected class
+                        if (website.websiteKey == selectedWebsite.websiteKey) {
+                            item.classList.add('selected');
+                        }
+
+                        // Add event listener for item click
+                        item.addEventListener('click', async () => {
+                            const websiteKey = item.getAttribute('data-website-key');
+                            await this.data_controller.setSelectedWebsiteKey(websiteKey);
+                            await this.renderWebsiteSelect();
+                            const event = new CustomEvent('selectedWebsiteChanged', {
+                                detail: {
+                                    websiteKey: websiteKey
+                                }
+                            });
+                            window.dispatchEvent(event);
+                        })
                     }
 
                     // TODO Add list click events
@@ -110,6 +140,14 @@
                         domain: '-- No website existing --'
                     }));
                 }
+                const selectBox = this.element.querySelector('#website-select-box');
+                selectBox.addEventListener('click', () => {
+                    if (selectBox.classList.contains('list-open')) {
+                        selectBox.classList.remove('list-open');
+                    } else {
+                        selectBox.classList.add('list-open');
+                    }
+                });
             }
 
             /**

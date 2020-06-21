@@ -47,7 +47,7 @@
                 });
 
                 // Add routing
-                this.routing.registerRoutingCallback(async (detail) => {
+                await this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url.indexOf('/pages/create') == 0) {
                         if (!this.modalCreated) {
                             this.modalCreated = true;
@@ -81,7 +81,7 @@
                             });
                         })
                     }
-                });
+                }, this.index);
             };
 
             /**
@@ -121,7 +121,16 @@
                 // Closure to load page children
                 const loadPageChildren = async (pageKey, element, depth = 0) => {
                     // Get children of page
-                    const pages = await this.data_controller.getPageChildren(websiteKey, pageKey);
+                    let pages = await this.data_controller.getPageChildren(websiteKey, pageKey);
+                    pages.sort((a, b) => {
+                        if (a.title < b.title) {
+                            return -1;
+                        }
+                        if (a.title > b.title) {
+                            return 1;
+                        }
+                        return 0;
+                    });
 
                     // Iterate through all children pages
                     const childrenWrapper = element.querySelector('.list-item-children');

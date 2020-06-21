@@ -33,7 +33,7 @@
                         uniqueStateIndex: 0,
                         currentUrl: '/',
                         started: false,
-                        routingCallbacks: []
+                        routingCallbacks: {}
                     };
                 }
 
@@ -55,11 +55,15 @@
 
             /**
              * Registriert einen callback
-             * @param {void} callbackFunction
+             * @param {() => void}    callbackFunction    The callback function
+             * @param {string}        index               A named callback origin component index (if the component-index is already assigned the old callback is replaced)
              * @returns {Promise<void>}
              */
-            this.registerRoutingCallback = async (callbackFunction) => {
-                window.ccmRouting.routingCallbacks.push(callbackFunction);
+            this.registerRoutingCallback = async (callbackFunction, index ) => {
+                console.log(callbackFunction, index)
+                window.ccmRouting.routingCallbacks[index] = callbackFunction;
+                callbackFunction(this.getRoutingDetails(window.location.pathname));
+
                 if (!window.ccmRouting.started) {
                     window.ccmRouting.started = true;
                     this.changeUrl(window.location.pathname, true);
@@ -108,17 +112,26 @@
             }
 
             /**
+             * Generates the routing details object
+             * @param   {string}    url     The url
+             * @returns {{urlParts: string[], urlWithoutParameters: null, parameters: {}, url: *}}
+             */
+            this.getRoutingDetails = (url) => {
+                return {
+                    url: url,
+                    urlParts: url.split('/').filter((item, index) => index != 0 || item != ''),
+                    urlWithoutParameters: null, //@TODO
+                    parameters: {}, //@TODO
+                };
+            }
+
+            /**
              * Changes the browser url
              * @param {string}  url                 The url
              * @param {boolean} withoutHistoryPush  The url
              */
             this.changeUrl = (url, withoutHistoryPush = false) => {
-                let routingDetails = {
-                    url: url,
-                    urlParts: url.split('/').filter((item, index) => index != 0 || item != ''),
-                    urlWithoutParameters: null, //@TODO
-                    parameters: {}, //@TODO
-                }
+                const routingDetails = this.getRoutingDetails(url);
 
                 if (url === window.ccmRouting.currentUrl) {
                     console.warn('Propagated navigate, but the current url is the same');
@@ -129,12 +142,16 @@
                     window.history.pushState(routingDetails, '', url);
                 }
 
-                callRoutingCallbacks(routingDetails);
+                _callRoutingCallbacks(routingDetails);
             }
 
-            let callRoutingCallbacks = (detail) => {
-                for (let callback of window.ccmRouting.routingCallbacks) {
-                    callback(detail);
+            /**
+             * Calls all registered routing callbacks
+             * @param detail
+             */
+            const _callRoutingCallbacks = (detail) => {
+                for (let callbackKey in window.ccmRouting.routingCallbacks) {
+                    window.ccmRouting.routingCallbacks[callbackKey](detail);
                 }
             }
         }

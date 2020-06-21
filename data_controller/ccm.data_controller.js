@@ -365,9 +365,8 @@
              * @returns {Promise<{}>}
              */
             this.getUserPermissions = async () => {
-                const username = await this.getCurrentWorkingUsername();
                 return {
-                    creator: username,
+                    creator: 'creator',
                     realm: 'modularcms',
                     access: {
                         get: 'all',
@@ -384,11 +383,10 @@
              */
             this.createUser = (username) => new Promise(async (resolve, reject) => {
                 // Check if domain is not already existing
-                this.users.get(this.hash.md5(username)).then(() => {
-                    reject();
-                }).catch(async () => {
-                    // Add website
-                    let websiteKey = await this.users.set({
+                const userData = await this.users.get(this.hash.md5(username));
+                if (userData == null) {
+                    // Add user
+                    await this.users.set({
                         key: this.hash.md5(username),
                         value: {
                             username: username,
@@ -397,7 +395,9 @@
                         "_": await this.getUserPermissions()
                     });
                     resolve();
-                });
+                } else {
+                    reject();
+                }
             });
 
             /**
@@ -408,12 +408,11 @@
             this.getUserWebsites = async (username) => {
                 const userWebsitesDataStore = await this.getUserWebsitesDataStore(username);
                 const websitesGet = await userWebsitesDataStore.get();
-                let re = [];
+                let promises = [];
                 for (let websiteGet of websitesGet) {
-                    let website = websiteGet.value;
-                    website.websiteKey = websiteGet.key;
-                    re.push(website);
+                    promises.push(this.getWebsite(websiteGet.key));
                 }
+                const re = await Promise.all(promises);
                 return re;
             };
 
