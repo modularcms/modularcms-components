@@ -19,7 +19,7 @@
             "domains_websites_mapping": ["ccm.store", { "name": "fbroeh2s_domains_websites_mapping", "url": "https://ccm2.inf.h-brs.de" } ],
             "websites": ["ccm.store", { "name": "fbroeh2s_websites", "url": "https://ccm2.inf.h-brs.de" } ],
             "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ],
-            "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_data/versions/ccm.user_data-1.0.0.js" ]
+            "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_data/versions/ccm.user-1.0.0.js" ]
         },
 
         Instance: function () {
