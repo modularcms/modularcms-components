@@ -18,8 +18,7 @@
             "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "domains_websites_mapping": ["ccm.store", { "name": "fbroeh2s_domains_websites_mapping", "url": "https://ccm2.inf.h-brs.de" } ],
             "websites": ["ccm.store", { "name": "fbroeh2s_websites", "url": "https://ccm2.inf.h-brs.de" } ],
-            "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ],
-            "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_data/versions/ccm.user-1.0.0.js" ]
+            "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ]
         },
 
         Instance: function () {
@@ -39,7 +38,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsiteUsersDataStore = async (key) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_users', url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_users', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -49,7 +48,7 @@
              * @returns {Promise<Credential>}
              */
             this.getUserWebsitesDataStore = async (username) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_user_' + this.hash.md5(username) + '_websites', url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_user_' + this.hash.md5(username) + '_websites', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -59,7 +58,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsiteThemesDataStore = async (key) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_themes', url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + key + '_themes', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -70,7 +69,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsiteThemeLayoutDataStore = async (websiteKey, themeKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_theme_' + themeKey, url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_theme_' + themeKey, url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -80,7 +79,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsitePagesDataStore = async (websiteKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages', url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -91,7 +90,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsitePageChildrenDataStore = async (websiteKey, pageKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_page_' + pageKey + '_children', url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_page_' + pageKey + '_children', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -101,7 +100,7 @@
              * @returns {Promise<Credential>}
              */
             this.getWebsitePageUrlMappingDataStore = async (websiteKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping', url: 'https://ccm2.inf.h-brs.de'});
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -111,7 +110,7 @@
              * @returns {Promise<Credential>}
              */
             this.getUserLocalDataStore = async (username) => {
-                let re = await this.ccm.store({name: 'localDb_' + this.hash.md5(username)});
+                let re = await this.ccm.store({name: 'localDb_' + this.hash.md5(username), parent: this});
                 return re;
             }
 
@@ -265,7 +264,6 @@
                         changeLog: []
                     };
                     const pageKey = await this.createPage(websiteKey, startPage);
-                    console.log(await this.getPage(websiteKey, pageKey));
 
                     // Publish page
                     await this.publishPage(websiteKey, pageKey, 'Initial start page commit');
@@ -1025,7 +1023,7 @@
                 return {
                     creator: username,
                     realm: 'modularcms',
-                    group: [allowedEditUsers],
+                    group: allowedEditUsers,
                     access: {
                         get: 'all',
                         set: 'group',

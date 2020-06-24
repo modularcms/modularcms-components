@@ -294,6 +294,13 @@
             if (result) {
               if (result.success) {
                 wrongRegister = false;
+                // remember user data
+                data = $.clone( result );
+                delete data.apps;
+                data.realm = my.realm;
+                if ( !data.picture && this.picture ) data.picture = this.picture;
+
+                sessionStorage.setItem( 'ccm-user-' + my.realm, $.stringify( data ) );
                 await this.data_controller.createUser(formResult.user);
                 form.hide();
               } else {

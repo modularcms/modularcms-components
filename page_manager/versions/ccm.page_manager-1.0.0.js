@@ -148,6 +148,8 @@
 
                     const entryElement = await getPageListItemElement(entryPage);
                     await loadPageChildren(entryPage.pageKey, entryElement);
+
+                    $.setContent(list, entryElement);
                 } else {
                     $.setContent(list, $.html(this.html.noWebsitePlaceholder, {}));
                 }
