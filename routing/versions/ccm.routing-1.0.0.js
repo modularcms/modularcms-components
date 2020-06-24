@@ -60,7 +60,6 @@
              * @returns {Promise<void>}
              */
             this.registerRoutingCallback = async (callbackFunction, index ) => {
-                console.log(callbackFunction, index)
                 window.ccmRouting.routingCallbacks[index] = callbackFunction;
                 callbackFunction(this.getRoutingDetails(window.location.pathname));
 

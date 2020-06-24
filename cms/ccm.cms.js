@@ -191,7 +191,7 @@
       };
 
       let loggedIn;
-      this.changeLoginState = (newState, force = false) => {
+      this.changeLoginState = async (newState, force = false) => {
         if (loggedIn != newState || force) {
           loggedIn = newState;
           if (loggedIn) {
@@ -199,7 +199,7 @@
               this.routing.navigateRoot('/pages');
               this.website_manager.start();
             } else if (window.location.pathname === '/register') {
-              this.website_manager.start();
+              await this.website_manager.start();
               this.routing.navigateRoot('/websites/create');
             }
             this.element.classList.add('loggedIn');

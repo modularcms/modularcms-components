@@ -10,13 +10,16 @@
 
         name: 'data_controller',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
             "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "domains_websites_mapping": ["ccm.store", { "name": "fbroeh2s_domains_websites_mapping", "url": "https://ccm2.inf.h-brs.de" } ],
             "websites": ["ccm.store", { "name": "fbroeh2s_websites", "url": "https://ccm2.inf.h-brs.de" } ],
-            "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ]
+            "users": ["ccm.store", { "name": "fbroeh2s_users", "url": "https://ccm2.inf.h-brs.de" } ],
+            "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_data/versions/ccm.user_data-1.0.0.js" ]
         },
 
         Instance: function () {
@@ -153,7 +156,7 @@
             this.getWebsitePermissions = async (key = false) => {
                 let allowedEditUsers = [];
                 if (key != false) {
-                    let admins = await this.getWebsiteAdminNames(key);
+                    let admins = await this.getWebsiteAdminUsernames(key);
                     allowedEditUsers = admins;
                 }
                 const username = await this.getCurrentWorkingUsername();
@@ -190,14 +193,14 @@
                             domain: domain,
                             baseUrl: baseUrl
                         },
-                        "_": await this.getWebsitePermissions()
+                        _: await this.getWebsitePermissions()
                     });
 
                     // Add domain mapping
                     await this.domains_websites_mapping.set({
                         key: this.hash.md5(domain),
                         value: websiteKey,
-                        "_": await this.getWebsitePermissions()
+                        _: await this.getWebsitePermissions()
                     });
 
                     // Add user to website
@@ -258,9 +261,11 @@
                                     "text": "This is a new website made with <b>modularcms</b>."
                                 }
                             }
-                        ]
+                        ],
+                        changeLog: []
                     };
                     const pageKey = await this.createPage(websiteKey, startPage);
+                    console.log(await this.getPage(websiteKey, pageKey));
 
                     // Publish page
                     await this.publishPage(websiteKey, pageKey, 'Initial start page commit');
@@ -278,11 +283,21 @@
              * @returns {Promise<void>}
              */
             this.setWebsiteObject = async (key, websiteObject) => {
+                let websiteBefore = await this.getWebsite(key);
+
                 websiteObject['websiteKey'] !== undefined && delete websiteObject['websiteKey'];
                 await this.websites.set({
                     key: key,
                     value: websiteObject,
-                    "_": await this.getWebsitePermissions(key)
+                    _: await this.getWebsitePermissions(key)
+                });
+
+                // Set domain mapping
+                await this.domains_websites_mapping.del(this.hash.md5(websiteBefore.domain));
+                await this.domains_websites_mapping.set({
+                    key: this.hash.md5(websiteObject.domain),
+                    value: key,
+                    _: await this.getWebsitePermissions()
                 });
             };
 
@@ -303,11 +318,71 @@
             };
 
             /**
-             * Returns the website administrator names
+             * Returns the belonging website user
+             * @param {string}  key         The website key
+             * @param {string}  username    The username
+             * @returns {Promise<Array<{}>>}
+             */
+            this.getWebsiteUser = async (key, username) => {
+                const websiteUsersDataStore = await this.getWebsiteUsersDataStore(key);
+                const userGet = await websiteUsersDataStore.get(this.hash.md5(username));
+                return userGet.value;
+            };
+
+            /**
+             * Returns the website usernames
              * @param   {string}    key     The website key
              * @returns {Promise<Array<{}>>}
              */
-            this.getWebsiteAdminNames = async (key) => {
+            this.getWebsiteMemberUsernames = async (key) => {
+                const websiteUsers = await this.getWebsiteUsers(key);
+                let re = [];
+                for (let user of websiteUsers) {
+                    re.push(user.username);
+                }
+                return re;
+            }
+
+            /**
+             * Returns the website author and higher usernames
+             * @param   {string}    key     The website key
+             * @returns {Promise<Array<{}>>}
+             */
+            this.getWebsiteAuthorUsernames = async (key) => {
+                const websiteUsers = await this.getWebsiteUsers(key);
+                let re = [];
+                const filterRoles = ['author', 'editor', 'admin'];
+                for (let user of websiteUsers) {
+                    if (filterRoles.indexOf(user.role) >= 0) {
+                        re.push(user.username);
+                    }
+                }
+                return re;
+            }
+
+            /**
+             * Returns the website editor and higher usernames
+             * @param   {string}    key     The website key
+             * @returns {Promise<Array<{}>>}
+             */
+            this.getWebsiteEditorUsernames = async (key) => {
+                const websiteUsers = await this.getWebsiteUsers(key);
+                let re = [];
+                const filterRoles = ['editor', 'admin'];
+                for (let user of websiteUsers) {
+                    if (filterRoles.indexOf(user.role) >= 0) {
+                        re.push(user.username);
+                    }
+                }
+                return re;
+            }
+
+            /**
+             * Returns the website administrator usernames
+             * @param   {string}    key     The website key
+             * @returns {Promise<Array<{}>>}
+             */
+            this.getWebsiteAdminUsernames = async (key) => {
                 const websiteUsers = await this.getWebsiteUsers(key);
                 let re = [];
                 for (let user of websiteUsers) {
@@ -392,7 +467,7 @@
                             username: username,
                             image: null
                         },
-                        "_": await this.getUserPermissions()
+                        _: await this.getUserPermissions()
                     });
                     resolve();
                 } else {
@@ -427,7 +502,7 @@
                 await this.users.set({
                     key: this.hash.md5(this.username),
                     value: userObject,
-                    "_": await this.getUserPermissions()
+                    _: await this.getUserPermissions()
                 });
             };
 
@@ -456,7 +531,7 @@
              * @returns {Promise<{}>}
              */
             this.getUserWebsiteMappingPermissions = async (key) => {
-                let admins = await this.getWebsiteAdminNames(key);
+                let admins = await this.getWebsiteAdminUsernames(key);
                 let allowedEditUsers = admins;
 
                 const username = await this.getCurrentWorkingUsername();
@@ -492,7 +567,7 @@
                         username: username,
                         role: role
                     },
-                    "_": await this.getUserWebsiteMappingPermissions(websiteKey)
+                    _: await this.getUserWebsiteMappingPermissions(websiteKey)
                 });
 
                 // Add entry to website_<websiteKey>_users
@@ -503,15 +578,83 @@
                         username: username,
                         role: role
                     },
-                    "_": await this.getUserWebsiteMappingPermissions(websiteKey)
+                    _: await this.getUserWebsiteMappingPermissions(websiteKey)
                 });
 
-                // Update website permissions if user should be a new admin
-                if (role == 'admin') {
-                    let website = await this.getWebsite(websiteKey);
-                    await this.setWebsiteObject(websiteKey, website);
-                }
+                // Update permissions for all other objects
+                await this.updateUserPermissions(websiteKey, username);
             };
+
+            /**
+             * Update all website objects to fit the user permissions
+             * @param {string} websiteKey   The website key
+             * @param {string} username     The username
+             * @param {string} role         The given user role
+             * @returns {Promise<void>}
+             */
+            this.updateUserPermissions = async (websiteKey, username) => {
+                // Update website object
+                const website = await this.getWebsite(websiteKey);
+                await this.setWebsiteObject(websiteKey, website);
+
+                // Update themes
+                let promisesThemesAndLayouts = [];
+                const themes = await this.getAllThemesOfWebsite(websiteKey);
+                for (let theme of themes) {
+                    // Update theme
+                    promisesThemesAndLayouts.push(this.setThemeObject(websiteKey, theme.themeKey, theme));
+
+                    // Update theme layouts
+                    const layouts = await this.getAllLayoutsOfTheme(websiteKey, theme.themeKey);
+                    for (let layout of layouts) {
+                        promisesLayoutsAndLayouts.push(this.setLayoutObject(websiteKey, theme.themeKey, layout.layoutKey, layout));
+                    }
+                }
+                await Promise.all(promisesThemesAndLayouts);
+
+                // Update Pages
+                let promisesPagesSet = [];
+                const pages = await this.getAllPagesOfWebsite(websiteKey);
+                for (let page of pages.filter(item => !/_live$/.test(item.pageKey))) {
+                    promisesPagesSet.push(this.setPageObject(websiteKey, page.pageKey, page, false));
+                }
+                await Promise.all(promisesPagesSet);
+
+                // Update published pages without publishing the current draft
+                let promisesPagesPublishSet = [];
+                for (let page of pages.filter(item => /_live$/.test(item.pageKey))) {
+                    // TODO Update page publish
+                    const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
+                    let pageCopy = {};
+                    Object.assign(pageCopy, page)
+                    delete pageCopy['pageKey'];
+
+                    promisesPagesPublishSet.push(websitePagesDataStore.set({
+                        key: page.pageKey, // already with _live
+                        value: pageCopy,
+                        _: await this.getPagePublishPermissions(websiteKey)
+                    }));
+
+                    // Update page url mapping
+                    const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                    const mapping = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
+                    mapping._ =  await this.getPagePublishPermissions(websiteKey);
+                    promisesPagesPublishSet.push(websitePageUrlMappingDataStore.set(mapping));
+                }
+                await Promise.all(promisesPagesPublishSet);
+            };
+
+            /**
+             * Sets a new user role
+             * @param {string} websiteKey   The website key
+             * @param {string} username     The username
+             * @param {string} role         The given user role
+             * @returns {Promise<void>}
+             */
+            this.setUserPermission = async (websiteKey, username, role) => {
+                await this.addUserToWebsite(websiteKey, username, role);
+            };
+
 
 
             /**
@@ -552,6 +695,33 @@
             }
 
             /**
+             * Returns the permissions object for a theme
+             * @param {string|null} key  the website key
+             * @returns {Promise<{}>}
+             */
+            this.getThemePermissions = async (key = false) => {
+                let allowedEditUsers = [];
+                if (key != false) {
+                    let admins = await this.getWebsiteAdminUsernames(key);
+                    allowedEditUsers = admins;
+                }
+                const username = await this.getCurrentWorkingUsername();
+                if (allowedEditUsers.indexOf(username) < 0) {
+                    allowedEditUsers.push(username);
+                }
+                return {
+                    creator: username,
+                    realm: 'modularcms',
+                    group: allowedEditUsers,
+                    access: {
+                        get: 'all',
+                        set: 'group',
+                        del: 'group'
+                    }
+                }
+            };
+
+            /**
              * Creates a theme for a website
              * @param {string}  websiteKey  The website key
              * @param {{}}      themeObject The theme object
@@ -560,7 +730,8 @@
             this.createTheme = async (websiteKey, themeObject) => {
                 const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 let themeKey = await websiteThemesDataStore.set({
-                    value: themeObject
+                    value: themeObject,
+                    _: await this.getThemePermissions(websiteKey)
                 });
                 return themeKey;
             }
@@ -577,7 +748,8 @@
                 themeObject['themeKey'] !== undefined && delete themeObject['themeKey'];
                 await websiteThemesDataStore.set({
                     key: themeKey,
-                    value: themeObject
+                    value: themeObject,
+                    _: await this.getThemePermissions(websiteKey)
                 });
             }
 
@@ -633,6 +805,33 @@
             }
 
             /**
+             * Returns the permissions object for a layout
+             * @param {string|null} key  the website key
+             * @returns {Promise<{}>}
+             */
+            this.getLayoutPermissions = async (key = false) => {
+                let allowedEditUsers = [];
+                if (key != false) {
+                    let admins = await this.getWebsiteAdminUsernames(key);
+                    allowedEditUsers = admins;
+                }
+                const username = await this.getCurrentWorkingUsername();
+                if (allowedEditUsers.indexOf(username) < 0) {
+                    allowedEditUsers.push(username);
+                }
+                return {
+                    creator: username,
+                    realm: 'modularcms',
+                    group: allowedEditUsers,
+                    access: {
+                        get: 'all',
+                        set: 'group',
+                        del: 'group'
+                    }
+                }
+            };
+
+            /**
              * Creates a layout for a website theme
              * @param {string}  websiteKey      The website key
              * @param {string}  themeKey        The website theme key
@@ -642,7 +841,8 @@
             this.createLayout = async (websiteKey, themeKey, layoutObject) => {
                 const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
                 let layoutKey = await websiteThemeLayoutsDataStore.set({
-                    value: layoutObject
+                    value: layoutObject,
+                    _: await this.getLayoutPermissions(websiteKey)
                 });
                 return layoutKey;
             }
@@ -660,7 +860,8 @@
                 layoutObject['layoutKey'] !== undefined && delete layoutObject['layoutKey'];
                 await websiteThemeLayoutsDataStore.set({
                     key: layoutKey,
-                    value: layoutObject
+                    value: layoutObject,
+                    _: await this.getLayoutPermissions(websiteKey)
                 });
             }
 
@@ -691,9 +892,12 @@
             this.getPage = async (websiteKey, pageKey) => {
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 const pageGet = await websitePagesDataStore.get(pageKey);
-                let page = pageGet.value;
-                page.pageKey = pageGet.key;
-                return page;
+                if (pageGet != null) {
+                    let page = pageGet.value;
+                    page.pageKey = pageGet.key;
+                    return page;
+                }
+                return null;
             }
 
             /**
@@ -724,6 +928,9 @@
                 let currentPageKey = pageKey;
                 do {
                     let page = await this.getPage(websiteKey, currentPageKey);
+                    if (page == null) {
+                        return null;
+                    }
                     url = (page.urlPart == '/' ? '' : page.urlPart) + url;
                     currentPageKey = page.parentKey;
                 } while(currentPageKey != null)
@@ -766,6 +973,68 @@
             }
 
             /**
+             * Returns the permissions object for a page
+             * @param {string|null} key  the website key
+             * @returns {Promise<{}>}
+             */
+            this.getPagePermissions = async (key = false) => {
+                let allowedEditUsers = [];
+                if (key != false) {
+                    let users = await this.getWebsiteEditorUsernames(key);
+                    allowedEditUsers = users;
+                }
+                const username = await this.getCurrentWorkingUsername();
+                if (allowedEditUsers.indexOf(username) < 0) {
+                    allowedEditUsers.push(username);
+                }
+                let allowedGetUsers = [];
+                if (key != false) {
+                    let users = await this.getWebsiteMemberUsernames(key);
+                    allowedGetUsers = users;
+                }
+                return {
+                    creator: username,
+                    realm: 'modularcms',
+                    group: {
+                        editUserGroup: allowedEditUsers,
+                        getUserGroup: allowedGetUsers
+                    },
+                    access: {
+                        get: 'getUserGroup',
+                        set: 'editUserGroup',
+                        del: 'editUserGroup'
+                    }
+                }
+            };
+
+            /**
+             * Returns the permissions object for a page publish
+             * @param {string|null} key  the website key
+             * @returns {Promise<{}>}
+             */
+            this.getPagePublishPermissions = async (key = false) => {
+                let allowedEditUsers = [];
+                if (key != false) {
+                    let users = await this.getWebsiteEditorUsernames(key);
+                    allowedEditUsers = users;
+                }
+                const username = await this.getCurrentWorkingUsername();
+                if (allowedEditUsers.indexOf(username) < 0) {
+                    allowedEditUsers.push(username);
+                }
+                return {
+                    creator: username,
+                    realm: 'modularcms',
+                    group: [allowedEditUsers],
+                    access: {
+                        get: 'all',
+                        set: 'group',
+                        del: 'group'
+                    }
+                }
+            };
+
+            /**
              * Creates a page for a website
              * @param {string}  websiteKey  The website key
              * @param {string}  pageKey     The page key
@@ -775,15 +1044,17 @@
             this.createPage = async (websiteKey, pageObject) => {
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let pageKey = await websitePagesDataStore.set({
-                    value: pageObject
+                    value: pageObject,
+                    _: await this.getPagePermissions(websiteKey)
                 });
 
                 // Create link in parent children table
-                if (pageObject.parentKey !== undefined) {
+                if (pageObject.parentKey !== undefined && pageObject.parentKey != null) {
                     const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageObject.parentKey);
                     await websitePageChildrenDataStore.set({
                         key: pageKey,
-                        value: null
+                        value: null,
+                        _: await this.getPagePermissions(websiteKey)
                     });
                 }
 
@@ -818,7 +1089,8 @@
                 }
                 await websitePagesDataStore.set({
                     key: pageKey,
-                    value: pageObject
+                    value: pageObject,
+                    _: await this.getPagePermissions(websiteKey)
                 });
 
                 // Create/update link in parent children table
@@ -829,7 +1101,8 @@
                 if (pageObject.parentKey !== undefined) {
                     await websitePageChildrenDataStore.set({
                         key: pageKey,
-                        value: null
+                        value: null,
+                        _: await this.getPagePermissions(websiteKey)
                     });
                 }
             }
@@ -842,41 +1115,48 @@
              * @param {string|false}    commitMessage   The commit message
              * @returns {Promise<void>}
              */
-            this.publishPage = async (websiteKey, pageKey, commitMessage = false) => {
+            this.publishPage = (websiteKey, pageKey, commitMessage = false) => new Promise(async (resolve, reject) => {
                 const username = await this.getCurrentWorkingUsername();
-
-                const pageBefore = this.getPage(websiteKey, pageKey);
+                const user = await this.getWebsiteUser(websiteKey, username);
                 const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey);
-
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let page = await this.getPage(websiteKey, pageKey);
-                if (commitMessage !== false) {
-                    if (page.changeLog === undefined) {
-                        page['changeLog'] = [];
-                    }
-                    page.changeLog.push({
-                        timestamp: (new Date()).getTime(),
-                        username: username,
-                        commitMessage: commitMessage,
-                        publish: true
-                    });
-                }
-                await websitePagesDataStore.set({
-                    key: pageKey + '_live',
-                    value: page
-                });
 
-                // Set/update page url mapping
-                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
-                const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
-                if (pageUrlBefore != pageUrl) {
-                    await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
+                if ((user.role != 'member' && user.role != 'author') || (user.role == 'author' && page._.creator == username)) {
+
+                    if (commitMessage !== false) {
+                        if (page.changeLog === undefined) {
+                            page['changeLog'] = [];
+                        }
+                        page.changeLog.push({
+                            timestamp: (new Date()).getTime(),
+                            username: username,
+                            commitMessage: commitMessage,
+                            publish: true
+                        });
+                    }
+                    await websitePagesDataStore.set({
+                        key: pageKey + '_live',
+                        value: page,
+                        _: await this.getPagePublishPermissions(websiteKey)
+                    });
+
+                    // Set/update page url mapping
+                    const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                    const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
+                    if (pageUrlBefore != pageUrl) {
+                        await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
+                    }
+                    await websitePageUrlMappingDataStore.set({
+                        key: this.hash.md5(pageUrl),
+                        value: pageKey,
+                        _: await this.getPagePublishPermissions(websiteKey)
+                    });
+                    resolve();
+                } else {
+                    reject();
                 }
-                await websitePageUrlMappingDataStore.set({
-                    key: this.hash.md5(pageUrl),
-                    value: pageKey
-                });
-            }
+            });
 
             /**
              * removes a page from a website

@@ -96,57 +96,59 @@
 
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
 
-                let uniqueItemIndex = 0;
-                // Closure for adding a page item
-                const getPageListItemElement = async (page, depth = 0) => {
-                    let pageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.pageKey);
-                    let itemWrapper = $.html(this.html.listItem, {
-                        title: page.title,
-                        urlName: pageUrl,
-                        pageKey: page.pageKey
-                    });
-                    const item = itemWrapper.querySelector('.list-item');
-                    item.style.paddingLeft = ((depth * 20) + 15) + 'px';
-                    item.classList.add((uniqueItemIndex++ % 2 == 0)?'even':'odd');
-                    return itemWrapper;
-                };
+                if (websiteKey != null) {
+                    let uniqueItemIndex = 0;
+                    // Closure for adding a page item
+                    const getPageListItemElement = async (page, depth = 0) => {
+                        let pageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.pageKey);
+                        let itemWrapper = $.html(this.html.listItem, {
+                            title: page.title,
+                            urlName: pageUrl,
+                            pageKey: page.pageKey
+                        });
+                        const item = itemWrapper.querySelector('.list-item');
+                        item.style.paddingLeft = ((depth * 20) + 15) + 'px';
+                        item.classList.add((uniqueItemIndex++ % 2 == 0)?'even':'odd');
+                        return itemWrapper;
+                    };
 
-                // Closure for adding a page item
-                const addPageListItem = async (page, element, depth = 0) => {
-                    let item = await getPageListItemElement(page, depth);
-                    $.append(element, item);
-                    return item;
-                };
+                    // Closure for adding a page item
+                    const addPageListItem = async (page, element, depth = 0) => {
+                        let item = await getPageListItemElement(page, depth);
+                        $.append(element, item);
+                        return item;
+                    };
 
-                // Closure to load page children
-                const loadPageChildren = async (pageKey, element, depth = 0) => {
-                    // Get children of page
-                    let pages = await this.data_controller.getPageChildren(websiteKey, pageKey);
-                    pages.sort((a, b) => {
-                        if (a.title < b.title) {
-                            return -1;
+                    // Closure to load page children
+                    const loadPageChildren = async (pageKey, element, depth = 0) => {
+                        // Get children of page
+                        let pages = await this.data_controller.getPageChildren(websiteKey, pageKey);
+                        pages.sort((a, b) => {
+                            if (a.title < b.title) {
+                                return -1;
+                            }
+                            if (a.title > b.title) {
+                                return 1;
+                            }
+                            return 0;
+                        });
+
+                        // Iterate through all children pages
+                        const childrenWrapper = element.querySelector('.list-item-children');
+                        for (let page of pages) {
+                            const item = await addPageListItem(page, childrenWrapper, depth + 1);
+                            await loadPageChildren(page.pageKey, item, depth + 1);
                         }
-                        if (a.title > b.title) {
-                            return 1;
-                        }
-                        return 0;
-                    });
-
-                    // Iterate through all children pages
-                    const childrenWrapper = element.querySelector('.list-item-children');
-                    for (let page of pages) {
-                        const item = await addPageListItem(page, childrenWrapper, depth + 1);
-                        await loadPageChildren(page.pageKey, item, depth + 1);
                     }
+
+                    // Get page with url mapping '/'
+                    const entryPage = await this.data_controller.getPageByUrl(websiteKey, '/');
+
+                    const entryElement = await getPageListItemElement(entryPage);
+                    await loadPageChildren(entryPage.pageKey, entryElement);
+                } else {
+                    $.setContent(list, $.html(this.html.noWebsitePlaceholder, {}));
                 }
-
-                // Get page with url mapping '/'
-                const entryPage = await this.data_controller.getPageByUrl(websiteKey, '/');
-
-                const entryElement = await getPageListItemElement(entryPage);
-                await loadPageChildren(entryPage.pageKey, entryElement);
-
-                $.setContent(list, entryElement);
 
                 list.classList.remove('loading');
             }
