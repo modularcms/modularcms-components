@@ -299,7 +299,7 @@
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const pathSplit = this.element.querySelector('#create-modal-page-url').value.split('/');
                     const urlPart = '/' + pathSplit[pathSplit.length - 1];
-                    const pageKey = await this.data_controller.createPage(websiteKey, {
+                    this.data_controller.createPage(websiteKey, {
                         parentKey: selectedParentPageKey,
                         title: titleInput.value,
                         urlPart: urlPart,
@@ -331,8 +331,12 @@
                             commitMessage: 'Created page',
                             publish: false
                         }]
+                    }).then((pageKey) => {
+                        this.routing.navigateTo('/pages/edit/' + pageKey);
+                    }).catch(() => {
+                        // Error handling
+                        alert('This page url is already existing.');
                     })
-                    this.routing.navigateTo('/pages/edit/' + pageKey);
                 })
 
                 // Add search

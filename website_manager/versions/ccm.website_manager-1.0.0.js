@@ -156,7 +156,8 @@
              */
             this.openCreateWebsitePanel = async () => {
                 // Append modal html
-                $.append(this.element, $.html(this.html.createWebsitePanel, {}));
+                const panel = $.html(this.html.createWebsitePanel, {});
+                $.append(this.element, panel);
 
                 // Add event for finish
                 this.element.querySelector('#website-create-form').addEventListener('submit', async (e) => {
@@ -166,24 +167,28 @@
                     const domain = this.element.querySelector('#website-create-domain').value;
                     const baseUrl = this.element.querySelector('#website-create-base-url').value;
 
-                    // Add the website
-                    try {
-                        // Show loader
-                        this.element.querySelector('.panel-box').classList.add('loading');
-                        $.setContent(this.element.querySelector('.panel-loader-wrapper'), $.html(this.html.loader, {}));
+                    // Show loader
+                    this.element.querySelector('.panel-box').classList.add('loading');
+                    $.setContent(this.element.querySelector('.panel-loader-wrapper'), $.html(this.html.loader, {}));
 
-                        // Create the website
-                        const websiteKey = await this.data_controller.createWebsite(domain, baseUrl);
-
+                    // Create the website
+                    await this.data_controller.createWebsite(domain, baseUrl).then(async (websiteKey) => {
                         // Set the created website as the current working target website
                         await this.data_controller.setSelectedWebsiteKey(websiteKey);
                         await this.renderWebsiteSelect();
 
                         // Navigate to install panel
                         this.routing.navigateTo('/websites/install/' + websiteKey);
-                    } catch (e) {
-                        // TODO Errorhandling
-                    }
+                    }).catch(() => { // Error handling
+                        // Hide loader
+                        this.element.querySelector('.panel-box').classList.remove('loading');
+                        this.element.querySelector('.panel-loader-wrapper').innerHTML = '';
+
+                        // Show alert
+                        $.setContent(panel.querySelector('.panel-alert-wrapper'), $.html(this.html.createError, {
+                            text: 'This domain is already registered for modularcms.'
+                        }));
+                    });
                 });
             }
 

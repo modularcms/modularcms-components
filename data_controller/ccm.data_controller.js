@@ -94,11 +94,12 @@
 
             /**
              * Returns the data store for the corresponding website page url mapping table
-             * @param {string} websiteKey   The website key
+             * @param {string}  websiteKey  The website key
+             * @param {boolean} live        Use the live or draft datastore
              * @returns {Promise<Credential>}
              */
-            this.getWebsitePageUrlMappingDataStore = async (websiteKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping', url: 'https://ccm2.inf.h-brs.de', parent: this});
+            this.getWebsitePageUrlMappingDataStore = async (websiteKey, live = false) => {
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping' + (live?'_live':''), url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -1037,25 +1038,44 @@
              * @param {{}}      pageObject  The page object
              * @returns {Promise<string>}
              */
-            this.createPage = async (websiteKey, pageObject) => {
-                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
-                let pageKey = await websitePagesDataStore.set({
-                    value: pageObject,
-                    _: await this.getPagePermissions(websiteKey)
-                });
-
-                // Create link in parent children table
-                if (pageObject.parentKey !== undefined && pageObject.parentKey != null) {
-                    const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageObject.parentKey);
-                    await websitePageChildrenDataStore.set({
-                        key: pageKey,
-                        value: null,
-                        _: await this.getPagePermissions(websiteKey)
-                    });
+            this.createPage = async (websiteKey, pageObject) => new Promise(async (resolve, reject) => {
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                let pageUrl = '/';
+                if (pageObject.parentKey != null) {
+                    pageUrl = await this.getFullPageUrl(websiteKey, pageObject.parentKey) + pageObject.urlPart;
                 }
 
-                return pageKey;
-            }
+                const mappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
+
+                if (mappingGet == null) {
+                    const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
+                    let pageKey = await websitePagesDataStore.set({
+                        value: pageObject,
+                        _: await this.getPagePermissions(websiteKey)
+                    });
+
+                    // Create link in parent children table
+                    if (pageObject.parentKey !== undefined && pageObject.parentKey != null) {
+                        const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageObject.parentKey);
+                        await websitePageChildrenDataStore.set({
+                            key: pageKey,
+                            value: null,
+                            _: await this.getPagePermissions(websiteKey)
+                        });
+                    }
+
+                    // Set page url mapping
+                    await websitePageUrlMappingDataStore.set({
+                        key: this.hash.md5(pageUrl),
+                        value: pageKey,
+                        _: await this.getPagePermissions(websiteKey)
+                    });
+
+                    resolve(pageKey);
+                } else {
+                    reject();
+                }
+            });
 
             /**
              * Sets the page object for a website
@@ -1069,6 +1089,7 @@
                 const username = await this.getCurrentWorkingUsername();
 
                 const pageBefore = this.getPage(websiteKey, pageKey);
+                const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey);
 
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
@@ -1101,6 +1122,18 @@
                         _: await this.getPagePermissions(websiteKey)
                     });
                 }
+
+                // Set/update page url mapping
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
+                if (pageUrlBefore != pageUrl) {
+                    await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
+                }
+                await websitePageUrlMappingDataStore.set({
+                    key: this.hash.md5(pageUrl),
+                    value: pageKey,
+                    _: await this.getPagePermissions(websiteKey)
+                });
             }
 
             /**
@@ -1138,7 +1171,7 @@
                     });
 
                     // Set/update page url mapping
-                    const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                    const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
                     const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
                     if (pageUrlBefore != pageUrl) {
                         await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
@@ -1170,9 +1203,13 @@
                 await websitePagesDataStore.del(pageKey + '_live');
 
                 // Delete url mapping
-                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                 const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
-                websitePageUrlMappingDataStore.del(pageUrl);
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const websitePageUrlMappingLiveDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
+                await Promise.all([
+                    websitePageUrlMappingDataStore.del(pageUrl),
+                    websitePageUrlMappingLiveDataStore.del(pageUrl)
+                ]);
 
                 // Delete link in parent children table
                 if (page.parentKey !== undefined) {
