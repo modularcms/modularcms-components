@@ -81,3 +81,11 @@
     background-image: url(https://modularcms.github.io/modularcms-components/cms/resources/img/settings-icon.svg);
     filter: invert(44%) sepia(87%) saturate(638%) hue-rotate(164deg) brightness(95%) contrast(96%);
 }
+
+#list-modal .list-item .list-item-more-button:nth-child(3) {
+    right: 85px;
+}
+
+#list-modal .list-item .list-item-more-button:nth-child(4) {
+    right: 50px;
+}
