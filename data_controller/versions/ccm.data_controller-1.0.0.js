@@ -281,8 +281,17 @@
              * @param {{}}      websiteObject   The website object
              * @returns {Promise<void>}
              */
-            this.setWebsiteObject = async (key, websiteObject) => {
+            this.setWebsiteObject = (key, websiteObject) => new Promise(async (resolve, reject) => {
                 let websiteBefore = await this.getWebsite(key);
+
+                // Check if new domain is already existing
+                if (websiteBefore.domain != websiteObject.domain) {
+                    const mappingGet = await this.domains_websites_mapping.get(this.hash.md5(websiteObject.domain));
+                    if (mappingGet != null) {
+                        reject();
+                        return;
+                    }
+                }
 
                 websiteObject['websiteKey'] !== undefined && delete websiteObject['websiteKey'];
                 await this.websites.set({
@@ -292,13 +301,17 @@
                 });
 
                 // Set domain mapping
-                await this.domains_websites_mapping.del(this.hash.md5(websiteBefore.domain));
-                await this.domains_websites_mapping.set({
-                    key: this.hash.md5(websiteObject.domain),
-                    value: key,
-                    _: await this.getWebsitePermissions()
-                });
-            };
+                if (websiteBefore.domain != websiteObject.domain) {
+                    await this.domains_websites_mapping.del(this.hash.md5(websiteBefore.domain));
+                    await this.domains_websites_mapping.set({
+                        key: this.hash.md5(websiteObject.domain),
+                        value: key,
+                        _: await this.getWebsitePermissions()
+                    });
+                }
+
+                resolve();
+            });
 
             /**
              * Returns the belonging website users
@@ -400,20 +413,17 @@
             this.removeWebsite = async (key) => {
                 let website = await this.getWebsite(key);
                 await this.websites.del(key);
-                await this.domains_websites_mapping.del(website.domain);
+                await this.domains_websites_mapping.del(this.hash.md5(website.domain));
 
                 // Remove all data from user_<username>_websites
                 const websiteUsersDataStore = await this.getWebsiteUsersDataStore(key);
-                const websiteUsersDataStoreData = websiteUsersDataStore.get();
+                const websiteUsersDataStoreData = await websiteUsersDataStore.get();
                 for (let entry of websiteUsersDataStoreData) {
                     websiteUsersDataStore.del(entry.key);
 
-                    const userWebsitesDataStore = await this.getUserWebsitesDataStore(entry.key);
+                    const userWebsitesDataStore = await this.getUserWebsitesDataStore(entry.value.username);
                     userWebsitesDataStore.del(key);
                 }
-
-                // TODO remove themes
-                // TODO remove layouts
             };
 
 
@@ -1101,11 +1111,26 @@
              * @param {string|false}    commitMessage   The commit message
              * @returns {Promise<void>}
              */
-            this.setPageObject = async (websiteKey, pageKey, pageObject, commitMessage = false) => {
+            this.setPageObject = (websiteKey, pageKey, pageObject, commitMessage = false) => new Promise(async (resolve, reject) => {
                 const username = await this.getCurrentWorkingUsername();
 
                 const pageBefore = this.getPage(websiteKey, pageKey);
                 const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey);
+
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                let pageUrl = '/';
+                if (pageObject.parentKey != null) {
+                    pageUrl = await this.getFullPageUrl(websiteKey, pageObject.parentKey) + pageObject.urlPart;
+                }
+
+                // Check if new domain is already existing
+                if (pageUrl != pageUrlBefore) {
+                    const mappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
+                    if (mappingGet != null) {
+                        reject();
+                        return;
+                    }
+                }
 
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
@@ -1140,8 +1165,6 @@
                 }
 
                 // Set/update page url mapping
-                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
-                const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
                 if (pageUrlBefore != pageUrl) {
                     await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
                 }
@@ -1150,7 +1173,8 @@
                     value: pageKey,
                     _: await this.getPagePermissions(websiteKey)
                 });
-            }
+                resolve();
+            });
 
             /**
              * Publishs the page for a website
@@ -1215,7 +1239,7 @@
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 await websitePagesDataStore.del(pageKey);
 
-                // Delete live version
+                // Try to delete live version
                 await websitePagesDataStore.del(pageKey + '_live');
 
                 // Delete url mapping
@@ -1273,6 +1297,17 @@
                     key: 'selectedWebsite',
                     value: websiteKey
                 });
+            }
+
+            /**
+             * Removes the selected website key
+             * @param {string}  username    The username
+             * @returns {Promise<any>}
+             */
+            this.removeSelectedWebsiteKey = async () => {
+                const username = await this.getCurrentWorkingUsername();
+                const localUserDataStore = await this.getUserLocalDataStore(username);
+                await localUserDataStore.del('selectedWebsite');
             }
 
             /**

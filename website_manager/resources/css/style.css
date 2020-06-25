@@ -89,3 +89,16 @@
 #list-modal .list-item .list-item-more-button:nth-child(4) {
     right: 50px;
 }
+
+#list-modal .list-item .list-item-more-button {
+    cursor: pointer;
+}
+
+#manage-websites-modal #manage-modal {
+    height: 500px;
+    max-height: calc(100% - 25px);
+}
+
+#list-modal {
+    margin-bottom: 10px;
+}

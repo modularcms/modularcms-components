@@ -68,10 +68,13 @@
                     }
                     if (detail.url == '/websites/manage') {
                         await this.openManageWebsiteModal();
-                    } else if (detail.url.indexOf('/websites/edit/') == 0) {
-                        // @TODO
                     } else {
                         await this.closeManageWebsiteModal();
+                    }
+                    if (detail.url.indexOf('/websites/edit/') == 0) {
+                        await this.openEditWebsiteModal(detail.urlParts[2]);
+                    } else {
+                        await this.closeEditWebsiteModal();
                     }
                 }, this.index);
 
@@ -138,8 +141,6 @@
                             window.dispatchEvent(event);
                         })
                     }
-
-                    // TODO Add list click events
                 } else {
                     // Render no website select box
                     $.setContent(wrapper, $.html(this.html.selectBox, {
@@ -206,8 +207,8 @@
             this.openInstallWebsitePanel = async (websiteKey) => {
                 // Assert that the create panel is in the dom
                 if (!this.createPanelCreated) {
-                    this.routing.navigateTo('/websites/create');
-                    return;
+                    await this.openCreateWebsitePanel();
+                    this.createPanelCreated = true;
                 }
 
                 // Fetch the website object
@@ -243,10 +244,12 @@
             }
 
             let manageModal = false;
+            /**
+             * Opens the modal to manage websites
+             * @returns {Promise<void>}
+             */
             this.openManageWebsiteModal = async () => {
                 if (!manageModal) {
-                    manageModal = true;
-
                     manageModal = $.html(this.html.manageWebsitesModal, {});
                     $.append(this.element, manageModal);
                     manageModal.querySelectorAll('.modal-close, .modal-bg').forEach((elem) => elem.addEventListener('click', () => {
@@ -259,16 +262,61 @@
                     // Load websites list
                     const list = this.element.querySelector('#list-modal');
                     list.classList.add('loading');
-                    $.append(list, $.html(this.html.loader, {}));
+                    $.setContent(list, $.html(this.html.loader, {}));
 
                     let elementRoot = document.createElement('div');
                     const userWebsites = await this.data_controller.getUserAdminWebsites(await this.data_controller.getCurrentWorkingUsername());
+                    let uniqueItemIndex = 0;
                     for (let userWebsite of userWebsites) {
-                        $.append(elementRoot, $.html(this.html.manageListItem, {
+                        const element = $.html(this.html.manageListItem, {
                             websiteKey: userWebsite.websiteKey,
                             domain: userWebsite.domain,
                             baseUrl: userWebsite.baseUrl
-                        }));
+                        });
+                        element.querySelector('.list-item').classList.add((uniqueItemIndex++ % 2 == 0)?'even':'odd');
+                        $.append(elementRoot, element);
+
+                        // Add edit click button event
+                        element.querySelector('.list-item .list-item-more-button:nth-child(3)').addEventListener('click', () => {
+                            const websiteKey = element.querySelector('.list-item').getAttribute('data-website-key');
+                            this.routing.navigateTo('/websites/edit/' + websiteKey);
+                        });
+
+                        // Add install click button event
+                        element.querySelector('.list-item .list-item-more-button:nth-child(4)').addEventListener('click', () => {
+                            const websiteKey = element.querySelector('.list-item').getAttribute('data-website-key');
+                            this.routing.navigateTo('/websites/install/' + websiteKey);
+                        });
+
+                        // Add remove click button event
+                        element.querySelector('.list-item .list-item-more-button:nth-child(5)').addEventListener('click', async () => {
+                            if(confirm('You\'re about to delete the website ' + userWebsite.domain + userWebsite.baseUrl + ' and all of its contents. This can not be undone. Are your sure you want to delete the website?')) {
+                                const websiteKey = element.querySelector('.list-item').getAttribute('data-website-key');
+
+                                manageModal.querySelector('#modal-create-button').classList.add('button-disabled');
+                                manageModal.querySelector('#modal-create-button .button-text').innerText = 'Removing website...';
+                                list.classList.add('loading');
+                                $.setContent(list, $.html(this.html.loader, {}));
+
+                                const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
+                                await this.data_controller.removeWebsite(websiteKey);
+                                if (selectedWebsiteKey == websiteKey) {
+                                    await this.data_controller.removeSelectedWebsiteKey();
+                                }
+                                this.routing.navigateTo('/pages');
+                                await this.renderWebsiteSelect();
+                                const event = new CustomEvent('selectedWebsiteChanged', {
+                                    detail: {
+                                        websiteKey: await this.data_controller.getSelectedWebsiteKey()
+                                    }
+                                });
+                                window.dispatchEvent(event);
+                            }
+                        });
+                    }
+                    if (userWebsites.length == 0) {
+                        // Show no websites info
+                        elementRoot.innerText = 'There are no websites with admin priviliges yet to manage. You can create a first own website by clicking the button at the bottom.'
                     }
 
                     $.setContent(list, elementRoot);
@@ -276,10 +324,82 @@
                 }
             };
 
+            /**
+             * closes the website manage modal
+             */
             this.closeManageWebsiteModal = () => {
                 if (manageModal) {
                     $.remove(manageModal);
                     manageModal = false;
+                }
+            };
+
+            let editModal = false;
+            /**
+             * Opens the modal to manage websites
+             * @param   {string}    websiteKey  The website key
+             * @returns {Promise<void>}
+             */
+            this.openEditWebsiteModal = async (websiteKey) => {
+                if (!editModal) {
+                    editModal = $.html(this.html.editWebsitesModal, {});
+                    $.append(this.element, editModal);
+                    editModal.querySelectorAll('.modal-close, .modal-bg').forEach((elem) => elem.addEventListener('click', () => {
+                        this.routing.navigateBack();
+                        this.routing.navigateBack();
+                    }));
+
+                    editModal.querySelector('.modal-back').addEventListener('click', () => {
+                        this.routing.navigateBack();
+                    });
+
+                    // Load website
+                    editModal.querySelector('#edit-modal').classList.add('loading');
+                    let loader = $.html(this.html.loader, {});
+                    $.append(editModal.querySelector('#edit-modal'), loader);
+
+                    let website = await this.data_controller.getWebsite(websiteKey);
+                    if (website != null) {
+                        const domainInput = editModal.querySelector('#edit-modal-website-domain');
+                        const baseUrlInput = editModal.querySelector('#edit-modal-website-base-url');
+                        const saveButton = editModal.querySelector('#edit-modal-save-button');
+                        const form = editModal.querySelector('#edit-modal-website-form');
+
+                        domainInput.value = website.domain;
+                        baseUrlInput.value = website.baseUrl;
+
+                        form.addEventListener('submit', (e) => {
+                            e.preventDefault();
+
+                            saveButton.classList.add('button-disabled');
+                            saveButton.value = 'Editing website...';
+
+                            website.domain = domainInput.value;
+                            website.baseUrl = baseUrlInput.value;
+                            this.data_controller.setWebsiteObject(website.websiteKey, website).then(() => {
+                                this.routing.navigateBack();
+                            }).catch(() => {
+                                alert('The given domain name is already registered.');
+                                saveButton.classList.remove('button-disabled');
+                                saveButton.value = 'Save';
+                            });
+                        });
+                    } else {
+                        alert('Website not found.');
+                    }
+
+                    $.remove(loader);
+                    editModal.querySelector('#edit-modal').classList.remove('loading');
+                }
+            };
+
+            /**
+             * Closes the website edit modal
+             */
+            this.closeEditWebsiteModal = () => {
+                if (editModal) {
+                    $.remove(editModal);
+                    editModal = false;
                 }
             };
         }

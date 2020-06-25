@@ -9,7 +9,7 @@
         <img id="website-select-icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/expand-arrow-icon.svg" />
         <div id="website-select-drop-down">
             <div id="website-select-list"></div>
-            <a id="website-select-manage-button" href="/websites/manage">Manage websites</a>
+            <a id="website-select-manage-button" href="/websites/manage" class="website-select-list-item">Manage websites</a>
         </div>
     </div>
 </ccm-template>
@@ -43,7 +43,7 @@
                         <label for="website-create-domain">Enter a domain e.g. mydomain.com or subdomain.mydomain.com</label>
                         <input id="website-create-domain" type="text" name="user" placeholder="Enter a domain" value="" required="" pattern="(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]">
                         <label for="website-create-base-url">Enter a base url (default is '/' representing the entry point on your website e.g. mydomain.com<b>/</b>)</label>
-                        <input id="website-create-base-url" type="text" name="user" placeholder="Enter a base url" value="/" required="" pattern="[A-Za-z0-9/_-]+">
+                        <input id="website-create-base-url" type="text" name="user" placeholder="Enter a base url" value="/" required="" pattern="/([A-Za-z0-9-_]/)*">
                         <input type="submit" value="Create website">
                     </form>
                 </div>
@@ -92,25 +92,33 @@
                 </div>
             </div>
         </div>
-        <div class="modal-inner" id="edit-modal" style="display: none;">
+    </div>
+</ccm-template>
+<ccm-template key="editWebsitesModal">
+    <div id="edit-websites-modal" class="modal">
+        <div class="modal-bg"></div>
+        <div class="modal-inner" id="edit-modal">
             <div class="modal-head">
+                <div class="modal-back">
+                    <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/back-icon.svg" />
+                    <div class="modal-back-text">Back</div>
+                </div>
                 <h2>Manage websites</h2>
                 <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
             </div>
-            <div>
-                <label for="edit-modal-website-domain">Website domain</label>
-                <input type="text" id="edit-modal-website-domain" />
-            </div>
-            <div>
-                <label for="edit-modal-website-base-url">Base url</label>
-                <input type="text" id="edit-modal-website-base-url" />
-            </div>
-            <div class="modal-footer">
-                <div id="modal-save-button" class="button button-primary">
-                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
-                    <div class="button-text">Save</div>
+            <form id="edit-modal-website-form">
+                <div>
+                    <label for="edit-modal-website-domain">Website domain</label>
+                    <input type="text" id="edit-modal-website-domain" required="" pattern="(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]"/>
                 </div>
-            </div>
+                <div>
+                    <label for="edit-modal-website-base-url">Base url</label>
+                    <input type="text" id="edit-modal-website-base-url" required="" pattern="/([A-Za-z0-9-_]/)*" />
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="edit-modal-save-button" class="button button-primary" value="Save" />
+                </div>
+            </form>
         </div>
     </div>
 </ccm-template>
