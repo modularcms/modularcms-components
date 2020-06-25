@@ -54,7 +54,7 @@
     display: flex;
 }
 
-.website-select-list-item:before, #website-select-add-button:before {
+.website-select-list-item:before, #website-select-manage-button:before {
     content: '';
     width: 18px;
     height: 18px;
@@ -78,6 +78,6 @@
 }
 
 #website-select-manage-button:before {
-    background-image: url(https://modularcms.github.io/modularcms-components/cms/resources/img/edit-icon.svg);
+    background-image: url(https://modularcms.github.io/modularcms-components/cms/resources/img/settings-icon.svg);
     filter: invert(44%) sepia(87%) saturate(638%) hue-rotate(164deg) brightness(95%) contrast(96%);
 }
