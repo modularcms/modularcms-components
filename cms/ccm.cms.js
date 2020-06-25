@@ -118,7 +118,7 @@
                 this.page_manager.start();
                 currentContent = '/pages';
               }
-            } else {
+            } else if(detail.url.indexOf('/websites') < 0) {
               currentContent = detail.url;
               switch(detail.url) {
                 case '/users':
@@ -129,9 +129,6 @@
                   break;
                 case '/layouts':
                   $.setContent(content, $.html(this.html.layouts, {}));
-                  break;
-                case '/sites':
-                  $.setContent(content, $.html(this.html.sites, {}));
                   break;
                 default:
                   $.setContent(content, $.html(this.html.error404, {}));

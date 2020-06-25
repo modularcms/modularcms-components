@@ -19,7 +19,8 @@
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
-            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ]
+            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+            "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ]
         },
 
         Instance: function () {
@@ -59,11 +60,16 @@
                         if (this.createPanelCreated) {
                             this.element.querySelector('#website-create-panel').classList.add('hidden');
                         }
-                    } else if (detail.url.indexOf('/websites/edit/') == 0) {
-                        // @TODO
                     } else {
                         // Close modal
                         await this.closePanels();
+                    }
+                    if (detail.url == '/websites/manage') {
+                        await this.openManageWebsiteModal();
+                    } else if (detail.url.indexOf('/websites/edit/') == 0) {
+                        // @TODO
+                    } else {
+                        await this.closeManageWebsiteModal();
                     }
                 }, this.index);
 
@@ -154,7 +160,8 @@
              */
             this.openCreateWebsitePanel = async () => {
                 // Append modal html
-                $.append(this.element, $.html(this.html.createWebsitePanel, {}));
+                const panel = $.html(this.html.createWebsitePanel, {});
+                $.append(this.element, panel);
 
                 // Add event for finish
                 this.element.querySelector('#website-create-form').addEventListener('submit', async (e) => {
@@ -164,24 +171,28 @@
                     const domain = this.element.querySelector('#website-create-domain').value;
                     const baseUrl = this.element.querySelector('#website-create-base-url').value;
 
-                    // Add the website
-                    try {
-                        // Show loader
-                        this.element.querySelector('.panel-box').classList.add('loading');
-                        $.setContent(this.element.querySelector('.panel-loader-wrapper'), $.html(this.html.loader, {}));
+                    // Show loader
+                    this.element.querySelector('.panel-box').classList.add('loading');
+                    $.setContent(this.element.querySelector('.panel-loader-wrapper'), $.html(this.html.loader, {}));
 
-                        // Create the website
-                        const websiteKey = await this.data_controller.createWebsite(domain, baseUrl);
-
+                    // Create the website
+                    await this.data_controller.createWebsite(domain, baseUrl).then(async (websiteKey) => {
                         // Set the created website as the current working target website
                         await this.data_controller.setSelectedWebsiteKey(websiteKey);
                         await this.renderWebsiteSelect();
 
                         // Navigate to install panel
                         this.routing.navigateTo('/websites/install/' + websiteKey);
-                    } catch (e) {
-                        // TODO Errorhandling
-                    }
+                    }).catch(() => { // Error handling
+                        // Hide loader
+                        this.element.querySelector('.panel-box').classList.remove('loading');
+                        this.element.querySelector('.panel-loader-wrapper').innerHTML = '';
+
+                        // Show alert
+                        $.setContent(panel.querySelector('.panel-alert-wrapper'), $.html(this.html.createError, {
+                            text: 'This domain is already registered for modularcms.'
+                        }));
+                    });
                 });
             }
 
@@ -228,6 +239,44 @@
                 this.createPanelCreated = false;
                 this.installPanelCreated = false;
             }
+
+            let manageModal = false;
+            this.openManageWebsiteModal = async () => {
+                if (!manageModal) {
+                    manageModal = true;
+
+                    manageModal = $.html(this.html.manageWebsitesModal, {});
+                    $.append(this.element, manageModal);
+                    manageModal.querySelectorAll('.modal-close, .modal-bg').forEach((elem) => elem.addEventListener('click', () => {
+                        this.routing.navigateBack();
+                    }));
+
+                    // Load websites list
+                    const list = this.element.querySelector('#list-modal');
+                    list.classList.add('loading');
+                    $.append(list, $.html(this.html.loader, {}));
+
+                    let elementRoot = document.createElement('div');
+                    const userWebsites = await this.data_controller.getUserAdminWebsites(await this.data_controller.getCurrentWorkingUsername());
+                    for (let userWebsite of userWebsites) {
+                        $.append(elementRoot, $.html(this.html.manageListItem, {
+                            websiteKey: userWebsite.websiteKey,
+                            domain: userWebsite.domain,
+                            baseUrl: userWebsite.baseUrl
+                        }));
+                    }
+
+                    $.setContent(list, elementRoot);
+                    list.classList.remove('loading');
+                }
+            };
+
+            this.closeManageWebsiteModal = () => {
+                if (manageModal) {
+                    $.remove(manageModal);
+                    manageModal = false;
+                }
+            };
         }
 
     };

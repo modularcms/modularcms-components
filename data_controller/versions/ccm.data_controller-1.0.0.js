@@ -484,10 +484,24 @@
                 const websitesGet = await userWebsitesDataStore.get();
                 let promises = [];
                 for (let websiteGet of websitesGet) {
-                    promises.push(this.getWebsite(websiteGet.key));
+                    promises.push(new Promise(async (resolve, reject) => {
+                        let website = await this.getWebsite(websiteGet.key);
+                        website.role = websiteGet.value.role;
+                        resolve(website);
+                    }));
                 }
                 const re = await Promise.all(promises);
                 return re;
+            };
+
+            /**
+             * Returns the belonging websites to a user with the user role admin
+             * @param {string}  key The username
+             * @returns {Promise<Array<{}>>}
+             */
+            this.getUserAdminWebsites = async (username) => {
+                const re = await this.getUserWebsites(username);
+                return re.filter((website) => website.role == 'admin');
             };
 
             /**

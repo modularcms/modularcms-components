@@ -28,9 +28,3 @@
 #list-modal {
     margin-bottom: 10px;
 }
-
-.modal-footer .button {
-    display: inline-flex;
-    margin-left: 50%;
-    transform: translateX(-50%);
-}

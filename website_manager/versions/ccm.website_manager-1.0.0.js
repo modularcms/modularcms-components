@@ -21,7 +21,8 @@
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
-            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ]
+            "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+            "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ]
         },
 
         Instance: function () {
@@ -61,11 +62,16 @@
                         if (this.createPanelCreated) {
                             this.element.querySelector('#website-create-panel').classList.add('hidden');
                         }
-                    } else if (detail.url.indexOf('/websites/edit/') == 0) {
-                        // @TODO
                     } else {
                         // Close modal
                         await this.closePanels();
+                    }
+                    if (detail.url == '/websites/manage') {
+                        await this.openManageWebsiteModal();
+                    } else if (detail.url.indexOf('/websites/edit/') == 0) {
+                        // @TODO
+                    } else {
+                        await this.closeManageWebsiteModal();
                     }
                 }, this.index);
 
@@ -235,6 +241,47 @@
                 this.createPanelCreated = false;
                 this.installPanelCreated = false;
             }
+
+            let manageModal = false;
+            this.openManageWebsiteModal = async () => {
+                if (!manageModal) {
+                    manageModal = true;
+
+                    manageModal = $.html(this.html.manageWebsitesModal, {});
+                    $.append(this.element, manageModal);
+                    manageModal.querySelectorAll('.modal-close, .modal-bg').forEach((elem) => elem.addEventListener('click', () => {
+                        this.routing.navigateBack();
+                    }));
+                    manageModal.querySelector('#modal-create-button').addEventListener('click', () => {
+                        this.routing.navigateTo('/websites/create');
+                    })
+
+                    // Load websites list
+                    const list = this.element.querySelector('#list-modal');
+                    list.classList.add('loading');
+                    $.append(list, $.html(this.html.loader, {}));
+
+                    let elementRoot = document.createElement('div');
+                    const userWebsites = await this.data_controller.getUserAdminWebsites(await this.data_controller.getCurrentWorkingUsername());
+                    for (let userWebsite of userWebsites) {
+                        $.append(elementRoot, $.html(this.html.manageListItem, {
+                            websiteKey: userWebsite.websiteKey,
+                            domain: userWebsite.domain,
+                            baseUrl: userWebsite.baseUrl
+                        }));
+                    }
+
+                    $.setContent(list, elementRoot);
+                    list.classList.remove('loading');
+                }
+            };
+
+            this.closeManageWebsiteModal = () => {
+                if (manageModal) {
+                    $.remove(manageModal);
+                    manageModal = false;
+                }
+            };
         }
 
     };
