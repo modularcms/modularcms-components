@@ -42,12 +42,14 @@
       "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js" ],
       "menu": [
         {"title": "Pages", "route": "/pages"},
-        {"title": "Users", "route": "/users"},
-        {"title": "Themes", "route": "/themes"},
-        {"title": "Layouts", "route": "/layouts"}
+        {"title": "Users", "route": "/users", "role": "admin"},
+        {"title": "Themes", "route": "/themes", "role": "admin"},
+        {"title": "Layouts", "route": "/layouts", "role": "admin"}
       ],
       "page_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js" ],
       "website_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/website_manager/versions/ccm.website_manager-1.0.0.js" ],
+      "user_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_manager/versions/ccm.user_manager-1.0.0.js" ],
+      "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
     },
 
     Instance: function () {
@@ -60,7 +62,12 @@
       };
 
       let content;
+      let currentContent = '';
 
+      /**
+       * Component start closure
+       * @returns {Promise<void>}
+       */
       this.start = async () => {
         // logging of 'start' event
         this.logger && this.logger.log('start');
@@ -86,10 +93,7 @@
         if ( this.user ) { $.append( this.element.querySelector('#user-component-wrapper'), this.user.root ); this.user.start(); }
 
         // create menu items
-        let menuWrapper = this.element.querySelector('#menu #menu-items-wrapper')
-        this.menu.forEach((item) => {
-          $.append(menuWrapper, $.html(this.html.menuitem, {title: item.title, route: item.route}));
-        })
+        await this.renderMenu();
 
         // hamburger button
         hamburger.onclick = () => {
@@ -106,8 +110,7 @@
         loggedIn = this.user && this.user.isLoggedIn();
 
         // listen to routes
-        let currentContent = '';
-
+        currentContent = '';
         await this.routing.registerRoutingCallback((detail) => {
           // handle routes with user logged in
           if (loggedIn) {
@@ -118,12 +121,15 @@
                 this.page_manager.start();
                 currentContent = '/pages';
               }
+            } else if (detail.url.indexOf('/users') == 0) {
+              if (currentContent != '/users') {
+                $.setContent(content, this.user_manager.root, {});
+                this.user_manager.start();
+                currentContent = '/users';
+              }
             } else if(detail.url.indexOf('/websites') < 0) {
               currentContent = detail.url;
               switch(detail.url) {
-                case '/users':
-                  $.setContent(content, $.html(this.html.users, {}));
-                  break;
                 case '/themes':
                   $.setContent(content, $.html(this.html.themes, {}));
                   break;
@@ -165,13 +171,7 @@
           }
 
           //mark the right menu item as active
-          let menuItems = menu.querySelectorAll('#menu-items-wrapper li');
-          menuItems.forEach((elem) => elem.classList.remove('active'));
-          menuItems.forEach((elem) => {
-            if (elem.querySelector('a').getAttribute('href') == currentContent) {
-              elem.classList.add('active')
-            }
-          });
+          this.markMenuItemActive();
 
           //hide the mobile menu on routing change
           if (hamburger.classList.contains('active')) {
@@ -179,15 +179,23 @@
             hamburger.classList.remove('active');
           }
         }, this.index);
-        window.addEventListener('selectedWebsiteChanged', () => {
+        window.addEventListener('selectedWebsiteChanged', async () => {
           this.routing.changeUrl(window.location.pathname, true);
+          await this.renderMenu();
         })
 
         // user authentication
         this.changeLoginState(loggedIn, true);
       };
 
+
       let loggedIn;
+      /**
+       * CHanges thge login state
+       * @param {boolean} newState  The new login state
+       * @param {boolean} force     Should the state be forced?
+       * @returns {Promise<void>}
+       */
       this.changeLoginState = async (newState, force = false) => {
         if (loggedIn != newState || force) {
           loggedIn = newState;
@@ -205,6 +213,36 @@
             this.element.classList.remove('loggedIn');
           }
         }
+      }
+
+      /**
+       * Renders the menu
+       * @returns {Promise<void>}
+       */
+      this.renderMenu = async () => {
+        const menuWrapper = this.element.querySelector('#menu #menu-items-wrapper');
+        const selectedWebsiteKey = await this.data_controller.getSelectedWebsiteKey();
+        const username = await this.data_controller.getCurrentWorkingUsername();
+        const userRole = (selectedWebsiteKey != null && username != null)?(await this.data_controller.getUserWebsiteRole(username, selectedWebsiteKey)):null;
+        menuWrapper.innerHTML = '';
+        this.menu.filter((item) => item.role === undefined || (userRole != null && item.role == userRole)).forEach((item) => {
+          $.append(menuWrapper, $.html(this.html.menuitem, {title: item.title, route: item.route}));
+        });
+        this.markMenuItemActive();
+      }
+
+      /**
+       * Marks the right menu item as active
+       */
+      this.markMenuItemActive = () => {
+        const menu = this.element.querySelector('#menu');
+        let menuItems = menu.querySelectorAll('#menu-items-wrapper li');
+        menuItems.forEach((elem) => elem.classList.remove('active'));
+        menuItems.forEach((elem) => {
+          if (elem.querySelector('a').getAttribute('href') == currentContent) {
+            elem.classList.add('active')
+          }
+        });
       }
     }
   };

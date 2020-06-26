@@ -181,6 +181,12 @@
                         // Set the created website as the current working target website
                         await this.data_controller.setSelectedWebsiteKey(websiteKey);
                         await this.renderWebsiteSelect();
+                        const event = new CustomEvent('selectedWebsiteChanged', {
+                            detail: {
+                                websiteKey: websiteKey
+                            }
+                        });
+                        window.dispatchEvent(event);
 
                         // Navigate to install panel
                         this.routing.navigateTo('/websites/install/' + websiteKey);

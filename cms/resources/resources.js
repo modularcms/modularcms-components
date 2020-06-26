@@ -15,7 +15,9 @@ ccm.files[ 'resources.js' ] = {
         "routing_sensor": [ "ccm.instance", "/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
         "page_manager": [ "ccm.instance", "/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/page_manager/resources/resources.js", "local" ] ],
         "website_manager": [ "ccm.instance", "/modularcms-components/website_manager/versions/ccm.website_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/website_manager/resources/resources.js", "local" ] ],
-    },
+        "data_controller": [ "ccm.instance", "/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+        "user_manager": [ "ccm.instance", "/modularcms-components/user_manager/versions/ccm.user_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/user_manager/resources/resources.js", "local" ] ],
+},
     "routing": {
         "entrypoint": "/"
     }

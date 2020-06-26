@@ -37,16 +37,6 @@
              * @returns {Promise<void>}
              */
             this.start = async () => {
-                $.setContent(this.element, $.html(this.html.main, {}));
-
-                // Add search
-                this.initSearch('#list-search', '#list');
-
-                // Add click event for create button
-                this.element.querySelector('#create-button').addEventListener('click', () => {
-                    this.routing.navigateTo('/pages/create/1');
-                });
-
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url.indexOf('/pages/create') == 0) {
@@ -65,24 +55,87 @@
                     } else if (detail.url.indexOf('/pages/edit/') == 0) {
                         // Close modal
                         await this.closeCreateNewPageModal();
-                        // @TODO
+
+                        await this.renderEdit(detail.urlParts[2]);
 
                     } else if (detail.url.indexOf('/pages') == 0) {
-                        // Close modal
-                        await this.closeCreateNewPageModal();
-
-                        // load page selection
-                        await this.loadAllPages('#list');
-
-                        // add click events for list
-                        this.element.querySelectorAll('#list .list-item').forEach(elem => {
-                            elem.addEventListener('click', () => {
-                                let pageKey = elem.getAttribute('data-page-key');
-                                this.routing.navigateTo('/pages/edit/' + pageKey);
-                            });
-                        })
+                        await this.renderMain();
                     }
                 }, this.index);
+            };
+
+            /**
+             * Renders the main page list content
+             * @returns {Promise<void>}
+             */
+            this.renderMain = async () => {
+                $.setContent(this.element, $.html(this.html.main, {}));
+
+                // Add search
+                this.initSearch('#list-search', '#list');
+
+                // Add click event for create button
+                this.element.querySelector('#create-button').addEventListener('click', () => {
+                    this.routing.navigateTo('/pages/create/1');
+                });
+
+                // Close modal
+                await this.closeCreateNewPageModal();
+
+                // load page selection
+                await this.loadAllPages('#list');
+
+                // add click events for list
+                this.element.querySelectorAll('#list .list-item').forEach(elem => {
+                    elem.addEventListener('click', () => {
+                        let pageKey = elem.getAttribute('data-page-key');
+                        this.routing.navigateTo('/pages/edit/' + pageKey);
+                    });
+                });
+
+                // add more buttons
+                this.element.querySelectorAll('#list .list-item-more-button').forEach(elem => {
+                    let showingDelete = false;
+                    elem.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+
+                        let pageKey = elem.parentElement.getAttribute('data-page-key');
+                        let title = elem.parentElement.getAttribute('data-page-title');
+                        let url = elem.parentElement.getAttribute('data-page-path');
+
+                        if (!showingDelete) {
+                            showingDelete = true;
+                            elem.src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/trash-icon.svg';
+                            elem.style.filter = 'invert(19%) sepia(100%) saturate(2779%) hue-rotate(354deg) brightness(94%) contrast(95%)';
+                            setTimeout(() => {
+                                showingDelete = false;
+                                elem.src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg';
+                                elem.style.filter = 'none';
+                            }, 3000);
+                        } else if (url == '/') {
+                            alert('The entry page can not be deleted!');
+                        } else {
+                            //delete page
+                            if (confirm('Do you really want to delete the page with the title "' + title + '" (' + url + ')? This can\'t be undone.')) {
+                                const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+                                elem.style.pointerEvents = 'none';
+                                elem.style.opacity = '0.5';
+                                await this.data_controller.removePage(websiteKey, pageKey);
+                                $.remove(elem.parentElement.parentElement);
+                            }
+                        }
+                    });
+                });
+            };
+
+            /**
+             * Renders the edit page for a page
+             * @param   {string}    pageKey The page key
+             * @returns {Promise<void>}
+             */
+            this.renderEdit = async (pageKey) => {
+                $.setContent(this.element, $.html(this.html.editPage, {}));
             };
 
             /**
@@ -296,6 +349,12 @@
 
                 // Add events for finish
                 this.element.querySelector('#modal-create-button').addEventListener('click', async () => {
+                    this.element.querySelector('#create-modal-step-2').classList.add('loading');
+                    let loader = $.html(this.html.loader, {});
+                    $.append(this.element.querySelector('#create-modal-step-2'), loader);
+                    this.element.querySelector('#modal-create-button').classList.add('button-disabled');
+                    this.element.querySelector('#modal-create-button .button-text').innerText = 'Creating page...';
+
                     const username = await this.data_controller.getCurrentWorkingUsername();
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const pathSplit = this.element.querySelector('#create-modal-page-url').value.split('/');
@@ -336,6 +395,12 @@
                         this.routing.navigateTo('/pages/edit/' + pageKey);
                     }).catch(() => {
                         // Error handling
+
+                        $.remove(loader);
+                        this.element.querySelector('#create-modal-step-2').classList.remove('loading');
+                        this.element.querySelector('#modal-create-button').classList.remove('button-disabled');
+                        this.element.querySelector('#modal-create-button .button-text').innerText = 'Create new page';
+
                         alert('This page url is already existing.');
                     })
                 })
@@ -351,34 +416,6 @@
             this.closeCreateNewPageModal = async () => {
                 $.remove(this.element.querySelector('#create-new-page-modal'));
                 this.modalCreated = false;
-            }
-
-            /**
-             * Creates a new page
-             * @returns {Promise<void>}
-             */
-            this.createNewPage = async (websiteId, parentId, title, urlName, layoutId) => {
-                let pageKey = await this.pages.set({
-                    value: {
-                        title: title,
-                        urlName: urlName,
-                        parentId: parentId,
-                        layoutId: layoutId
-                    },
-                    "_": {
-                        creator: 'test',
-                        realm: 'modularcms',
-                        group: {
-                            admins: [ 'broehl', 'test' ]
-                        },
-                        access: {
-                            get: 'all',
-                            set: 'admins',
-                            del: 'test'
-                        }
-                    }
-                }); // TODO replace with data_controller and add loading spinner before create method
-
             }
         }
 

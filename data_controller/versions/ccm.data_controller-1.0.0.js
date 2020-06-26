@@ -440,8 +440,11 @@
              */
             this.getUserFromUsername = async (username) => {
                 let storeGet = await this.users.get(this.hash.md5(username));
-                let re = storeGet.value;
-                return re;
+                if (storeGet != null) {
+                    let re = storeGet.value;
+                    return re;
+                }
+                return null;
             };
 
             /**
@@ -486,7 +489,7 @@
 
             /**
              * Returns the belonging websites to a user
-             * @param {string}  key The username
+             * @param {string}  username    The username
              * @returns {Promise<Array<{}>>}
              */
             this.getUserWebsites = async (username) => {
@@ -512,6 +515,21 @@
             this.getUserAdminWebsites = async (username) => {
                 const re = await this.getUserWebsites(username);
                 return re.filter((website) => website.role == 'admin');
+            };
+
+            /**
+             * Returns the role of a belonging website of a user
+             * @param {string}  username    The username
+             * @param {string}  websiteKey  The website key
+             * @returns {Promise<Array<{}>>}
+             */
+            this.getUserWebsiteRole = async (username, websiteKey) => {
+                const userWebsitesDataStore = await this.getUserWebsitesDataStore(username);
+                const websiteGet = await userWebsitesDataStore.get(websiteKey);
+                if (websiteGet != null) {
+                    return websiteGet.value.role;
+                }
+                return null;
             };
 
             /**
@@ -581,70 +599,102 @@
              * @param {string} role         The given user role
              * @returns {Promise<void>}
              */
-            this.addUserToWebsite = async (websiteKey, username, role) => {
+            this.addUserToWebsite = async (websiteKey, username, role) => new Promise(async (resolve, reject) => {
+                const user = await this.getUserFromUsername(username);
+
+                if (user != null) {
+                    // Add entry to user_<username>_websites
+                    const userWebsitesDataStore = await this.getUserWebsitesDataStore(username)
+                    userWebsitesDataStore.set({
+                        key: websiteKey,
+                        value: {
+                            username: username,
+                            role: role
+                        },
+                        _: await this.getUserWebsiteMappingPermissions(websiteKey)
+                    });
+
+                    // Add entry to website_<websiteKey>_users
+                    const websitesUserDataStore = await this.getWebsiteUsersDataStore(websiteKey)
+                    websitesUserDataStore.set({
+                        key: this.hash.md5(username),
+                        value: {
+                            username: username,
+                            role: role
+                        },
+                        _: await this.getUserWebsiteMappingPermissions(websiteKey)
+                    });
+
+                    // Update permissions for all other objects
+                    await this.updateUserPermissions(websiteKey);
+
+                    resolve();
+                } else {
+                    reject();
+                }
+            });
+
+            /**
+             * Removes a user from the own website
+             * @param {string} websiteKey   The website key
+             * @param {string} username     The username
+             * @returns {Promise<void>}
+             */
+            this.removeUserFromWebsite = async (websiteKey, username) => {
                 // Add entry to user_<username>_websites
                 const userWebsitesDataStore = await this.getUserWebsitesDataStore(username)
-                userWebsitesDataStore.set({
-                    key: websiteKey,
-                    value: {
-                        username: username,
-                        role: role
-                    },
-                    _: await this.getUserWebsiteMappingPermissions(websiteKey)
-                });
+                userWebsitesDataStore.del(websiteKey);
 
                 // Add entry to website_<websiteKey>_users
                 const websitesUserDataStore = await this.getWebsiteUsersDataStore(websiteKey)
-                websitesUserDataStore.set({
-                    key: this.hash.md5(username),
-                    value: {
-                        username: username,
-                        role: role
-                    },
-                    _: await this.getUserWebsiteMappingPermissions(websiteKey)
-                });
+                websitesUserDataStore.del(this.hash.md5(username));
 
                 // Update permissions for all other objects
-                await this.updateUserPermissions(websiteKey, username);
+                await this.updateUserPermissions(websiteKey);
             };
 
             /**
              * Update all website objects to fit the user permissions
              * @param {string} websiteKey   The website key
-             * @param {string} username     The username
-             * @param {string} role         The given user role
              * @returns {Promise<void>}
              */
-            this.updateUserPermissions = async (websiteKey, username) => {
+            this.updateUserPermissions = async (websiteKey) => {
                 // Update website object
                 const website = await this.getWebsite(websiteKey);
                 await this.setWebsiteObject(websiteKey, website);
 
                 // Update themes
-                let promisesThemesAndLayouts = [];
                 const themes = await this.getAllThemesOfWebsite(websiteKey);
                 for (let theme of themes) {
                     // Update theme
-                    promisesThemesAndLayouts.push(this.setThemeObject(websiteKey, theme.themeKey, theme));
+                    await this.setThemeObject(websiteKey, theme.themeKey, theme);
 
                     // Update theme layouts
                     const layouts = await this.getAllLayoutsOfTheme(websiteKey, theme.themeKey);
                     for (let layout of layouts) {
-                        promisesLayoutsAndLayouts.push(this.setLayoutObject(websiteKey, theme.themeKey, layout.layoutKey, layout));
+                        await this.setLayoutObject(websiteKey, theme.themeKey, layout.layoutKey, layout);
                     }
                 }
-                await Promise.all(promisesThemesAndLayouts);
 
                 // Update Pages
-                let promisesPagesSet = [];
                 const pages = await this.getAllPagesOfWebsite(websiteKey);
                 for (let page of pages.filter(item => !/_live$/.test(item.pageKey))) {
-                    promisesPagesSet.push(this.setPageObject(websiteKey, page.pageKey, page, false));
+                    let pageCopy = {};
+                    Object.assign(pageCopy, page)
+                    delete pageCopy['pageKey'];
+                    await this.setPageObject(websiteKey, page.pageKey, pageCopy, false);
+
+                    // Update page url mapping
+                    const pageUrl = await this.getFullPageUrl(websiteKey, page.pageKey);
+                    if (pageUrl != null) {
+                        const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                        const mapping = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
+                        mapping._ =  await this.getPagePublishPermissions(websiteKey);
+                        await websitePageUrlMappingDataStore.set(mapping);
+                    }
                 }
-                await Promise.all(promisesPagesSet);
 
                 // Update published pages without publishing the current draft
-                let promisesPagesPublishSet = [];
                 for (let page of pages.filter(item => /_live$/.test(item.pageKey))) {
                     // TODO Update page publish
                     const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
@@ -652,19 +702,21 @@
                     Object.assign(pageCopy, page)
                     delete pageCopy['pageKey'];
 
-                    promisesPagesPublishSet.push(websitePagesDataStore.set({
+                    await websitePagesDataStore.set({
                         key: page.pageKey, // already with _live
                         value: pageCopy,
                         _: await this.getPagePublishPermissions(websiteKey)
-                    }));
+                    });
 
                     // Update page url mapping
-                    const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
-                    const mapping = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
-                    mapping._ =  await this.getPagePublishPermissions(websiteKey);
-                    promisesPagesPublishSet.push(websitePageUrlMappingDataStore.set(mapping));
+                    const pageUrl = await this.getFullPageUrl(websiteKey, page.pageKey.replace('_live', ''));
+                    if (pageUrl != null) {
+                        const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
+                        const mapping = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
+                        mapping._ =  await this.getPagePublishPermissions(websiteKey);
+                        await websitePageUrlMappingDataStore.set(mapping);
+                    }
                 }
-                await Promise.all(promisesPagesPublishSet);
             };
 
             /**
@@ -1234,7 +1286,8 @@
              * @returns {Promise<void>}
              */
             this.removePage = async (websiteKey, pageKey) => {
-                const page = this.getPage(websiteKey, pageKey);
+                const page = await this.getPage(websiteKey, pageKey);
+                const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
 
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 await websitePagesDataStore.del(pageKey);
@@ -1242,20 +1295,19 @@
                 // Try to delete live version
                 await websitePagesDataStore.del(pageKey + '_live');
 
-                // Delete url mapping
-                const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
-                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
-                const websitePageUrlMappingLiveDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
-                await Promise.all([
-                    websitePageUrlMappingDataStore.del(pageUrl),
-                    websitePageUrlMappingLiveDataStore.del(pageUrl)
-                ]);
-
                 // Delete link in parent children table
-                if (page.parentKey !== undefined) {
+                if (page.parentKey !== undefined && page.parentKey != null) {
                     const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, page.parentKey);
                     await websitePageChildrenDataStore.del(pageKey);
                 }
+
+                // Delete url mapping
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                const websitePageUrlMappingLiveDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
+                await Promise.all([
+                    websitePageUrlMappingDataStore.del(this.hash.md5(pageUrl)),
+                    websitePageUrlMappingLiveDataStore.del(this.hash.md5(pageUrl))
+                ]);
             }
 
 
