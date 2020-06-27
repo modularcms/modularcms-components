@@ -1,0 +1,102 @@
+<!--
+@overview default HTML template of ccm component for page_manager modularcms
+@author Felix Bröhl <broehl@everoo.io> 2020
+-->
+
+<ccm-template key="main">
+    <div class="edit-container">
+        <div class="edit-head-wrapper">
+            <div class="edit-head">
+                <div class="search">
+                    <input id="list-search" type="text" />
+                    <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
+                </div>
+                <div id="create-button" class="button button-primary button-responsive-hide-text">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
+                    <div class="button-text">Add user to website</div>
+                </div>
+            </div>
+        </div>
+        <div id="list" class="list"></div>
+    </div>
+</ccm-template>
+<ccm-template key="themeListItem">
+    <div class="list-item-wrapper">
+        <div class="list-item list-item-with-more-button" data-type="theme" data-theme-key="%themeKey%" data-theme-name="%themeName%">
+            <div class="list-item-title">%themeName%</div>
+            <div class="list-item-subline">Theme</div>
+            <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
+        </div>
+        <div class="list-item-children"></div>
+    </div>
+</ccm-template>
+<ccm-template key="layoutListItem">
+    <div class="list-item-wrapper">
+        <div class="list-item list-item-with-more-button" data-type="layout" data-layout-key="%layoutKey%" data-theme-name="%layoutName%">
+            <div class="list-item-title">%layoutName%</div>
+            <div class="list-item-subline">Layout</div>
+            <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
+        </div>
+        <div class="list-item-children"></div>
+    </div>
+</ccm-template>
+<ccm-template key="loader">
+    <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+</ccm-template>
+<ccm-template key="createThemeModal">
+    <div id="create-theme-modal" class="modal">
+        <div class="modal-bg"></div>
+        <div class="modal-inner" id="add-modal-step-1">
+            <div class="modal-head">
+                <h2>Create a new theme</h2>
+                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
+            </div>
+            <form id="modal-theme-create-form">
+                <div>
+                    <label for="create-modal-theme-name">Please enter the name for the new theme</label>
+                    <input type="text" id="create-modal-theme-name" required="" />
+                </div>
+                <div>
+                    <label for="create-modal-theme-ccm-component-url">Please enter the url to the ccm based component url to work with</label>
+                    <input type="text" id="create-modal-theme-ccm-component-url" required="" />
+                </div>
+                <div>
+                    <label for="create-modal-theme-ccm-component-url">Please enter a ccm component config in the JSON format</label>
+                    <textarea id="create-modal-theme-ccm-component-config" class="textarea-code" required="">{}</textarea>
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="modal-add-button" class="button button-primary" value="Add user to website" />
+                </div>
+            </form>
+        </div>
+    </div>
+</ccm-template>
+<ccm-template key="editTheme">
+    <div class="edit-container">
+        <div class="edit-head-wrapper">
+            <div class="edit-head">
+                <div class="edit-head-avatar"><img src="%imageUrl%" /></div>
+                <div class="edit-head-title"><input type="text" value="%themeName%" /></div>
+                <div id="save-button" class="button button-primary button-responsive-hide-text">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg" />
+                    <div class="button-text">Save</div>
+                </div>
+            </div>
+            <div class="edit-menu">
+                <div class="menu-item active">Component</div>
+                <div class="menu-item">Custom</div>
+            </div>
+        </div>
+        <div class="edit-content">
+            <div>
+                <label for="user-role">User role</label>
+                <select id="user-role">
+                    <option value="member">Member</option>
+                    <option value="author">Author</option>
+                    <option value="editor">Editor</option>
+                    <option value="admin">Administrator</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</ccm-template>

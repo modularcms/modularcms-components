@@ -82,6 +82,10 @@
     filter: invert(44%) sepia(87%) saturate(638%) hue-rotate(164deg) brightness(95%) contrast(96%);
 }
 
+#list-modal .list-item {
+    padding-right: 120px;
+}
+
 #list-modal .list-item .list-item-more-button:nth-child(3) {
     right: 85px;
 }
@@ -101,4 +105,17 @@
 
 #list-modal {
     margin-bottom: 10px;
+}
+
+@media (max-width: 800px) {
+    #website-select-icon {
+        filter: invert(46%) sepia(75%) saturate(1827%) hue-rotate(179deg) brightness(93%) contrast(95%);
+    }
+    #website-select-domain {
+        color: var(--color-primary);
+    }
+    #website-select-box {
+        border-color: var(--color-primary);
+        margin: 8px;
+    }
 }

@@ -49,6 +49,8 @@
       "page_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js" ],
       "website_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/website_manager/versions/ccm.website_manager-1.0.0.js" ],
       "user_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_manager/versions/ccm.user_manager-1.0.0.js" ],
+      "theme_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/theme_manager/versions/ccm.theme_manager-1.0.0.js" ],
+      "layout_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/layout_manager/versions/ccm.layout_manager-1.0.0.js" ],
       "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
     },
 
@@ -127,19 +129,21 @@
                 this.user_manager.start();
                 currentContent = '/users';
               }
-            } else if(detail.url.indexOf('/websites') < 0) {
-              currentContent = detail.url;
-              switch(detail.url) {
-                case '/themes':
-                  $.setContent(content, $.html(this.html.themes, {}));
-                  break;
-                case '/layouts':
-                  $.setContent(content, $.html(this.html.layouts, {}));
-                  break;
-                default:
-                  $.setContent(content, $.html(this.html.error404, {}));
-                  break;
+            } else if (detail.url.indexOf('/themes') == 0) {
+              if (currentContent != '/themes') {
+                $.setContent(content, this.theme_manager.root, {});
+                this.theme_manager.start();
+                currentContent = '/themes';
               }
+            } else if (detail.url.indexOf('/layouts') == 0) {
+              if (currentContent != '/layouts') {
+                $.setContent(content, this.layout_manager.root, {});
+                this.layout_manager.start();
+                currentContent = '/layouts';
+              }
+            } else {
+              currentContent = detail.url;
+              $.setContent(content, $.html(this.html.error404, {}));
             }
           }
           // handle routes with user logged out

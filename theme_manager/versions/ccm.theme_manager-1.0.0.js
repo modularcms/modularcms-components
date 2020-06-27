@@ -1,5 +1,5 @@
 /**
- * @overview modularcms component that manages the users
+ * @overview modularcms component that manages the themes
  * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */
@@ -8,14 +8,16 @@
 
     const component = {
 
-        name: 'user_manager',
+        name: 'theme_manager',
+
+        version: [1,0,0],
 
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
-            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/user_manager/resources/html/user_manager.html" ],
+            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/theme_manager/resources/html/theme_manager.html" ],
             "css": [ "ccm.load",
-                "https://modularcms.github.io/modularcms-components/user_manager/resources/css/style.css",
+                "https://modularcms.github.io/modularcms-components/theme_manager/resources/css/style.css",
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
@@ -40,18 +42,18 @@
             this.start = async () => {
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
-                    if (detail.url == '/users/add') {
+                    if (detail.url == '/themes/create') {
                         if (!this.modalCreated) {
                             this.modalCreated = true;
-                            await this.openAddUserModal();
+                            await this.openCreateThemeModal();
                         }
-                    } else if (detail.url.indexOf('/users/edit/') == 0) {
+                    } else if (detail.url.indexOf('/themes/edit/') == 0) {
                         // Close modal
-                        await this.closeAddUserModal();
+                        await this.closeCreateThemeModal();
 
                         await this.renderEdit(detail.urlParts[2]);
 
-                    } else if (detail.url.indexOf('/users') == 0) {
+                    } else if (detail.url.indexOf('/themes') == 0) {
                         await this.renderMain();
                     }
                 }, this.index);
@@ -67,22 +69,22 @@
                 // Add search
                 this.initSearch('#list-search', '#list');
 
-                // Add click event for add button
-                this.element.querySelector('#add-button').addEventListener('click', () => {
-                    this.routing.navigateTo('/users/add');
+                // Add click event for create button
+                this.element.querySelector('#create-button').addEventListener('click', () => {
+                    this.routing.navigateTo('/themes/create');
                 });
 
                 // Close modal
-                await this.closeAddUserModal();
+                await this.closeCreateThemeModal();
 
                 // load page selection
-                await this.loadAllUsers('#list');
+                await this.loadAllThemes('#list');
 
                 // add click events for list
                 this.element.querySelectorAll('#list .list-item').forEach(elem => {
                     elem.addEventListener('click', () => {
-                        let username = elem.getAttribute('data-username');
-                        this.routing.navigateTo('/users/edit/' + username);
+                        let themeKey = elem.getAttribute('data-theme-key');
+                        this.routing.navigateTo('/themes/edit/' + themeKey);
                     });
                 });
 
@@ -93,7 +95,8 @@
                         e.stopPropagation();
                         e.preventDefault();
 
-                        let username = elem.parentElement.getAttribute('data-username');
+                        let themeKey = elem.parentElement.getAttribute('data-theme-key');
+                        let themeName = elem.parentElement.getAttribute('data-theme-name');
 
                         if (!showingDelete) {
                             showingDelete = true;
@@ -104,15 +107,13 @@
                                 elem.src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg';
                                 elem.style.filter = 'none';
                             }, 3000);
-                        } else if (username === await this.data_controller.getCurrentWorkingUsername()) {
-                            alert('You can\'t remove yourself from a website!');
                         } else {
                             //delete page
-                            if (confirm('Do you really want to remove all website permissions for the user "' + username + '" ?')) {
+                            if (confirm('Do you really want to remove the theme "' + themeName + '" and all of its associated layouts?')) {
                                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                                 elem.style.pointerEvents = 'none';
                                 elem.style.opacity = '0.5';
-                                await this.data_controller.removeUserFromWebsite(websiteKey, username)
+                                await this.data_controller.removeTheme(websiteKey, themeKey);
                                 $.remove(elem.parentElement.parentElement);
                             }
                         }
@@ -168,11 +169,11 @@
             };
 
             /**
-             * Loads all users
+             * Loads all themes
              * @param {string}  target          Target element
              * @returns {Promise<void>}
              */
-            this.loadAllUsers = async (target) => {
+            this.loadAllThemes = async (target) => {
                 const list = this.element.querySelector(target);
                 list.classList.add('loading');
                 $.append(list, $.html(this.html.loader, {}));
@@ -182,35 +183,26 @@
                 if (websiteKey != null) {
                     // Get users
                     const elementRoot = document.createElement('div');
-                    const websiteUsers = await this.data_controller.getWebsiteUsers(websiteKey);
-                    websiteUsers.sort((a, b) => {
-                        if (a.username < b.username) {
+                    const websiteThemes = await this.data_controller.getAllThemesOfWebsite(websiteKey);
+                    websiteThemes.sort((a, b) => {
+                        if (a.name < b.name) {
                             return -1;
                         }
-                        if (a.username > b.username) {
+                        if (a.name > b.name) {
                             return 1;
                         }
                         return 0;
                     });
 
-                    const fullUserRoleNames = {
-                        'member': 'Member',
-                        'author': 'Author',
-                        'editor': 'Editor',
-                        'admin': 'Administrator'
-                    }
-
                     let uniqueItemIndex = 0;
-                    for (let websiteUser of websiteUsers) {
-                        const user = await this.data_controller.getUserFromUsername(websiteUser.username);
-                        let itemWrapper = $.html(this.html.listItem, {
-                            username: user.username,
-                            role: fullUserRoleNames[websiteUser.role],
-                            imageUrl: user.image != null ? user.image.thumbnailUrl : this.userAvatarPlaceholder
+                    for (let theme of websiteThemes) {
+                        let itemWrapperTheme = $.html(this.html.themeListItem, {
+                            themeKey: theme.themeKey,
+                            themeName: theme.name
                         });
-                        const item = itemWrapper.querySelector('.list-item');
+                        const item = itemWrapperTheme.querySelector('.list-item');
                         item.classList.add((uniqueItemIndex++ % 2 == 0)?'even':'odd');
-                        $.append(elementRoot, itemWrapper);
+                        $.append(elementRoot, itemWrapperTheme);
                     }
 
                     $.setContent(list, elementRoot);
@@ -232,12 +224,11 @@
                 listSearchInput.addEventListener('keyup', () => {
                     let searchTerms = listSearchInput.value.split(' ');
                     this.element.querySelectorAll(targetList + ' .list-item').forEach(elem => {
-                        let username = elem.getAttribute('data-username');
-                        let role = elem.getAttribute('data-user-role');
+                        let themeName = elem.getAttribute('data-theme-name');
 
                         let allMatching = false;
                         for (let searchTerm of searchTerms) {
-                            if (searchTerm == '' || username.indexOf(searchTerm) >= 0 || role.indexOf(searchTerm) >= 0) {
+                            if (searchTerm == '' || themeName.indexOf(searchTerm) >= 0) {
                                 allMatching = true;
                             } else {
                                 allMatching = false;
@@ -258,7 +249,7 @@
              * Creates the modal to add a user
              * @returns {Promise<void>}
              */
-            this.openAddUserModal = async () => {
+            this.openCreateThemeModal = async () => {
                 // Append modal html
                 $.append(this.element, $.html(this.html.addUserModal, {}));
 
@@ -307,8 +298,8 @@
              * Closes the modal
              * @returns {Promise<void>}
              */
-            this.closeAddUserModal = async () => {
-                $.remove(this.element.querySelector('#add-user-modal'));
+            this.closeCreateThemeModal = async () => {
+                $.remove(this.element.querySelector('#create-theme-modal'));
                 this.modalCreated = false;
             }
         }

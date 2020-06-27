@@ -38,6 +38,7 @@ nav {
   flex-grow: 1;
   display: flex;
   width: 100%;
+  overflow: auto;
 }
 
 nav ul#menu-items-wrapper {

@@ -1,5 +1,5 @@
 /**
- * @overview modularcms component that manages the pages
+ * @overview modularcms component that manages the users
  * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */
@@ -261,9 +261,6 @@
              * @returns {Promise<void>}
              */
             this.openAddUserModal = async () => {
-                let selectedParentPageKey = null;
-                let selectedParentPagePath = null;
-
                 // Append modal html
                 $.append(this.element, $.html(this.html.addUserModal, {}));
 
@@ -271,16 +268,6 @@
                 this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
                     this.routing.navigateBack();
                 }));
-
-                // Closure for enabling and disabling the select button
-                const enableSelectButton = () => {
-                    let target = '#modal-select-button';
-                    if (selectedParentPageKey != null) {
-                        this.element.querySelector(target).classList.remove('button-disabled');
-                    } else {
-                        this.element.querySelector(target).classList.add('button-disabled');
-                    }
-                }
 
                 // Add events for finish
                 this.element.querySelector('#modal-user-add-form').addEventListener('submit', async (e) => {
