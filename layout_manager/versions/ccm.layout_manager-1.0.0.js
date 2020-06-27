@@ -22,6 +22,7 @@
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+            "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg"
         },
@@ -42,18 +43,18 @@
             this.start = async () => {
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
-                    if (detail.url == '/themes/create') {
+                    if (detail.url == '/layouts/create') {
                         if (!this.modalCreated) {
                             this.modalCreated = true;
                             await this.openCreateThemeModal();
                         }
-                    } else if (detail.url.indexOf('/themes/edit/') == 0) {
+                    } else if (detail.url.indexOf('/layouts/edit/') == 0) {
                         // Close modal
                         await this.closeCreateThemeModal();
 
                         await this.renderEdit(detail.urlParts[2]);
 
-                    } else if (detail.url.indexOf('/themes') == 0) {
+                    } else if (detail.url.indexOf('/layouts') == 0) {
                         await this.renderMain();
                     }
                 }, this.index);
@@ -71,7 +72,7 @@
 
                 // Add click event for create button
                 this.element.querySelector('#create-button').addEventListener('click', () => {
-                    this.routing.navigateTo('/themes/create');
+                    this.routing.navigateTo('/layouts/create');
                 });
 
                 // Close modal
@@ -83,8 +84,13 @@
                 // add click events for list
                 this.element.querySelectorAll('#list .list-item').forEach(elem => {
                     elem.addEventListener('click', () => {
-                        let themeKey = elem.getAttribute('data-theme-key');
-                        this.routing.navigateTo('/themes/edit/' + themeKey);
+                        if (elem.getAttribute('data-type') == 'theme') {
+                            let themeKey = elem.getAttribute('data-theme-key');
+                            this.routing.navigateTo('/themes/edit/' + themeKey);
+                        } else if (elem.getAttribute('data-type') == 'layout') {
+                            let layoutKey = elem.getAttribute('data-layout-key');
+                            this.routing.navigateTo('/layouts/edit/' + layoutKey);
+                        }
                     });
                 });
 
