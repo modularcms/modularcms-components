@@ -143,7 +143,7 @@
                 $.setContent(content, this.layout_manager.root, {});
                 currentContent = '/layouts';
               }
-            } else {
+            } else if (detail.url.indexOf('/websites') != 0) {
               currentContent = detail.url;
               $.setContent(content, $.html(this.html.error404, {}));
             }
