@@ -1,5 +1,5 @@
 /**
- * @overview modularcms component that manages the layouts
+ * @overview ccm component that manages the layouts for the backend
  * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */

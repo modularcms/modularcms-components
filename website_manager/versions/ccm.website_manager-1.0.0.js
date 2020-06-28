@@ -1,5 +1,5 @@
 /**
- * @overview modularcms component that manages the pages
+ * @overview modularcms component that manages the websites
  * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */

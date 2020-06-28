@@ -1,6 +1,6 @@
 /**
- * @overview example ccm component that just renders "Hello, World!"
- * @author André Kless <andre.kless@web.de> 2017-2018
+ * @overview ccm component that handles all data between the interface and the ccm store api
+ * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */
 
