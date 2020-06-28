@@ -13,7 +13,7 @@
                 </div>
                 <div id="create-button" class="button button-primary button-responsive-hide-text">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-                    <div class="button-text">Add user to website</div>
+                    <div class="button-text">Create new layout</div>
                 </div>
             </div>
         </div>
@@ -25,14 +25,13 @@
         <div class="list-item list-item-with-more-button" data-type="theme" data-theme-key="%themeKey%" data-theme-name="%themeName%">
             <div class="list-item-title">%themeName%</div>
             <div class="list-item-subline">Theme</div>
-            <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
         </div>
         <div class="list-item-children"></div>
     </div>
 </ccm-template>
 <ccm-template key="layoutListItem">
     <div class="list-item-wrapper">
-        <div class="list-item list-item-with-more-button" data-type="layout" data-layout-key="%layoutKey%" data-theme-name="%layoutName%">
+        <div class="list-item list-item-with-more-button" data-type="layout" data-theme-key="%themeKey%" data-layout-key="%layoutKey%" data-theme-name="%layoutName%">
             <div class="list-item-title">%layoutName%</div>
             <div class="list-item-subline">Layout</div>
             <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
@@ -43,29 +42,51 @@
 <ccm-template key="loader">
     <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
 </ccm-template>
-<ccm-template key="createThemeModal">
-    <div id="create-theme-modal" class="modal">
+<ccm-template key="createLayoutModal">
+    <div id="create-layout-modal" class="modal">
         <div class="modal-bg"></div>
-        <div class="modal-inner" id="add-modal-step-1">
+        <div class="modal-inner" id="create-modal-step-1">
             <div class="modal-head">
-                <h2>Create a new theme</h2>
+                <h2>Create new layout</h2>
                 <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
             </div>
-            <form id="modal-theme-create-form">
+            <label for="create-modal-list-search">Please select the parent theme of the new layout</label>
+            <div class="search">
+                <input type="text" id="create-modal-list-search" />
+                <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
+            </div>
+            <div id="list-modal" class="list list-without-more-button"></div>
+            <div class="modal-footer">
+                <div id="modal-select-button" class="button button-primary button-disabled">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
+                    <div class="button-text">Select as parent theme</div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-inner" id="create-modal-step-2" style="display: none;">
+            <div class="modal-head">
+                <div class="modal-back">
+                    <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/back-icon.svg" />
+                    <div class="modal-back-text">Back</div>
+                </div>
+                <h2>Create new layout</h2>
+                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
+            </div>
+            <form id="modal-layout-create-form">
                 <div>
-                    <label for="create-modal-theme-name">Please enter the name for the new theme</label>
-                    <input type="text" id="create-modal-theme-name" required="" />
+                    <label for="create-modal-layout-name">Please enter the name for the new layout</label>
+                    <input type="text" id="create-modal-layout-name" required="" />
                 </div>
                 <div>
-                    <label for="create-modal-theme-ccm-component-url">Please enter the url to the ccm based component url to work with</label>
-                    <input type="text" id="create-modal-theme-ccm-component-url" required="" />
+                    <label for="create-modal-layout-ccm-component-url">Please enter the url to the ccm based component to work with</label>
+                    <input type="url" id="create-modal-layout-ccm-component-url" required="" pattern="https://.+[.]js" />
                 </div>
                 <div>
-                    <label for="create-modal-theme-ccm-component-url">Please enter a ccm component config in the JSON format</label>
-                    <textarea id="create-modal-theme-ccm-component-config" class="textarea-code" required="">{}</textarea>
+                    <label for="create-modal-layout-ccm-component-config">Please enter a ccm component config in the JSON format</label>
+                    <div id="create-modal-layout-ccm-component-config"></div>
                 </div>
                 <div class="modal-footer">
-                    <input type="submit" id="modal-add-button" class="button button-primary" value="Add user to website" />
+                    <input type="submit" id="modal-create-button" class="button button-primary" value="Create layout" />
                 </div>
             </form>
         </div>

@@ -406,10 +406,10 @@
 
                         alert('This page url is already existing.');
                     })
-                })
+                });
 
                 // Add search
-                this.initSearch('#create-modal-list-search', '#list-modal');
+                await this.initSearch('#create-modal-list-search', '#list-modal');
             }
 
             /**

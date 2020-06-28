@@ -22,7 +22,8 @@
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
             "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
-            "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg"
+            "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
+            "json_builder": [ "ccm.start", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_manager/resources/resources.js", "json_builder" ] ],
         },
 
         Instance: function () {
@@ -250,7 +251,9 @@
              */
             this.openCreateThemeModal = async () => {
                 // Append modal html
-                $.append(this.element, $.html(this.html.addUserModal, {}));
+                $.append(this.element, $.html(this.html.createThemeModal, {}));
+                await this.json_builder.start();
+                $.setContent(this.element.querySelector('#create-modal-theme-ccm-component-config'), this.json_builder.root, {});
 
                 // Add events for close
                 this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
@@ -258,37 +261,40 @@
                 }));
 
                 // Add events for finish
-                this.element.querySelector('#modal-user-add-form').addEventListener('submit', async (e) => {
+                this.element.querySelector('#modal-theme-create-form').addEventListener('submit', async (e) => {
                     e.preventDefault();
 
-                    this.element.querySelector('#add-modal-step-1').classList.add('loading');
+                    this.element.querySelector('#create-modal-step-1').classList.add('loading');
                     let loader = $.html(this.html.loader, {});
-                    $.append(this.element.querySelector('#add-modal-step-1'), loader);
-                    const addButton = this.element.querySelector('#modal-add-button');
+                    $.append(this.element.querySelector('#create-modal-step-1'), loader);
+                    const addButton = this.element.querySelector('#modal-create-button');
                     addButton.classList.add('button-disabled');
-                    addButton.value = 'Adding the user... (This may take a while)';
+                    addButton.value = 'Creating theme...';
 
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
-                    const username = this.element.querySelector('#add-modal-username').value;
-                    const role = this.element.querySelector('#add-modal-role').value;
+                    const themeName = this.element.querySelector('#create-modal-theme-name').value;
+                    const ccmUrl = this.element.querySelector('#create-modal-theme-ccm-component-url').value;
+                    const ccmConfig = this.json_builder.getValue();
 
                     let error = () => {
                         $.remove(loader);
-                        this.element.querySelector('#add-modal-step-1').classList.remove('loading');
+                        this.element.querySelector('#create-modal-step-1').classList.remove('loading');
                         addButton.classList.remove('button-disabled');
-                        addButton.value = 'Add user to website';
+                        addButton.value = 'Create theme';
                     };
-                    if (username != await this.data_controller.getCurrentWorkingUsername()) {
-                        this.data_controller.addUserToWebsite(websiteKey, username, role).then(() => {
-                            this.routing.navigateTo('/users/edit/' + username);
-                        }).catch(() => {
-                            // Error handling
-                            error();
-                            alert('Failed to add a user with the given username. Please check your entered username.');
+                    if (this.json_builder.isValid()) {
+                        const themeKey = await this.data_controller.createTheme(websiteKey, {
+                            name: themeName,
+                            ccmComponent: {
+                                url: ccmUrl,
+                                config: ccmConfig
+                            },
+                            custom: null
                         });
+                        this.routing.navigateTo('/themes/edit/' + themeKey);
                     } else {
                         error();
-                        alert('You can\'t add yourself again!');
+                        alert('Please enter a valid json config!');
                     }
                 })
             }

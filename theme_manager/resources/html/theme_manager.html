@@ -13,7 +13,7 @@
                 </div>
                 <div id="create-button" class="button button-primary button-responsive-hide-text">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-                    <div class="button-text">Add user to website</div>
+                    <div class="button-text">Create new theme</div>
                 </div>
             </div>
         </div>
@@ -36,9 +36,9 @@
 <ccm-template key="createThemeModal">
     <div id="create-theme-modal" class="modal">
         <div class="modal-bg"></div>
-        <div class="modal-inner" id="add-modal-step-1">
+        <div class="modal-inner" id="create-modal-step-1">
             <div class="modal-head">
-                <h2>Create a new theme</h2>
+                <h2>Create new theme</h2>
                 <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
             </div>
             <form id="modal-theme-create-form">
@@ -47,15 +47,15 @@
                     <input type="text" id="create-modal-theme-name" required="" />
                 </div>
                 <div>
-                    <label for="create-modal-theme-ccm-component-url">Please enter the url to the ccm based component url to work with</label>
-                    <input type="text" id="create-modal-theme-ccm-component-url" required="" />
+                    <label for="create-modal-theme-ccm-component-url">Please enter the url to the ccm based component to work with</label>
+                    <input type="url" id="create-modal-theme-ccm-component-url" required="" pattern="https://.+[.]js" />
                 </div>
                 <div>
-                    <label for="create-modal-theme-ccm-component-url">Please enter a ccm component config in the JSON format</label>
-                    <textarea id="create-modal-theme-ccm-component-config" class="textarea-code" required="">{}</textarea>
+                    <label for="create-modal-theme-ccm-component-config">Please enter a ccm component config in the JSON format</label>
+                    <div id="create-modal-theme-ccm-component-config"></div>
                 </div>
                 <div class="modal-footer">
-                    <input type="submit" id="modal-add-button" class="button button-primary" value="Add user to website" />
+                    <input type="submit" id="modal-create-button" class="button button-primary" value="Create theme" />
                 </div>
             </form>
         </div>

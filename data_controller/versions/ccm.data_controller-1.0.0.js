@@ -944,11 +944,12 @@
              * removes a layout from a website theme
              * @param {string}  websiteKey  The website key
              * @param {string}  themeKey    The theme key
+             * @param {string}  layoutKey   The layout key
              * @returns {Promise<void>}
              */
-            this.removeLayout = async (websiteKey, themeKey) => {
+            this.removeLayout = async (websiteKey, themeKey, layoutKey) => {
                 const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
-                await websiteThemeLayoutsDataStore.del(themeKey);
+                await websiteThemeLayoutsDataStore.del(layoutKey);
             }
 
 

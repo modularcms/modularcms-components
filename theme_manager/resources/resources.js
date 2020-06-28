@@ -16,6 +16,16 @@ ccm.files[ 'resources.js' ] = {
         "routing_sensor": ["ccm.instance", "/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js"],
         "routing": [ "ccm.instance", "/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "/modularcms-components/cms/resources/resources.js", "routing" ] ],
         "data_controller": [ "ccm.instance", "/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
-        "userAvatarPlaceholder": "/modularcms-components/cms/resources/img/no-user-image.svg"
+        "userAvatarPlaceholder": "/modularcms-components/cms/resources/img/no-user-image.svg",
+        "json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "/modularcms-components/theme_manager/resources/resources.js", "json_builder" ] ],
+    },
+
+    "json_builder": {
+        "autofocus": false,
+        "line_numbers": true,
+        "line_wrapping": true,
+        "fold_code": true,
+        "space": 2,
+        "nosubmit": true
     }
 };
