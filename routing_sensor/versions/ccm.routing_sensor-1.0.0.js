@@ -1,6 +1,6 @@
 /**
- * @overview example ccm component that just renders "Hello, World!"
- * @author André Kless <andre.kless@web.de> 2017-2018
+ * @overview ccm component for sensoring clicks on a tags
+ * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  */
 
