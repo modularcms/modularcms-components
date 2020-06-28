@@ -507,3 +507,32 @@ input[type="submit"], button {
     margin-top: 10px;
     border: 1px solid #c4c4c4;
 }
+
+.edit-head-title input[type="text"] {
+    margin: 0;
+}
+
+.edit-menu {
+    display: flex;
+}
+
+.edit-menu .menu-item:nth-child(n+2) {
+    margin-left: 10px;
+}
+
+.edit-menu .menu-item {
+    border-bottom: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+}
+
+.edit-menu .menu-item.active {
+    border-bottom: 2px solid var(--color-text);
+}
+
+.edit-container .lds-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}

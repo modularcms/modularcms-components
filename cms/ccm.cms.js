@@ -113,32 +113,32 @@
 
         // listen to routes
         currentContent = '';
-        await this.routing.registerRoutingCallback((detail) => {
+        await this.routing.registerRoutingCallback(async (detail) => {
           // handle routes with user logged in
           if (loggedIn) {
             // handle the different routes
             if (detail.url.indexOf('/pages') == 0) {
               if (currentContent != '/pages') {
+                await this.page_manager.start();
                 $.setContent(content, this.page_manager.root, {});
-                this.page_manager.start();
                 currentContent = '/pages';
               }
             } else if (detail.url.indexOf('/users') == 0) {
               if (currentContent != '/users') {
+                await this.user_manager.start();
                 $.setContent(content, this.user_manager.root, {});
-                this.user_manager.start();
                 currentContent = '/users';
               }
             } else if (detail.url.indexOf('/themes') == 0) {
               if (currentContent != '/themes') {
+                await this.theme_manager.start();
                 $.setContent(content, this.theme_manager.root, {});
-                this.theme_manager.start();
                 currentContent = '/themes';
               }
             } else if (detail.url.indexOf('/layouts') == 0) {
               if (currentContent != '/layouts') {
+                await this.layout_manager.start();
                 $.setContent(content, this.layout_manager.root, {});
-                this.layout_manager.start();
                 currentContent = '/layouts';
               }
             } else {

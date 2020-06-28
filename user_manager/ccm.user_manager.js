@@ -130,7 +130,7 @@
                 $.append(this.element, loader);
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                 const websiteUser = await this.data_controller.getWebsiteUser(websiteKey, username);
-                const user = this.data_controller.getUserFromUsername(username);
+                const user = await this.data_controller.getUserFromUsername(username);
                 let content = $.html(this.html.editUser, {
                     username: username,
                     role: websiteUser.role,

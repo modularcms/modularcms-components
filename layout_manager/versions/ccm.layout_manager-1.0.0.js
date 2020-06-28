@@ -25,7 +25,7 @@
             "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
-            "json_builder": [ "ccm.start", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_manager/resources/resources.js", "json_builder" ] ]
+            "json_builder": [ "ccm.component", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_manager/resources/resources.js", "json_builder" ] ]
         },
 
         Instance: function () {
@@ -60,7 +60,7 @@
                         // Close modal
                         await this.closeCreateLayoutModal();
 
-                        await this.renderEdit(detail.urlParts[2]);
+                        await this.renderEdit(detail.urlParts[2], detail.urlParts[3]);
 
                     } else if (detail.url.indexOf('/layouts') == 0) {
                         await this.renderMain();
@@ -92,12 +92,12 @@
                 // add click events for list
                 this.element.querySelectorAll('#list .list-item').forEach(elem => {
                     elem.addEventListener('click', () => {
+                        let themeKey = elem.getAttribute('data-theme-key');
                         if (elem.getAttribute('data-type') == 'theme') {
-                            let themeKey = elem.getAttribute('data-theme-key');
                             this.routing.navigateTo('/themes/edit/' + themeKey);
                         } else if (elem.getAttribute('data-type') == 'layout') {
                             let layoutKey = elem.getAttribute('data-layout-key');
-                            this.routing.navigateTo('/layouts/edit/' + layoutKey);
+                            this.routing.navigateTo('/layouts/edit/' + themeKey + '/' + layoutKey);
                         }
                     });
                 });
@@ -137,48 +137,63 @@
             };
 
             /**
-             * Renders the edit page for a user
-             * @param   {string}    username    The username
+             * Renders the edit page for a layout
+             * @param   {string}    themeKey     The theme key
+             * @param   {string}    layoutKey    The layout key
              * @returns {Promise<void>}
              */
-            this.renderEdit = async (username) => {
+            this.renderEdit = async (themeKey, layoutKey) => {
                 const loader = $.html(this.html.loader, {});
-                $.append(this.element, loader);
+                $.append(this.element.querySelector('.edit-container'), loader);
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
-                const websiteUser = await this.data_controller.getWebsiteUser(websiteKey, username);
-                const user = this.data_controller.getUserFromUsername(username);
-                let content = $.html(this.html.editUser, {
-                    username: username,
-                    role: websiteUser.role,
-                    imageUrl: user.image != null ? user.image.thumbnailUrl : this.userAvatarPlaceholder
-                });
+                const layout = await this.data_controller.getLayout(websiteKey, themeKey, layoutKey); // TODO
+                let content = $.html(this.html.editLayout, {});
+
+                const layoutNameInput = content.querySelector('#layout-edit-name');
+                layoutNameInput.value = layout.name;
+                const layoutCcmUrlInput = content.querySelector('#layout-edit-ccm-component-url');
+                layoutCcmUrlInput.value = layout.ccmComponent.url;
+                const layoutCcmConfigWrapper = content.querySelector('#layout-edit-ccm-component-config');
+                this.json_builder.data = {json: layout.ccmComponent.config};
+                await this.json_builder.start();
+                $.setContent(layoutCcmConfigWrapper, this.json_builder.root, {});
+
+
                 $.setContent(this.element, content);
 
-                const userRoleInput = content.querySelector('#user-role');
+                const form = this.element.querySelector('#layout-edit-form');
                 const saveButton = content.querySelector('#save-button');
-                userRoleInput.value = websiteUser.role;
                 saveButton.addEventListener('click', async () => {
                     saveButton.classList.add('button-disabled');
-                    saveButton.querySelector('.button-text').innerHTML = 'Saving... (may take a while)';
+                    saveButton.querySelector('.button-text').innerHTML = 'Saving...';
 
-                    const role = userRoleInput.value;
+                    const layoutName = layoutNameInput.value;
+                    const layoutCcmUrl = layoutCcmUrlInput.value;
+                    const layoutCcmConfig = this.json_builder.getValue().json;
+
+                    const layoutSet = Object.assign({}, layout);
+                    layoutSet.name = layoutName;
+                    layoutSet.ccmComponent = {
+                        url: layoutCcmUrl,
+                        config: layoutCcmConfig
+                    };
 
                     let end = () => {
                         $.remove(loader);
                         saveButton.classList.remove('button-disabled');
                         saveButton.querySelector('.button-text').innerHTML = 'Save';
                     };
-                    if (username != await this.data_controller.getCurrentWorkingUsername()) {
-                        this.data_controller.addUserToWebsite(websiteKey, username, role).then(() => {
+                    if (form.checkValidity()) {
+                        if (this.json_builder.isValid()) {
+                            await this.data_controller.setLayoutObject(websiteKey, themeKey, layoutKey, layoutSet);
                             end();
-                        }).catch(() => {
-                            // Error handling
+                        } else {
                             end();
-                            alert('Failed to add a user with the given username. Please check your entered username.');
-                        });
+                            alert('Please check your entered ccm config json data!');
+                        }
                     } else {
                         end();
-                        alert('You can\'t edit your own role.');
+                        form.reportValidity();
                     }
                 });
             };
@@ -293,6 +308,7 @@
             this.openCreateLayoutModal = async () => {
                 // Append modal html
                 $.append(this.element, $.html(this.html.createLayoutModal, {}));
+                this.json_builder.data = {json: {}};
                 await this.json_builder.start();
                 $.setContent(this.element.querySelector('#create-modal-layout-ccm-component-config'), this.json_builder.root, {});
 
@@ -351,7 +367,7 @@
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const layoutName = this.element.querySelector('#create-modal-layout-name').value;
                     const ccmUrl = this.element.querySelector('#create-modal-layout-ccm-component-url').value;
-                    const ccmConfig = this.json_builder.getValue();
+                    const ccmConfig = this.json_builder.getValue().json;
 
                     let error = () => {
                         $.remove(loader);

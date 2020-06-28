@@ -25,7 +25,7 @@
             "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
-            "json_builder": [ "ccm.start", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_manager/resources/resources.js", "json_builder" ] ],
+            "json_builder": [ "ccm.component", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_manager/resources/resources.js", "json_builder" ] ],
         },
 
         Instance: function () {
@@ -124,48 +124,62 @@
             };
 
             /**
-             * Renders the edit page for a user
-             * @param   {string}    username    The username
+             * Renders the edit page for a theme
+             * @param   {string}    themeKey    THe theme key
              * @returns {Promise<void>}
              */
-            this.renderEdit = async (username) => {
+            this.renderEdit = async (themeKey) => {
                 const loader = $.html(this.html.loader, {});
-                $.append(this.element, loader);
+                $.append(this.element.querySelector('.edit-container'), loader);
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
-                const websiteUser = await this.data_controller.getWebsiteUser(websiteKey, username);
-                const user = this.data_controller.getUserFromUsername(username);
-                let content = $.html(this.html.editUser, {
-                    username: username,
-                    role: websiteUser.role,
-                    imageUrl: user.image != null ? user.image.thumbnailUrl : this.userAvatarPlaceholder
-                });
+                const theme = await this.data_controller.getTheme(websiteKey, themeKey);
+                let content = $.html(this.html.editTheme, {});
+
+                const themeNameInput = content.querySelector('#theme-edit-name');
+                themeNameInput.value = theme.name;
+                const themeCcmUrlInput = content.querySelector('#theme-edit-ccm-component-url');
+                themeCcmUrlInput.value = theme.ccmComponent.url;
+                const themeCcmConfigWrapper = content.querySelector('#theme-edit-ccm-component-config');
+                this.json_builder.data = {json: theme.ccmComponent.config};
+                await this.json_builder.start();
+                $.setContent(themeCcmConfigWrapper, this.json_builder.root, {});
+
+
                 $.setContent(this.element, content);
 
-                const userRoleInput = content.querySelector('#user-role');
+                const form = this.element.querySelector('#theme-edit-form');
                 const saveButton = content.querySelector('#save-button');
-                userRoleInput.value = websiteUser.role;
                 saveButton.addEventListener('click', async () => {
                     saveButton.classList.add('button-disabled');
-                    saveButton.querySelector('.button-text').innerHTML = 'Saving... (may take a while)';
+                    saveButton.querySelector('.button-text').innerHTML = 'Saving...';
 
-                    const role = userRoleInput.value;
+                    const themeName = themeNameInput.value;
+                    const themeCcmUrl = themeCcmUrlInput.value;
+                    const themeCcmConfig = this.json_builder.getValue().json;
+
+                    const themeSet = Object.assign({}, theme);
+                    themeSet.name = themeName;
+                    themeSet.ccmComponent = {
+                        url: themeCcmUrl,
+                        config: themeCcmConfig
+                    };
 
                     let end = () => {
                         $.remove(loader);
                         saveButton.classList.remove('button-disabled');
                         saveButton.querySelector('.button-text').innerHTML = 'Save';
                     };
-                    if (username != await this.data_controller.getCurrentWorkingUsername()) {
-                        this.data_controller.addUserToWebsite(websiteKey, username, role).then(() => {
+                    if (form.checkValidity()) {
+                        if (this.json_builder.isValid()) {
+                            await this.data_controller.setThemeObject(websiteKey, themeKey, themeSet);
                             end();
-                        }).catch(() => {
-                            // Error handling
+                        } else {
                             end();
-                            alert('Failed to add a user with the given username. Please check your entered username.');
-                        });
+                            alert('Please check your entered ccm config json data!');
+                        }
                     } else {
                         end();
-                        alert('You can\'t edit your own role.');
+                        form.reportValidity();
                     }
                 });
             };
@@ -254,6 +268,7 @@
             this.openCreateThemeModal = async () => {
                 // Append modal html
                 $.append(this.element, $.html(this.html.createThemeModal, {}));
+                this.json_builder.data = {json: {}};
                 await this.json_builder.start();
                 $.setContent(this.element.querySelector('#create-modal-theme-ccm-component-config'), this.json_builder.root, {});
 
@@ -276,7 +291,7 @@
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const themeName = this.element.querySelector('#create-modal-theme-name').value;
                     const ccmUrl = this.element.querySelector('#create-modal-theme-ccm-component-url').value;
-                    const ccmConfig = this.json_builder.getValue();
+                    const ccmConfig = this.json_builder.getValue().json;
 
                     let error = () => {
                         $.remove(loader);

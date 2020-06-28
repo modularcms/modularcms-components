@@ -62,11 +62,14 @@
     </div>
 </ccm-template>
 <ccm-template key="editTheme">
-    <div class="edit-container">
+    <form id="theme-edit-form" class="edit-container" action="#">
         <div class="edit-head-wrapper">
             <div class="edit-head">
-                <div class="edit-head-avatar"><img src="%imageUrl%" /></div>
-                <div class="edit-head-title"><input type="text" value="%themeName%" /></div>
+                <div class="edit-head-title"><input type="text" id="theme-edit-name" /></div>
+                <div id="export-button" class="button button-primary button-responsive-hide-text">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/upload-icon.svg" />
+                    <div class="button-text">Export</div>
+                </div>
                 <div id="save-button" class="button button-primary button-responsive-hide-text">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg" />
                     <div class="button-text">Save</div>
@@ -74,19 +77,18 @@
             </div>
             <div class="edit-menu">
                 <div class="menu-item active">Component</div>
-                <div class="menu-item">Custom</div>
+                <!--<div class="menu-item">Custom</div>-->
             </div>
         </div>
         <div class="edit-content">
             <div>
-                <label for="user-role">User role</label>
-                <select id="user-role">
-                    <option value="member">Member</option>
-                    <option value="author">Author</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Administrator</option>
-                </select>
+                <label for="theme-edit-ccm-component-url">Url to the ccm based component to work with</label>
+                <input type="url" id="theme-edit-ccm-component-url" required="" pattern="https://.+[.]js" />
+            </div>
+            <div>
+                <label for="theme-edit-ccm-component-config">ccm component config in the JSON format</label>
+                <div id="theme-edit-ccm-component-config"></div>
             </div>
         </div>
-    </div>
+    </form>
 </ccm-template>

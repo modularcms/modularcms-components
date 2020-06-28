@@ -18,3 +18,7 @@
 #list-modal {
     margin-bottom: 10px;
 }
+
+#save-button, #export-button {
+    margin-left: 10px;
+}
