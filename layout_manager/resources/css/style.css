@@ -10,15 +10,26 @@
     margin-right: 10px;
 }
 
-#create-layout-modal #create-modal-step-1 {
+#create-layout-modal #create-modal-step-1, #import-layout-modal #import-modal-step-1 {
     height: 500px;
     max-height: calc(100% - 25px);
 }
 
-#list-modal {
+#list-modal, #import-list-modal {
     margin-bottom: 10px;
 }
 
 #save-button, #export-button {
     margin-left: 10px;
+    cursor: pointer;
+}
+
+#import-button {
+    margin-right: 10px;
+}
+
+#import-modal-layout-file {
+    width: 100%;
+    height: 50px;
+    font-family: 'Open Sans';
 }

@@ -35,18 +35,24 @@
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
 
-            this.modalCreated = false;
+            this.createModalCreated = false;
+            this.importModalCreated = false;
 
             /**
              * Starts the component
              * @returns {Promise<void>}
              */
             this.start = async () => {
+                let editOpened = false;
+
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url.indexOf('/layouts/create/') == 0) {
-                        if (!this.modalCreated) {
-                            this.modalCreated = true;
+                        // Close modal
+                        await this.closeImportLayoutModal();
+
+                        if (!this.createModalCreated) {
+                            this.createModalCreated = true;
                             await this.openCreateLayoutModal();
                         }
                         if (detail.urlParts[2] == '2') {
@@ -56,14 +62,47 @@
                             this.element.querySelector('#create-modal-step-1').style.display = 'flex';
                             this.element.querySelector('#create-modal-step-2').style.display = 'none';
                         }
-                    } else if (detail.url.indexOf('/layouts/edit/') == 0) {
-                        // Close modal
+
+                        editOpened = false;
+                    } else if (detail.url.indexOf('/layouts/import/') == 0) {
+                        // Close create modal
                         await this.closeCreateLayoutModal();
 
-                        await this.renderEdit(detail.urlParts[2], detail.urlParts[3]);
+                        if (!this.importModalCreated) {
+                            this.importModalCreated = true;
+                            await this.openImportLayoutModal();
+                        }
+                        if (detail.urlParts[2] == '2') {
+                            this.element.querySelector('#import-modal-step-1').style.display = 'none';
+                            this.element.querySelector('#import-modal-step-2').style.display = 'flex';
+                        } else {
+                            this.element.querySelector('#import-modal-step-1').style.display = 'flex';
+                            this.element.querySelector('#import-modal-step-2').style.display = 'none';
+                        }
+
+                        editOpened = false;
+                    } else if (detail.url.indexOf('/layouts/edit/') == 0) {
+                        // Close create modal
+                        await this.closeCreateLayoutModal();
+
+                        // Close import modal
+                        await this.closeImportLayoutModal();
+
+                        if (!editOpened) {
+                            editOpened = true;
+                            await this.renderEdit(detail.urlParts[2], detail.urlParts[3]);
+                        }
 
                     } else if (detail.url.indexOf('/layouts') == 0) {
+                        // Close create modal
+                        await this.closeCreateLayoutModal();
+
+                        // Close import modal
+                        await this.closeImportLayoutModal();
+
                         await this.renderMain();
+
+                        editOpened = false;
                     }
                 }, this.index);
             };
@@ -81,6 +120,11 @@
                 // Add click event for create button
                 this.element.querySelector('#create-button').addEventListener('click', () => {
                     this.routing.navigateTo('/layouts/create/1');
+                });
+
+                // Add click event for import button
+                this.element.querySelector('#import-button').addEventListener('click', () => {
+                    this.routing.navigateTo('/layouts/import/1');
                 });
 
                 // Close modal
@@ -161,6 +205,21 @@
 
                 $.setContent(this.element, content);
 
+                // event for export button
+                const exportButton = content.querySelector('#export-button');
+                exportButton.addEventListener('click', async () => {
+                    exportButton.classList.add('button-disabled');
+                    exportButton.querySelector('.button-text').innerHTML = 'Exporting...';
+
+                    let layoutExport = await this.data_controller.getLayout(websiteKey, themeKey, layoutKey);
+                    delete layoutExport['layoutKey'];
+                    layoutExport.type = 'layout';
+                    await this.download(JSON.stringify(layoutExport), 'application/json', 'layout_' + layoutKey + '.json');
+                    exportButton.classList.remove('button-disabled');
+                    exportButton.querySelector('.button-text').innerHTML = 'Export';
+                });
+
+                // event for save button
                 const form = this.element.querySelector('#layout-edit-form');
                 const saveButton = content.querySelector('#save-button');
                 saveButton.addEventListener('click', async () => {
@@ -384,7 +443,7 @@
                             },
                             custom: null
                         });
-                        this.routing.navigateTo('/layouts/edit/' + layoutKey);
+                        this.routing.navigateTo('/layouts/edit/' + selectedParentThemeKey + '/' + layoutKey);
                     } else {
                         error();
                         alert('Please enter a valid json config!');
@@ -401,7 +460,159 @@
              */
             this.closeCreateLayoutModal = async () => {
                 $.remove(this.element.querySelector('#create-layout-modal'));
-                this.modalCreated = false;
+                this.createModalCreated = false;
+            }
+
+            /**
+             * Function to download a string as a file
+             * @param {string}  text        The file string
+             * @param {string}  fileType    The file type
+             * @param {string}  fileName    The file name
+             * @returns {Promise<void>}
+             */
+            // This function was copied from: https://gist.github.com/danallison/3ec9d5314788b337b682
+            this.download = async (text, fileType, fileName) => {
+                let blob = new Blob([text], { type: fileType });
+
+                let a = document.createElement('a');
+                a.download = fileName;
+                a.href = URL.createObjectURL(blob);
+                a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+            }
+
+            /**
+             * Creates the modal to import a layout
+             * @returns {Promise<void>}
+             */
+            this.openImportLayoutModal = async () => {
+                // Append modal html
+                $.append(this.element, $.html(this.html.importLayoutModal, {}));
+
+                // Add events for close
+                this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
+                    this.routing.navigateBack('/layouts');
+                }));
+
+                // Add event for back button
+                this.element.querySelectorAll('.modal-back').forEach(elem => elem.addEventListener('click', () =>{
+                    this.routing.navigateBack();
+                }));
+
+                let selectedParentThemeKey = null;
+
+                //Load page selection
+                this.loadAllLayouts('#import-list-modal', false).then(() => {
+                    //Add events for page parent list select
+                    this.element.querySelectorAll('#import-list-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
+                        let previousSelectedElement = this.element.querySelector('#import-list-modal .list-item.selected');
+                        previousSelectedElement && previousSelectedElement.classList.remove('selected');
+                        elem.classList.add('selected');
+                        selectedParentThemeKey = elem.getAttribute('data-theme-key');
+
+                        // Enable button
+                        enableSelectButton();
+                    }));
+                })
+
+                // Closure for enabling and disabling the select button
+                const enableSelectButton = () => {
+                    let target = '#modal-import-select-button';
+                    if (selectedParentThemeKey != null) {
+                        this.element.querySelector(target).classList.remove('button-disabled');
+                    } else {
+                        this.element.querySelector(target).classList.add('button-disabled');
+                    }
+                }
+
+                // Add events for finish
+                this.element.querySelector('#modal-import-select-button').addEventListener('click', () => {
+                    this.routing.navigateTo('/layouts/import/2');
+                });
+
+                // Add events for finish
+                this.element.querySelector('#modal-theme-import-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    this.element.querySelector('#import-modal-step-2').classList.add('loading');
+                    let loader = $.html(this.html.loader, {});
+                    $.append(this.element.querySelector('#import-modal-step-2'), loader);
+                    const addButton = this.element.querySelector('#modal-import-button');
+                    addButton.classList.add('button-disabled');
+                    addButton.value = 'Importing layout...';
+
+                    const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+                    const file = this.element.querySelector('#import-modal-layout-file').files[0];
+
+                    let error = () => {
+                        $.remove(loader);
+                        this.element.querySelector('#import-modal-step-2').classList.remove('loading');
+                        addButton.classList.remove('button-disabled');
+                        addButton.value = 'Import layout';
+                    };
+
+                    // read file
+                    const reader = new FileReader();
+                    reader.readAsText(file, "UTF-8");
+                    reader.onload = async (e) => {
+                        const fileContent = e.target.result;
+                        const fileObject = JSON.parse(fileContent);
+
+                        const getObject = (object, type) => new Promise((resolve, reject) => {
+                            if (
+                                object.type === type
+                                && object.name !== undefined && typeof object.name == 'string'
+                                && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
+                                && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
+                                && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
+                                && object.custom !== undefined
+                            ) {
+                                const layout = {
+                                    name: object.name,
+                                    ccmComponent: object.ccmComponent,
+                                    custom: object.custom
+                                };
+                                resolve(layout);
+                            } else {
+                                reject();
+                            }
+                        });
+
+
+                        try {
+                            const layout = await getObject(fileObject, 'layout');
+
+                            // create layout
+                            const layoutKey = await this.data_controller.createLayout(websiteKey, selectedParentThemeKey, layout);
+
+                            // open layout editor
+                            this.routing.navigateTo('/layouts/edit/' + selectedParentThemeKey + '/' + layoutKey);
+                        } catch(e) {
+                            error();
+                            alert('Invalid file structure. Check the uploaded file.');
+                        }
+                    }
+                    reader.onerror = (evt) => {
+                        error();
+                        alert('Error on reading file');
+                    }
+                });
+
+                // Add search
+                await this.initSearch('#import-modal-list-search', '#import-list-modal');
+            }
+
+            /**
+             * Closes the modal
+             * @returns {Promise<void>}
+             */
+            this.closeImportLayoutModal = async () => {
+                $.remove(this.element.querySelector('#import-layout-modal'));
+                this.importModalCreated = false;
             }
         }
 

@@ -33,7 +33,8 @@
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
 
-            this.modalCreated = false;
+            this.createModalCreated = false;
+            this.importModalCreated = false;
 
             /**
              * Starts the component
@@ -41,20 +42,57 @@
              */
             this.start = async () => {
                 // Add routing
+                let editOpened = true;
                 await this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url == '/themes/create') {
-                        if (!this.modalCreated) {
-                            this.modalCreated = true;
+                        // Close import modal
+                        await this.closeImportThemeModal();
+
+                        if (!this.createModalCreated) {
+                            this.createModalCreated = true;
                             await this.openCreateThemeModal();
                         }
-                    } else if (detail.url.indexOf('/themes/edit/') == 0) {
-                        // Close modal
+
+                        editOpened = false;
+                    } else if (detail.url == '/themes/import') {
+                        // Close create modal
                         await this.closeCreateThemeModal();
 
-                        await this.renderEdit(detail.urlParts[2]);
+                        if (!this.importModalCreated) {
+                            this.importModalCreated = true;
+                            await this.openImportThemeModal();
+                        }
+
+                        editOpened = false;
+                    } else if (detail.url.indexOf('/themes/edit/') == 0) {
+                        // Close create modal
+                        await this.closeCreateThemeModal();
+
+                        // Close import modal
+                        await this.closeImportThemeModal();
+
+                        if (!editOpened) {
+                            editOpened = true;
+                            await this.renderEdit(detail.urlParts[2]);
+                        }
+
+                        if (detail.urlParts[3] === 'layouts') {
+                            this.element.querySelector('#content-component').style.display = 'none';
+                            this.element.querySelector('#content-layouts').style.display = 'block';
+                        } else {
+                            this.element.querySelector('#content-component').style.display = 'block';
+                            this.element.querySelector('#content-layouts').style.display = 'none';
+                        }
 
                     } else if (detail.url.indexOf('/themes') == 0) {
                         await this.renderMain();
+                        editOpened = false;
+
+                        // Close create modal
+                        await this.closeCreateThemeModal();
+
+                        // Close import modal
+                        await this.closeImportThemeModal();
                     }
                 }, this.index);
             };
@@ -72,6 +110,11 @@
                 // Add click event for create button
                 this.element.querySelector('#create-button').addEventListener('click', () => {
                     this.routing.navigateTo('/themes/create');
+                });
+
+                // Add click event for import button
+                this.element.querySelector('#import-button').addEventListener('click', () => {
+                    this.routing.navigateTo('/themes/import');
                 });
 
                 // Close modal
@@ -145,6 +188,27 @@
 
                 $.setContent(this.element, content);
 
+                // event for export button
+                const exportButton = content.querySelector('#export-button');
+                exportButton.addEventListener('click', async () => {
+                    exportButton.classList.add('button-disabled');
+                    exportButton.querySelector('.button-text').innerHTML = 'Exporting...';
+
+                    let themeExport = await this.data_controller.getTheme(websiteKey, themeKey);
+                    delete themeExport['themeKey'];
+                    let layoutsExport = await this.data_controller.getAllLayoutsOfTheme(websiteKey, themeKey);
+                    for (let layout of layoutsExport) {
+                        delete layout['layoutKey'];
+                        layout.type = 'layout';
+                    }
+                    themeExport.layouts = layoutsExport;
+                    themeExport.type = 'theme';
+                    await this.download(JSON.stringify(themeExport), 'application/json', 'theme_' + themeKey + '.json');
+                    exportButton.classList.remove('button-disabled');
+                    exportButton.querySelector('.button-text').innerHTML = 'Export';
+                });
+
+                // event for save button
                 const form = this.element.querySelector('#theme-edit-form');
                 const saveButton = content.querySelector('#save-button');
                 saveButton.addEventListener('click', async () => {
@@ -260,7 +324,7 @@
             }
 
             /**
-             * Creates the modal to add a user
+             * Creates the modal to create a theme
              * @returns {Promise<void>}
              */
             this.openCreateThemeModal = async () => {
@@ -320,7 +384,129 @@
              */
             this.closeCreateThemeModal = async () => {
                 $.remove(this.element.querySelector('#create-theme-modal'));
-                this.modalCreated = false;
+                this.createModalCreated = false;
+            }
+
+            /**
+             * Function to download a string as a file
+             * @param {string}  text        The file string
+             * @param {string}  fileType    The file type
+             * @param {string}  fileName    The file name
+             * @returns {Promise<void>}
+             */
+            // This function was copied from: https://gist.github.com/danallison/3ec9d5314788b337b682
+            this.download = async (text, fileType, fileName) => {
+                let blob = new Blob([text], { type: fileType });
+
+                let a = document.createElement('a');
+                a.download = fileName;
+                a.href = URL.createObjectURL(blob);
+                a.dataset.downloadurl = [fileType, a.download, a.href].join(':');
+                a.style.display = "none";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function() { URL.revokeObjectURL(a.href); }, 1500);
+            }
+
+            /**
+             * Creates the modal to import a theme
+             * @returns {Promise<void>}
+             */
+            this.openImportThemeModal = async () => {
+                // Append modal html
+                $.append(this.element, $.html(this.html.importThemeModal, {}));
+
+                // Add events for close
+                this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
+                    this.routing.navigateBack();
+                }));
+
+                // Add events for finish
+                this.element.querySelector('#modal-theme-import-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    this.element.querySelector('#import-modal-step-1').classList.add('loading');
+                    let loader = $.html(this.html.loader, {});
+                    $.append(this.element.querySelector('#import-modal-step-1'), loader);
+                    const addButton = this.element.querySelector('#modal-import-button');
+                    addButton.classList.add('button-disabled');
+                    addButton.value = 'Importing theme...';
+
+                    const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+                    const file = this.element.querySelector('#import-modal-theme-file').files[0];
+
+                    let error = () => {
+                        $.remove(loader);
+                        this.element.querySelector('#import-modal-step-1').classList.remove('loading');
+                        addButton.classList.remove('button-disabled');
+                        addButton.value = 'Import theme';
+                    };
+
+                    // read file
+                    const reader = new FileReader();
+                    reader.readAsText(file, "UTF-8");
+                    reader.onload = async (e) => {
+                        const fileContent = e.target.result;
+                        const fileObject = JSON.parse(fileContent);
+
+                        const getObject = (object, type) => new Promise((resolve, reject) => {
+                            if (
+                                object.type === type
+                                && object.name !== undefined && typeof object.name == 'string'
+                                && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
+                                && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
+                                && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
+                                && object.custom !== undefined
+                            ) {
+                                const layout = {
+                                    name: object.name,
+                                    ccmComponent: object.ccmComponent,
+                                    custom: object.custom
+                                };
+                                resolve(layout);
+                            } else {
+                                reject();
+                            }
+                        });
+
+
+                        try {
+                            const theme = await getObject(fileObject, 'theme');
+                            const layouts = [];
+                            for (let layout of fileObject.layouts) {
+                                layouts.push(await getObject(layout, 'layout'));
+                            }
+
+                            // create theme
+                            const themeKey = await this.data_controller.createTheme(websiteKey, theme);
+
+                            // create underlying layouts
+                            for (let layout of layouts) {
+                                await this.data_controller.createLayout(websiteKey, themeKey, layout);
+                            }
+
+                            // open theme editor
+                            this.routing.navigateTo('/themes/edit/' + themeKey);
+                        } catch(e) {
+                            error();
+                            alert('Invalid file structure. Check the uploaded file.');
+                        }
+                    }
+                    reader.onerror = (evt) => {
+                        error();
+                        alert('Error on reading file');
+                    }
+                })
+            }
+
+            /**
+             * Closes the modal
+             * @returns {Promise<void>}
+             */
+            this.closeImportThemeModal = async () => {
+                $.remove(this.element.querySelector('#import-theme-modal'));
+                this.importModalCreated = false;
             }
         }
 
