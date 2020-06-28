@@ -191,13 +191,13 @@
         })
 
         // user authentication
-        this.changeLoginState(loggedIn, true);
+        await this.changeLoginState(loggedIn, true);
       };
 
 
       let loggedIn;
       /**
-       * CHanges thge login state
+       * CHanges the login state
        * @param {boolean} newState  The new login state
        * @param {boolean} force     Should the state be forced?
        * @returns {Promise<void>}
@@ -208,7 +208,8 @@
           if (loggedIn) {
             if (window.location.pathname === '/login') {
               this.routing.navigateRoot('/pages');
-              this.website_manager.start();
+              await this.website_manager.start();
+              await this.renderMenu();
             } else if (window.location.pathname === '/register') {
               await this.website_manager.start();
               this.routing.navigateRoot('/websites/create');
