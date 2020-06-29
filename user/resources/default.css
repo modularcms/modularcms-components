@@ -20,6 +20,8 @@
 
 #user {
   display: flex;
+  cursor: pointer;
+  transition: background-color .3s ease-in-out;
 }
 
 #avatar {
@@ -52,11 +54,11 @@
   cursor: pointer;
 }
 
-#logout:hover {
+#logout:hover, #user:hover {
   background-color: #eee;
 }
 
-#logout:active {
+#logout:active, #user:active {
   background-color: #ddd;
 }
 

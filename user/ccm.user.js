@@ -34,7 +34,7 @@
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
 //    "norender": true,
 //    "onchange": event => console.log( 'User has logged ' + ( event ? 'in' : 'out' ) + '.' ),
-      "picture": "https://modularcms.github.io/modularcms-components/user/resources/icon.svg",
+      "picture": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
       "realm": "modularcms",
       "restart": true,
 //    "store": "ccm-user",
@@ -42,6 +42,7 @@
       "titleRegister": "Register",
       "loginUrl": "https://auth.modularcms.io/login",
       "registerUrl": "https://auth.modularcms.io/register",
+      "changePasswordUrl": "https://auth.modularcms.io/changePassword",
       "alertLogoutSuccessIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/logout-success.svg",
       "alertLoginFailureIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/login-failure.svg",
       "alertCloseIconSrc": "https://modularcms.github.io/modularcms-components/user/resources/img/close.svg",
@@ -89,18 +90,20 @@
 
       this.start = async () => {
         // render logged in or logged out view
-        if ( this.isLoggedIn() )
-          $.setContent( this.element, $.html( this.html.logged_in, {
+        if ( this.isLoggedIn() ) {
+          $.setContent(this.element, $.html(this.html.logged_in, {
             click: this.logout,
             userClick: this.openProfileEditor,
             user: this.getUsername(),
-            avatar: this.getAvatar()
-          } ) );
-        else
+            avatar: this.picture
+          }));
+          const avatar = await this.getAvatar();
+          this.element.querySelector('#avatar').style.backgroundImage = 'url(\'' + avatar + '\')';
+        } else {
           $.setContent( this.element, $.html( this.html.logged_out, {
             click: this.login
           } ) );
-
+        }
       };
 
       this.originalParent = null;
@@ -470,6 +473,29 @@
       };
 
       /**
+       * Changes the password of the user
+       * @param {string}  newPassword             The new password
+       * @param {string}  newPasswordRepetition   The password repetition
+       * @returns {Promise<unknown>}
+       */
+      this.changePassword = (newPassword, newPasswordRepetition) => new Promise(async (resolve, reject) => {
+        const result = await this.ccm.load({
+          url: this.changePasswordUrl,
+          method: 'POST',
+          params: {
+            token: this.getValue().token,
+            password: newPassword,
+            passwordRepetition: newPasswordRepetition
+          }
+        });
+        if (result.success) {
+          resolve();
+        } else {
+          reject(result.message);
+        }
+      });
+
+      /**
        * checks if user is logged in
        * @returns {boolean}
        */
@@ -509,10 +535,14 @@
        * returns url for user avatar
        * @returns {string}
        */
-      this.getAvatar = () => {
-        const user = $.clone( this.getValue() );
-        if (user.picture) {
-          return user.picture;
+      this.getAvatar = async () => {
+        if (this.isLoggedIn()) {
+          const username = await this.data_controller.getCurrentWorkingUsername();
+          const user = await this.data_controller.getUserFromUsername(username);
+          if (user.image) {
+            return user.image.thumbnailUrl;
+          }
+          return this.picture;
         }
         return this.picture;
       };

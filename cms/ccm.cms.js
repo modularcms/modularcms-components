@@ -142,6 +142,12 @@
                 $.setContent(content, this.layout_manager.root, {});
                 currentContent = '/layouts';
               }
+            } else if (detail.url.indexOf('/profile') == 0) {
+              if (currentContent != '/profile') {
+                await this.profile_editor.start();
+                $.setContent(content, this.profile_editor.root, {});
+                currentContent = '/profile';
+              }
             } else if (detail.url.indexOf('/websites') != 0) {
               currentContent = detail.url;
               $.setContent(content, $.html(this.html.error404, {}));

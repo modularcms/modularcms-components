@@ -11,7 +11,7 @@
         <div class="edit-head-wrapper">
             <div class="edit-head">
                 <div class="edit-head-avatar">
-                    <img src="%imageUrl%" />
+                    <img id="avatar" src="%imageUrl%" />
                     <div id="upload-cover">
                         <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/camera-icon.svg" />
                     </div>
@@ -28,22 +28,12 @@
         </div>
         <div class="edit-content">
             <div>
-                <label for="user-image">User Image</label>
-                <div id="user-image">
-                    <option value="member">Member</option>
-                    <option value="author">Author</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Administrator</option>
-                </div>
+                <label for="user-password">New password (Enter a new password or leave empty to not change it)</label>
+                <input type="password" id="user-password" />
             </div>
             <div>
-                <label for="user-role">User role</label>
-                <select id="user-role">
-                    <option value="member">Member</option>
-                    <option value="author">Author</option>
-                    <option value="editor">Editor</option>
-                    <option value="admin">Administrator</option>
-                </select>
+                <label for="user-password-repetition">New password repetition (Enter a new password or leave empty to not change it)</label>
+                <input type="password" id="user-password-repetition" />
             </div>
         </div>
     </div>

@@ -20,9 +20,10 @@
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+            "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
-            "js": ["ccm.load", {"context": "head", "url": "https://widget.cloudinary.com/v2.0/global/all.js"}]
+            "js": [ "ccm.load", {"context": "head", "url": "https://widget.cloudinary.com/v2.0/global/all.js"} ]
         },
 
         Instance: function () {
@@ -42,7 +43,7 @@
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
                     if (detail.url.indexOf('/profile/edit') == 0) {
-                        await this.renderMain();
+                        await this.renderEdit();
                     }
                 }, this.index);
             };
@@ -62,31 +63,80 @@
                 });
                 $.setContent(this.element, content);
 
-                const userRoleInput = content.querySelector('#user-role');
+                let newImage = null;
+
+                // Create cloudinary widget
+                const cloudinaryWidget = cloudinary.createUploadWidget(
+                    {
+                        cloudName: 'dyhjqgkca',
+                        uploadPreset: 'y6tm2ylf',
+                        sources: ['local'],
+                        googleApiKey: 'AIrFcR8hKiRo',
+                        multiple: false,
+                        resourceType: 'image',
+                        palette: {
+                            windowBorder: '#000000'
+                        }
+                    },
+                    (error, result) => {
+                        if (!error && result && result.event === "success") {
+                            const imgData = result.info;
+                            newImage = {
+                                fullsizeUrl: imgData.secure_url,
+                                thumbnailUrl: imgData.thumbnail_url
+                            };
+                            this.element.querySelector('#avatar').src = imgData.thumbnail_url;
+                        }
+                    }
+                );
+
+                // Add event for avatar button click
+                this.element.querySelector('#upload-cover').addEventListener('click', () => {
+                    cloudinaryWidget.open();
+                });
+
+                const passwordInput = content.querySelector('#user-password');
+                const passwordRepetitionInput = content.querySelector('#user-password-repetition');
                 const saveButton = content.querySelector('#save-button');
-                userRoleInput.value = websiteUser.role;
                 saveButton.addEventListener('click', async () => {
                     saveButton.classList.add('button-disabled');
-                    saveButton.querySelector('.button-text').innerHTML = 'Saving... (may take a while)';
+                    saveButton.querySelector('.button-text').innerHTML = 'Saving...';
 
-                    const role = userRoleInput.value;
+                    if (newImage != null) {
+                        let userSet = {};
+                        Object.assign(userSet, user);
+                        userSet.image = newImage;
 
+                        await this.data_controller.setUserObject(username, userSet);
+                        newImage = null;
+                        await this.parent.user.start();
+                    }
                     let end = () => {
                         $.remove(loader);
                         saveButton.classList.remove('button-disabled');
                         saveButton.querySelector('.button-text').innerHTML = 'Save';
                     };
-                    if (username != await this.data_controller.getCurrentWorkingUsername()) {
-                        this.data_controller.addUserToWebsite(websiteKey, username, role).then(() => {
+                    if (passwordInput.value != '' || passwordRepetitionInput.value != '') {
+                        if (passwordInput.value == passwordRepetitionInput.value) {
+                            if (passwordInput.value.length >= 8) {
+                                console.log(this);
+                                this.parent.user.changePassword(passwordInput.value, passwordRepetitionInput.value).then(() => {
+                                    end();
+                                }).catch((message) => {
+                                    end();
+                                    alert(message);
+                                });
+                            } else {
+                                end();
+                                alert('The entered password must contain at least 8 characters!');
+                            }
+                        } else {
                             end();
-                        }).catch(() => {
-                            // Error handling
-                            end();
-                            alert('Failed to add a user with the given username. Please check your entered username.');
-                        });
-                    } else {
+                            alert('The entered passwords do not match!');
+                        }
+                    }
+                    if (newImage == null && passwordInput.value == '' && passwordRepetitionInput.value == '') {
                         end();
-                        alert('You can\'t edit your own role.');
                     }
                 });
             };

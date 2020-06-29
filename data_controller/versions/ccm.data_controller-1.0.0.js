@@ -452,8 +452,9 @@
              * @returns {Promise<{}>}
              */
             this.getUserPermissions = async () => {
+                const username = await this.getCurrentWorkingUsername();
                 return {
-                    creator: 'creator',
+                    creator: username,
                     realm: 'modularcms',
                     access: {
                         get: 'all',
@@ -541,7 +542,7 @@
             this.setUserObject = async (username, userObject) => {
                 userObject['username'] = username;
                 await this.users.set({
-                    key: this.hash.md5(this.username),
+                    key: this.hash.md5(username),
                     value: userObject,
                     _: await this.getUserPermissions()
                 });
