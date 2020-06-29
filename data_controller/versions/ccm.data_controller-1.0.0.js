@@ -206,34 +206,43 @@
                     // Add user to website
                     await this.addUserToWebsite(websiteKey, username, 'admin');
 
-                    // Create standard theme
-                    const standardTheme = {
-                        name: 'Standard theme',
-                        ccmComponent: {
-                            url: '', // TODO
-                            config: {} // TODO
-                        },
-                        custom: {
-                            htmlUrl: null,
-                            cssUrl: null
+                    // Get "cabrare" theme
+                    const themeImportObject = await this.ccm.load({url: 'https://modularcms.github.io/modularcms-cabrare-theme/theme.json', method: 'GET'});
+                    console.log(themeImportObject);
+
+                    const getObject = (object, type) => new Promise((resolve, reject) => {
+                        if (
+                            object.type === type
+                            && object.name !== undefined && typeof object.name == 'string'
+                            && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
+                            && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
+                            && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
+                            && object.custom !== undefined
+                        ) {
+                            const layout = {
+                                name: object.name,
+                                ccmComponent: object.ccmComponent,
+                                custom: object.custom
+                            };
+                            resolve(layout);
+                        } else {
+                            reject();
                         }
-                    };
+                    });
+
+                    // Create standard theme
+                    const standardTheme = await getObject(themeImportObject, 'theme');
                     const themeKey = await this.createTheme(websiteKey, standardTheme);
 
-                    // TODO Create standard layouts
-                    const standardLayout = {
-                        name: 'Standard layout 1',
-                        ccmComponent: {
-                            url: '', // TODO
-                            config: {} // TODO
-                        },
-                        custom: {
-                            htmlUrl: null,
-                            cssUrl: null
+                    // Create standard layouts
+                    let landingPageKey = null;
+                    for (let layout of themeImportObject.layouts) {
+                        const standardLayout = await getObject(layout, 'layout');
+                        const layoutKey = await this.createLayout(websiteKey, themeKey, standardLayout);
+                        if (standardLayout.name = 'Landing page') {
+                            landingPageKey = layoutKey;
                         }
-                    };
-                    ; //@TODO set right layout object
-                    const layoutKey = await this.createLayout(websiteKey, themeKey, standardLayout);
+                    }
 
                     // TODO Create start page
                     const startPage = {
@@ -246,7 +255,7 @@
                             robots: true
                         },
                         themeKey: themeKey,
-                        layoutKey: layoutKey,
+                        layoutKey: landingPageKey,
                         blocks: [
                             {
                                 "type": "header",
