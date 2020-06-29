@@ -15,7 +15,7 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
-            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/page_manager.html" ],
+            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/website_manager/resources/html/website_manager.html" ],
             "css": [ "ccm.load",
                 "https://modularcms.github.io/modularcms-components/website_manager/resources/css/style.css",
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
