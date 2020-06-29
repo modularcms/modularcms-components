@@ -208,7 +208,6 @@
 
                     // Get "cabrare" theme
                     const themeImportObject = await this.ccm.load({url: 'https://modularcms.github.io/modularcms-cabrare-theme/theme.json', method: 'GET'});
-                    console.log(themeImportObject);
 
                     const getObject = (object, type) => new Promise((resolve, reject) => {
                         if (
