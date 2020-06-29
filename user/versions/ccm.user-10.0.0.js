@@ -30,6 +30,7 @@
       "html": [ "ccm.get", "https://modularcms.github.io/modularcms-components/user/resources/resources.js", "html" ],
 //    "logged_in": true,
 //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-4.0.4.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
+      "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
       "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
       "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
 //    "map": user => user.user === 'john' ? 'Teacher' : 'Student',
@@ -93,6 +94,7 @@
         if ( this.isLoggedIn() )
           $.setContent( this.element, $.html( this.html.logged_in, {
             click: this.logout,
+            userClick: this.openProfileEditor,
             user: this.getUsername(),
             avatar: this.getAvatar()
           } ) );
@@ -551,6 +553,10 @@
         }
         await this.ccm.set( { name: my.store, url: this.url, parent: this }, $.clone( priodata ) );
       };
+
+      this.openProfileEditor = () => {
+        this.routing.navigateTo('/profile/edit');
+      }
 
     }
 

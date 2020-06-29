@@ -18,6 +18,10 @@
   overflow: hidden;
 }
 
+#user {
+  display: flex;
+}
+
 #avatar {
   width: 23px;
   height: 23px;

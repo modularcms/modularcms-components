@@ -27,12 +27,18 @@ ccm.files[ 'resources.js' ] = {
       "id": "logged_in",
       "inner": [
         {
-          "id": "avatar",
-          "style": "background-image: url('%avatar%');"
-        },
-        {
-          "id": "username",
-          "inner": "%user%"
+          "id": "user",
+          "onclick": "%userClick%",
+          "inner": [
+            {
+              "id": "avatar",
+              "style": "background-image: url('%avatar%');"
+            },
+            {
+              "id": "username",
+              "inner": "%user%"
+            }
+          ]
         },
         {
           "id": "logout",
