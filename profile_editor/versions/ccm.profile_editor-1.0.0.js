@@ -24,7 +24,7 @@
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
-            "js": ["ccm.load", {"context": "head", "url": "https://widget.cloudinary.com/v2.0/global/all.js"}]
+            "js": [ "ccm.load", {"context": "head", "url": "https://widget.cloudinary.com/v2.0/global/all.js"} ]
         },
 
         Instance: function () {
