@@ -15,7 +15,7 @@
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/layout_manager/resources/html/layout_manager.html" ],
             "css": [ "ccm.load",
-                "https://modularcms.github.io/modularcms-components/theme_manager/resources/css/style.css",
+                "https://modularcms.github.io/modularcms-components/layout_manager/resources/css/style.css",
                 "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
             ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
