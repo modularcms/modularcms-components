@@ -120,7 +120,9 @@
           // handle routes with user logged in
           if (loggedIn) {
             // handle the different routes
-            if (detail.url.indexOf('/pages') == 0) {
+            if (detail.url == '/') {
+              this.routing.navigateTo('/pages');
+            } else if (detail.url.indexOf('/pages') == 0) {
               if (currentContent != '/pages') {
                 await this.page_manager.start();
                 $.setContent(content, this.page_manager.root, {});
