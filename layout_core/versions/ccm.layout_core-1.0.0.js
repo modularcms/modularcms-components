@@ -47,9 +47,11 @@
                             case 'header':
                                 element = document.createElement('h' + block.data.level);
                                 element.innerHTML = block.data.text;
+                                break;
                             case 'paragraph':
                                 element = document.createElement('p');
                                 element.innerHTML = block.data.text;
+                                break;
                             case 'list':
                                 element = document.createElement(block.data.style == 'ordered'?'ol':'ul');
                                 for (let item of block.data.items) {
@@ -57,12 +59,14 @@
                                     itemElement.innerHTML = item;
                                     element.appendChild(itemElement);
                                 }
+                                break;
                             // TODO case 'image':
                             case 'ccmComponent':
                                 element = document.createElement('div');
                                 element.classList.add('ccm-component-block');
                                 const component = await this.ccm.start(block.data.url, block.data.config);
                                 $.setContent(element, component.root, {});
+                                break;
                         }
                         if (element != null) {
                             blocksWrapper.appendChild(element);
