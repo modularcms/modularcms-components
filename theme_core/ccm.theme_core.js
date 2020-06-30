@@ -36,7 +36,7 @@
                 const layout = this.parent.layout;
                 const layoutConfig = {};
                 Object.assign(layoutConfig, layout.ccmComponent.config, {
-                    theme: theme,
+                    theme: this.parent.theme,
                     layout: layout,
                     page: this.parent.page,
                     websiteKey: this.parent.websiteKey,
