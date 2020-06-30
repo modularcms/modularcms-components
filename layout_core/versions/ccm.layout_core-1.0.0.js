@@ -31,7 +31,7 @@
 
             this.initContent = async (options = {}) => {
                 // Set content
-                $.setContent(this.parent.element, this.parent.html.main, options);
+                $.setContent(this.parent.element, $.html(this.parent.html.main, options));
 
                 // Init content
                 const content = this.parent.element.querySelector('#content');
@@ -65,7 +65,7 @@
                                 element = document.createElement('div');
                                 element.classList.add('ccm-component-block');
                                 const component = await this.ccm.start(block.data.url, block.data.config);
-                                $.setContent(element, component.root, {});
+                                $.setContent(element, component.root);
                                 break;
                         }
                         if (element != null) {

@@ -29,7 +29,7 @@
 
             this.initContent = async (options = {}) => {
                 // Set content
-                $.setContent(this.parent.element, this.parent.html.main, options);
+                $.setContent(this.parent.element, $.html(this.parent.html.main, options));
 
                 // Init layout
                 const layoutElement = this.parent.element.querySelector('#layout');
