@@ -34,7 +34,7 @@
                 $.setContent(this.parent.element, this.parent.html.main, options);
 
                 // Init layout
-                const layout = this.element.querySelector('#layout');
+                const layout = this.parent.element.querySelector('#layout');
                 if (layout != null && this.parent.layout !== undefined) {
                     await this.parent.layout.start();
                     $.setContent(layout, this.parent.layout.root, {});
