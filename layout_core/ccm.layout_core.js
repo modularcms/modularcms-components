@@ -37,7 +37,7 @@
                 }
 
                 // Init content
-                const content = this.parent.element.querySelector('#content');
+                const content = this.parent.element.querySelector('#blocks');
                 if (content != null && this.parent.page !== undefined) {
                     const blocks = this.parent.page.blocks;
                     const blocksWrapper = document.createElement('div');
