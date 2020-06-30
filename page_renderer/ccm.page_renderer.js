@@ -30,8 +30,10 @@
                 const theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
                 const layout = await this.data_controller.getLayout(this.websiteKey, this.page.themeKey, this.page.layoutKey);
 
-                const themeConfig = Object.assign(theme, {
-                    layout: ['ccm.instance', layout.ccmComponent.url, layout.ccmComponent.config]
+                const themeConfig = {};
+                Object.assign(themeConfig, theme, {
+                    layout: await this.ccm.instance(layout.ccmComponent.url, layout.ccmComponent.config),
+                    parent: this
                 });
                 const themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
             };
