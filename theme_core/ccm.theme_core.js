@@ -13,7 +13,7 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
-            "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
+            "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ]
         },
 
         Instance: function () {
@@ -32,10 +32,19 @@
                 $.setContent(this.parent.element, this.parent.html.main, options);
 
                 // Init layout
-                const layout = this.parent.element.querySelector('#layout');
-                if (layout != null && this.parent.layout !== undefined) {
-                    await this.parent.layout.start();
-                    $.setContent(layout, this.parent.layout.root, {});
+                const layoutElement = this.parent.element.querySelector('#layout');
+                const layout = this.parent.layout;
+                const layoutConfig = {};
+                Object.assign(layoutConfig, layout.ccmComponent.config, {
+                    theme: theme,
+                    layout: layout,
+                    page: this.parent.page,
+                    websiteKey: this.parent.websiteKey,
+                    parent: this
+                });
+                if (layoutElement != null && layout !== undefined) {
+                    const layoutComponent = await this.ccm.start(layout.ccmComponent.url, layoutConfig);
+                    $.setContent(layoutElement, layoutComponent.root, {});
                 }
             };
         }

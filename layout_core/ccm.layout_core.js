@@ -33,8 +33,8 @@
 
                 // Init content
                 const content = this.parent.element.querySelector('#content');
-                if (content != null && this.parent.parent.page !== undefined) {
-                    const blocks = this.parent.parent.page.blocks;
+                if (content != null && this.parent.page !== undefined) {
+                    const blocks = this.parent.page.blocks;
                     const blocksWrapper = document.createElement('div');
                     blocksWrapper.classList.add('block-wrapper');
 
