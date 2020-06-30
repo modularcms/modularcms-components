@@ -38,6 +38,7 @@
                     parent: this
                 });
                 const themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
+                $.setContent(this.element, themeComponent.root);
             };
         }
 

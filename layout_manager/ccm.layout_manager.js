@@ -288,7 +288,7 @@
                     websiteKey: websiteKey,
                     parent: this
                 })
-                $.setContent(this.element.querySelector('#preview-content'), page_renderer, {});
+                $.setContent(this.element.querySelector('#preview-content'), page_renderer.root, {});
             };
 
             /**
