@@ -33,3 +33,8 @@
     height: 50px;
     font-family: 'Open Sans';
 }
+
+#preview-content {
+    padding: 0px;
+    overflow: auto;
+}
