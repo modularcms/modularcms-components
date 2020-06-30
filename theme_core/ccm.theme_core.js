@@ -33,7 +33,7 @@
 
                 // init placeholders
                 for (let elementId in placeholders) {
-                    $.setContent(this.parent.element, placeholders[elementId]);
+                    $.setContent(this.parent.element.getElementById(elementId), placeholders[elementId]);
                 }
 
                 // Init layout
