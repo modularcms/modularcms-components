@@ -29,9 +29,14 @@
 
             };
 
-            this.initContent = async (options = {}) => {
+            this.initContent = async (options = {}, placeholders = {}) => {
                 // Set content
                 $.setContent(this.parent.element, $.html(this.parent.html.main, options));
+
+                // init placeholders
+                for (let elementId in placeholders) {
+                    $.setContent(this.parent.element, placeholders[elementId]);
+                }
 
                 // Init layout
                 const layoutElement = this.parent.element.querySelector('#layout');
