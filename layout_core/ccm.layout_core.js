@@ -32,7 +32,7 @@
                 $.setContent(this.parent.element, this.parent.html.main, options);
 
                 // Init content
-                const content = this.parent.element.querySelector('content');
+                const content = this.parent.element.querySelector('#content');
                 if (content != null && this.parent.parent.page !== undefined) {
                     const blocks = this.parent.parent.page.blocks;
                     const blocksWrapper = document.createElement('div');
