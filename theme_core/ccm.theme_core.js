@@ -29,10 +29,10 @@
 
             this.initContent = async (options = {}) => {
                 // Set content
-                const theme = $.setContent(this.parent.element, this.parent.html.main, options);
+                $.setContent(this.parent.element, this.parent.html.main, options);
 
                 // Init layout
-                const layout = theme.querySelector('layout');
+                const layout = this.element.querySelector('layout');
                 if (layout != null && this.parent.layout !== undefined) {
                     await this.parent.layout.start();
                     $.setContent(layout, this.parent.layout.root, {});

@@ -8,7 +8,7 @@
 
     const component = {
 
-        name: 'theme_core',
+        name: 'layout_core',
 
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
@@ -29,14 +29,47 @@
 
             this.initContent = async (options = {}) => {
                 // Set content
-                const theme = $.setContent(this.parent.element, this.parent.html.main, options);
+                $.setContent(this.parent.element, this.parent.html.main, options);
 
-                // Init layout
-                const layout = theme.querySelector('layout');
-                if (layout != null && this.parent.layout !== undefined) {
-                    await this.parent.layout.start();
-                    $.setContent(layout, this.parent.layout.root, {});
+                // Init content
+                const content = this.element.querySelector('content');
+                if (content != null && this.parent.parent.page !== undefined) {
+                    const blocks = this.parent.parent.page.blocks;
+                    const blocksWrapper = document.createElement('div');
+                    blocksWrapper.classList.add('block-wrapper');
+
+                    for (let block of blocks) {
+                        let element = null;
+
+                        switch (block.type) {
+                            case 'header':
+                                element = document.createElement('h' + block.data.level);
+                                element.innerHTML = block.data.text;
+                            case 'paragraph':
+                                element = document.createElement('p');
+                                element.innerHTML = block.data.text;
+                            case 'list':
+                                element = document.createElement(block.data.style == 'ordered'?'ol':'ul');
+                                for (let item of block.data.items) {
+                                    let itemElement = document.createElement('li')
+                                    itemElement.innerHTML = item;
+                                    element.appendChild(itemElement);
+                                }
+                            // TODO case 'image':
+                            case 'ccmComponent':
+                                element = document.createElement('div');
+                                element.classList.add('ccm-component-block');
+                                const component = await this.ccm.start(block.data.url, block.data.config);
+                                $.setContent(element, component.root, {});
+                        }
+                        if (element != null) {
+                            blocksWrapper.appendChild(element);
+                        }
+                        content.innerHTML = '';
+                        $.setContent(content, blocksWrapper)
+                    }
                 }
+
             };
         }
 

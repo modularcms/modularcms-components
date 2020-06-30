@@ -31,10 +31,10 @@
 
             this.initContent = async (options = {}) => {
                 // Set content
-                const theme = $.setContent(this.parent.element, this.parent.html.main, options);
+                $.setContent(this.parent.element, this.parent.html.main, options);
 
                 // Init content
-                const content = theme.querySelector('content');
+                const content = this.element.querySelector('content');
                 if (content != null && this.parent.parent.page !== undefined) {
                     const blocks = this.parent.parent.page.blocks;
                     const blocksWrapper = document.createElement('div');
