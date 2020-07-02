@@ -10,7 +10,7 @@
     margin-right: 10px;
 }
 
-#create-layout-modal #create-modal-step-1, #import-layout-modal #import-modal-step-1 {
+#create-theme-definition-modal #create-modal-step-1, #import-theme-definition-modal #import-modal-step-1 {
     height: 500px;
     max-height: calc(100% - 25px);
 }
@@ -28,7 +28,7 @@
     margin-right: 10px;
 }
 
-#import-modal-layout-file {
+#import-modal-theme-file, #import-modal-theme-definition-file {
     width: 100%;
     height: 50px;
     font-family: 'Open Sans';

@@ -61,13 +61,13 @@
             }
 
             /**
-             * Returns the data store for the corresponding website theme layout table
+             * Returns the data store for the corresponding website theme definition table
              * @param {string} websiteKey   The website key
              * @param {string} themeKey     The layout key
              * @returns {Promise<Credential>}
              */
-            this.getWebsiteThemeLayoutDataStore = async (websiteKey, themeKey) => {
-                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_theme_' + themeKey, url: 'https://ccm2.inf.h-brs.de', parent: this});
+            this.getWebsiteThemeDefinitionsDataStore = async (websiteKey, themeKey) => {
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_theme_' + themeKey + '_definitions', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -207,21 +207,24 @@
                     // Get "cabrare" theme
                     const themeImportObject = await this.ccm.load({url: 'https://modularcms.github.io/modularcms-cabrare-theme/theme.json', method: 'GET'});
 
-                    const getObject = (object, type) => new Promise((resolve, reject) => {
+                    const getObject = (object, type = null) => new Promise((resolve, reject) => {
                         if (
-                            object.type === type
+                            (type == null || object.type === type)
                             && object.name !== undefined && typeof object.name == 'string'
                             && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
                             && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
                             && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
                             && object.custom !== undefined
                         ) {
-                            const layout = {
+                            let themeDefinitionObject = {
                                 name: object.name,
                                 ccmComponent: object.ccmComponent,
                                 custom: object.custom
                             };
-                            resolve(layout);
+                            if (object.type != 'theme') {
+                                themeDefinitionObject.type = object.type;
+                            }
+                            resolve(themeDefinitionObject);
                         } else {
                             reject();
                         }
@@ -231,13 +234,13 @@
                     const standardTheme = await getObject(themeImportObject, 'theme');
                     const themeKey = await this.createTheme(websiteKey, standardTheme);
 
-                    // Create standard layouts
-                    let landingPageKey = null;
-                    for (let layout of themeImportObject.layouts) {
-                        const standardLayout = await getObject(layout, 'layout');
-                        const layoutKey = await this.createLayout(websiteKey, themeKey, standardLayout);
-                        if (standardLayout.name = 'Landing page') {
-                            landingPageKey = layoutKey;
+                    // Create standard theme definitions
+                    let landingPageDefinitionKey = null;
+                    for (let themeDefinition of themeImportObject.themeDefinitions) {
+                        const definition = await getObject(themeDefinition);
+                        const definitionKey = await this.createThemeDefinition(websiteKey, themeKey, definition);
+                        if (definition.name = 'Landing page') {
+                            landingPageDefinitionKey = definitionKey;
                         }
                     }
 
@@ -252,8 +255,8 @@
                             robots: true
                         },
                         themeKey: themeKey,
-                        layoutKey: landingPageKey,
-                        blocks: [
+                        layoutKey: landingPageDefinitionKey,
+                        blocks: [ // TODO
                             {
                                 "type": "header",
                                 "data": {
@@ -676,10 +679,10 @@
                     // Update theme
                     await this.setThemeObject(websiteKey, theme.themeKey, theme);
 
-                    // Update theme layouts
-                    const layouts = await this.getAllLayoutsOfTheme(websiteKey, theme.themeKey);
-                    for (let layout of layouts) {
-                        await this.setLayoutObject(websiteKey, theme.themeKey, layout.layoutKey, layout);
+                    // Update theme definitions
+                    const definitions = await this.getAllThemeDefinitionsOfTheme(websiteKey, theme.themeKey);
+                    for (let definition of definitions) {
+                        await this.setThemeDefinitionObject(websiteKey, theme.themeKey, definition.themeDefinitionKey, layout);
                     }
                 }
 
@@ -848,50 +851,50 @@
 
 
             /**
-             * ---------------
-             *  L A Y O U T S
-             * ---------------
+             * -----------------------------------
+             *  T H E M E   D E F I N I T I O N S
+             * -----------------------------------
              */
 
             /**
-             * Get layout of website theme
-             * @param {string}  websiteKey  The website key
-             * @param {string}  themeKey    The theme key
-             * @param {string}  layoutKey   The layout key
+             * Get theme definition of website theme
+             * @param {string}  websiteKey      The website key
+             * @param {string}  themeKey        The theme key
+             * @param {string}  definitionKey   The theme definition key
              * @returns {Promise<{}>}
              */
-            this.getLayout = async (websiteKey, themeKey, layoutKey) => {
-                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
-                let layoutGet = await websiteThemeLayoutsDataStore.get(layoutKey);
-                let layout = layoutGet.value;
-                layout.layoutKey = layoutGet.key;
-                return layout;
+            this.getThemeDefinition = async (websiteKey, themeKey, definitionKey) => {
+                const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
+                let definitionGet = await websiteThemeDefinitionsDataStore.get(definitionKey);
+                let definition = definitionGet.value;
+                definition.themeDefinitionKey = definitionGet.key;
+                return definition;
             }
 
             /**
-             * Get all layouts of a website theme
+             * Get all theme definitions of a website theme
              * @param {string}  websiteKey  The website key
              * @param {string}  themeKey    The theme key
              * @returns {Promise<{}>}
              */
-            this.getAllLayoutsOfTheme = async (websiteKey, themeKey) => {
-                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
-                let layoutsGet = await websiteThemeLayoutsDataStore.get();
+            this.getAllThemeDefinitionsOfTheme = async (websiteKey, themeKey) => {
+                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
+                let definitionsGet = await websiteThemeLayoutsDataStore.get();
                 let re = [];
-                for (let layoutGet of layoutsGet) {
-                    let layout = layoutGet.value;
-                    layout.layoutKey = layoutGet.key;
-                    re.push(layout);
+                for (let definitionGet of definitionsGet) {
+                    let definition = definitionGet.value;
+                    definition.themeDefinitionKey = definitionGet.key;
+                    re.push(definition);
                 }
                 return re;
             }
 
             /**
-             * Returns the permissions object for a layout
+             * Returns the permissions object for a theme definition
              * @param {string|null} key  the website key
              * @returns {Promise<{}>}
              */
-            this.getLayoutPermissions = async (key = false) => {
+            this.getThemeDefinitionPermissions = async (key = false) => {
                 let allowedEditUsers = [];
                 if (key != false) {
                     let admins = await this.getWebsiteAdminUsernames(key);
@@ -914,49 +917,49 @@
             };
 
             /**
-             * Creates a layout for a website theme
-             * @param {string}  websiteKey      The website key
-             * @param {string}  themeKey        The website theme key
-             * @param {{}}      layoutObject    The layout object
+             * Creates a theme definition for a website theme
+             * @param {string}  websiteKey          The website key
+             * @param {string}  themeKey            The website theme key
+             * @param {{}}      definitionObject    The theme definition object
              * @returns {Promise<string>}
              */
-            this.createLayout = async (websiteKey, themeKey, layoutObject) => {
-                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
-                let layoutKey = await websiteThemeLayoutsDataStore.set({
-                    value: layoutObject,
-                    _: await this.getLayoutPermissions(websiteKey)
+            this.createThemeDefinition = async (websiteKey, themeKey, definitionObject) => {
+                const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
+                let definitionKey = await websiteThemeDefinitionsDataStore.set({
+                    value: definitionObject,
+                    _: await this.getThemeDefinitionPermissions(websiteKey)
                 });
-                return layoutKey;
+                return definitionKey;
             }
 
             /**
-             * Sets the layout object for a website theme
+             * Sets the theme definition object for a website theme
+             * @param {string}  websiteKey          The website key
+             * @param {string}  themeKey            The theme key
+             * @param {string}  definitionKey       The theme definition key
+             * @param {{}}      definitionObject    The theme definition object
+             * @returns {Promise<void>}
+             */
+            this.setThemeDefinitionObject = async (websiteKey, themeKey, definitionKey, definitionObject) => {
+                const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
+                definitionObject['themeDefinitionKey'] !== undefined && delete definitionObject['themeDefinitionKey'];
+                await websiteThemeDefinitionsDataStore.set({
+                    key: definitionKey,
+                    value: definitionObject,
+                    _: await this.getThemeDefinitionPermissions(websiteKey)
+                });
+            }
+
+            /**
+             * removes a theme definition from a website theme
              * @param {string}  websiteKey      The website key
              * @param {string}  themeKey        The theme key
-             * @param {string}  layoutKey       The layout key
-             * @param {{}}      layoutObject    The layout object
+             * @param {string}  definitionKey   The theme definition key
              * @returns {Promise<void>}
              */
-            this.setLayoutObject = async (websiteKey, themeKey, layoutKey, layoutObject) => {
-                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
-                layoutObject['layoutKey'] !== undefined && delete layoutObject['layoutKey'];
-                await websiteThemeLayoutsDataStore.set({
-                    key: layoutKey,
-                    value: layoutObject,
-                    _: await this.getLayoutPermissions(websiteKey)
-                });
-            }
-
-            /**
-             * removes a layout from a website theme
-             * @param {string}  websiteKey  The website key
-             * @param {string}  themeKey    The theme key
-             * @param {string}  layoutKey   The layout key
-             * @returns {Promise<void>}
-             */
-            this.removeLayout = async (websiteKey, themeKey, layoutKey) => {
-                const websiteThemeLayoutsDataStore = await this.getWebsiteThemeLayoutDataStore(websiteKey, themeKey);
-                await websiteThemeLayoutsDataStore.del(layoutKey);
+            this.removeThemeDefinition = async (websiteKey, themeKey, definitionKey) => {
+                const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
+                await websiteThemeDefinitionsDataStore.del(definitionKey);
             }
 
 

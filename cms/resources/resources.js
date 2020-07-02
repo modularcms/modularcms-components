@@ -17,8 +17,7 @@ ccm.files[ 'resources.js' ] = {
         "website_manager": [ "ccm.instance", "/modularcms-components/website_manager/versions/ccm.website_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/website_manager/resources/resources.js", "local" ] ],
         "data_controller": [ "ccm.instance", "/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
         "user_manager": [ "ccm.instance", "/modularcms-components/user_manager/versions/ccm.user_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/user_manager/resources/resources.js", "local" ] ],
-        "theme_manager": [ "ccm.instance", "/modularcms-components/theme_manager/versions/ccm.theme_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/theme_manager/resources/resources.js", "local" ] ],
-        "layout_manager": [ "ccm.instance", "/modularcms-components/layout_manager/versions/ccm.layout_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/layout_manager/resources/resources.js", "local" ] ],
+        "theme_definition_manager": [ "ccm.instance", "/modularcms-components/theme_definition_manager/versions/ccm.theme_definition_manager-1.0.0.js", [ "ccm.get", "/modularcms-components/theme_definition_manager/resources/resources.js", "local" ] ],
         "profile_editor": [ "ccm.instance", "/modularcms-components/profile_editor/versions/ccm.profile_editor-1.0.0.js", [ "ccm.get", "/modularcms-components/profile_editor/resources/resources.js", "local" ] ]
 },
     "routing": {

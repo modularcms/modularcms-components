@@ -14,7 +14,6 @@
 
         config: {
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
-            // "websiteKey": "...",
             // "page": [...],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
         },
@@ -28,15 +27,11 @@
 
             this.start = async () => {
                 const theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
-                const layout = await this.data_controller.getLayout(this.websiteKey, this.page.themeKey, this.page.layoutKey);
 
                 const themeConfig = {};
                 Object.assign(themeConfig, theme.ccmComponent.config, {
-                    theme: theme,
-                    layout: layout,
-                    page: this.page,
-                    websiteKey: this.websiteKey,
-                    parent: this
+                    parent: this,
+                    contentZones: this.page.contentZones
                 });
                 const themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
                 $.setContent(this.element, themeComponent.root);

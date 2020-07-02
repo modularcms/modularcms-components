@@ -43,14 +43,12 @@
       "menu": [
         {"title": "Pages", "route": "/pages"},
         {"title": "Users", "route": "/users", "role": "admin"},
-        {"title": "Themes", "route": "/themes", "role": "admin"},
-        {"title": "Layouts", "route": "/layouts", "role": "admin"}
+        {"title": "Theme definitions", "route": "/theme-definitions", "role": "admin"}
       ],
       "page_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/page_manager/versions/ccm.page_manager-1.0.0.js" ],
       "website_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/website_manager/versions/ccm.website_manager-1.0.0.js" ],
       "user_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_manager/versions/ccm.user_manager-1.0.0.js" ],
-      "theme_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/theme_manager/versions/ccm.theme_manager-1.0.0.js" ],
-      "layout_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/layout_manager/versions/ccm.layout_manager-1.0.0.js" ],
+      "theme_definition_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/theme_definition_manager/versions/ccm.theme_definition_manager-1.0.0.js" ],
       "profile_editor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/profile_editor/versions/ccm.profile_editor-1.0.0.js" ],
       "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
     },
@@ -132,17 +130,11 @@
                 $.setContent(content, this.user_manager.root, {});
                 currentContent = '/users';
               }
-            } else if (detail.url.indexOf('/themes') == 0) {
-              if (currentContent != '/themes') {
-                await this.theme_manager.start();
-                $.setContent(content, this.theme_manager.root, {});
-                currentContent = '/themes';
-              }
-            } else if (detail.url.indexOf('/layouts') == 0) {
-              if (currentContent != '/layouts') {
-                await this.layout_manager.start();
-                $.setContent(content, this.layout_manager.root, {});
-                currentContent = '/layouts';
+            } else if (detail.url.indexOf('/theme-definitions') == 0) {
+              if (currentContent != '/theme-definitions') {
+                await this.theme_definition_manager.start();
+                $.setContent(content, this.theme_definition_manager.root, {});
+                currentContent = '/theme-definitions';
               }
             } else if (detail.url.indexOf('/profile') == 0) {
               if (currentContent != '/profile') {
