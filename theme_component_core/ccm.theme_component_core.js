@@ -57,13 +57,15 @@
                             if (contentZoneItem.type == 'themeDefinition') {
                                 // init theme definition
                                 const themeDefinition = await this.data_controller.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
-                                let config = {};
-                                Object.assign(config, themeDefinition.ccmComponent.config, {
-                                    parent: this.parent,
-                                    contentZones: contentZoneItem.contentZones
-                                });
-                                const component = await this.ccm.start(themeDefinition.ccmComponent.url);
-                                appendElement = component.root;
+                                if (themeDefinition) {
+                                    let config = {};
+                                    Object.assign(config, themeDefinition.ccmComponent.config, {
+                                        parent: this.parent,
+                                        contentZones: contentZoneItem.contentZones
+                                    });
+                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url);
+                                    appendElement = component.root;
+                                }
                             } else if (contentZoneItem.type == 'ccmComponent') {
                                 // init ccm component
                                 let config = {};

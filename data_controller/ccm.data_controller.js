@@ -204,7 +204,7 @@
                     // Add user to website
                     await this.addUserToWebsite(websiteKey, username, 'admin');
 
-                    // Get "cabrare" theme
+                    // Get "cabrare" default theme
                     const themeImportObject = await this.ccm.load({url: 'https://modularcms.github.io/modularcms-cabrare-theme/theme.json', method: 'GET'});
 
                     const getObject = (object, type = null) => new Promise((resolve, reject) => {
@@ -236,11 +236,15 @@
 
                     // Create standard theme definitions
                     let landingPageDefinitionKey = null;
+                    let rowWithColumnsDefinitionKey = null;
                     for (let themeDefinition of themeImportObject.themeDefinitions) {
                         const definition = await getObject(themeDefinition);
                         const definitionKey = await this.createThemeDefinition(websiteKey, themeKey, definition);
                         if (definition.name = 'Landing page') {
                             landingPageDefinitionKey = definitionKey;
+                        }
+                        if (definition.name = 'Row with columns') {
+                            rowWithColumnsDefinitionKey = definitionKey;
                         }
                     }
 
@@ -255,21 +259,49 @@
                             robots: true
                         },
                         themeKey: themeKey,
-                        layoutKey: landingPageDefinitionKey,
+                        contentZones: {
+                            'layout': [
+                                {
+                                    'type': 'themeDefinition',
+                                    'data': {
+                                        'themeDefinitionType': 'layout',
+                                        'themeDefinitionKey': landingPageDefinitionKey
+                                    },
+                                    contentZones: {
+                                        'main': [
+                                            {
+                                                'type': 'themeDefinition',
+                                                'data': {
+                                                    'themeDefinitionType': 'block',
+                                                    'themeDefinitionKey': rowWithColumnsDefinitionKey
+                                                },
+                                                contentZones: {
+                                                    'zone1': [
+                                                        {
+                                                            'type': 'header',
+                                                            'data': {
+                                                                'text': 'Hello world!',
+                                                                'level': 1
+                                                            },
+                                                            contentZones: {}
+                                                        },
+                                                        {
+                                                            'type': 'paragraph',
+                                                            'data': {
+                                                                'text': 'This is a new website made with <b>modularcms</b>.'
+                                                            },
+                                                            contentZones: {}
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        },
                         blocks: [ // TODO
-                            {
-                                "type": "header",
-                                "data": {
-                                    "text": "Hello world!",
-                                    "level": 1
-                                }
-                            },
-                            {
-                                "type": "paragraph",
-                                "data": {
-                                    "text": "This is a new website made with <b>modularcms</b>."
-                                }
-                            }
+
                         ],
                         changeLog: []
                     };
@@ -866,9 +898,12 @@
             this.getThemeDefinition = async (websiteKey, themeKey, definitionKey) => {
                 const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
                 let definitionGet = await websiteThemeDefinitionsDataStore.get(definitionKey);
-                let definition = definitionGet.value;
-                definition.themeDefinitionKey = definitionGet.key;
-                return definition;
+                if (definitionGet != null) {
+                    let definition = definitionGet.value;
+                    definition.themeDefinitionKey = definitionGet.key;
+                    return definition;
+                }
+                return null;
             }
 
             /**

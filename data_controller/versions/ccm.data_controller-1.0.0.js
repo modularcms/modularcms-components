@@ -900,9 +900,12 @@
             this.getThemeDefinition = async (websiteKey, themeKey, definitionKey) => {
                 const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
                 let definitionGet = await websiteThemeDefinitionsDataStore.get(definitionKey);
-                let definition = definitionGet.value;
-                definition.themeDefinitionKey = definitionGet.key;
-                return definition;
+                if (definitionGet != null) {
+                    let definition = definitionGet.value;
+                    definition.themeDefinitionKey = definitionGet.key;
+                    return definition;
+                }
+                return null;
             }
 
             /**
