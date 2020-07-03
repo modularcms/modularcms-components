@@ -8,7 +8,7 @@
 
     const component = {
 
-        name: 'layout_core',
+        name: 'theme_component_core',
 
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
@@ -27,17 +27,23 @@
 
             };
 
-            this.initContent = async (htmlMainOptions = {}, htmlMainPlaceholders = {}) => {
+            /**
+             *
+             * @param html              The input html
+             * @param htmlOptions       The input html Options for ccm
+             * @param htmlPlaceholders  The input html placeholder elements
+             * @returns {Promise<void>}
+             */
+            this.initContent = async (html = this.parent.html.main, htmlOptions = {}, htmlPlaceholders = {}) => {
                 const element = this.parent.element;
-                const html = this.parent.html;
                 const contentZones = this.parent.contentZones || {};
 
                 // Set content
-                $.setContent(element, $.html(html.main, htmlMainOptions));
+                $.setContent(element, $.html(html, htmlOptions));
 
                 // init placeholders
-                for (let elementId in placeholders) {
-                    $.setContent(element.querySelector('#' + elementId), placeholders[elementId]);
+                for (let elementId in htmlPlaceholders) {
+                    $.setContent(element.querySelector('#' + elementId), htmlPlaceholders[elementId]);
                 }
 
                 // Init content of content zones
