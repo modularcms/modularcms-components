@@ -37,6 +37,8 @@
              */
             this.initContent = async (html = this.parent.html.main, htmlOptions = {}, htmlPlaceholders = {}) => {
                 const element = this.parent.element;
+                const websiteKey = this.parent.websiteKey;
+                const page = this.parent.page;
                 const contentZones = this.parent.contentZones || {};
 
                 // Set content
@@ -56,12 +58,14 @@
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
                                 // init theme definition
-                                const themeDefinition = await this.data_controller.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
+                                const themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
                                 if (themeDefinition) {
                                     let config = {};
                                     Object.assign(config, themeDefinition.ccmComponent.config, {
                                         parent: this.parent,
-                                        contentZones: contentZoneItem.contentZones
+                                        contentZones: contentZoneItem.contentZones,
+                                        websiteKey: websiteKey,
+                                        page: page
                                     });
                                     const component = await this.ccm.start(themeDefinition.ccmComponent.url);
                                     appendElement = component.root;
@@ -71,7 +75,9 @@
                                 let config = {};
                                 Object.assign(config, contentZoneItem.data.config, {
                                     parent: this.parent,
-                                    contentZones: contentZoneItem.contentZones
+                                    contentZones: contentZoneItem.contentZones,
+                                    websiteKey: websiteKey,
+                                    page: page
                                 });
                                 const component = await this.ccm.start(contentZoneItem.data.config);
                                 appendElement = component.root;
