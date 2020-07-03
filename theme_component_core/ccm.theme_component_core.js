@@ -67,7 +67,7 @@
                                         websiteKey: websiteKey,
                                         page: page
                                     });
-                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url);
+                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
                                     appendElement = component.root;
                                 }
                             } else if (contentZoneItem.type == 'ccmComponent') {
@@ -79,7 +79,7 @@
                                     websiteKey: websiteKey,
                                     page: page
                                 });
-                                const component = await this.ccm.start(contentZoneItem.data.config);
+                                const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
                                 appendElement = component.root;
                             } else if (contentZoneItem.type == 'header') {
                                 // init header
