@@ -19,6 +19,7 @@
                 this.parent.element.addEventListener('click', (e) => {
                     //let target = e.target;
                     for (let element of e.path) {
+                        console.log(element);
                         if (element.tagName.toLowerCase() == 'a') {
                             let href = element.getAttribute('href');
                             if (href != null && href.indexOf('/') == 0) {
