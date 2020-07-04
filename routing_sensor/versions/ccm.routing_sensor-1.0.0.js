@@ -19,19 +19,21 @@
             this.ready = async () => {
                 // detect and prevent clicks to a tags
                 this.parent.element.addEventListener('click', (e) => {
-                    let target = e.target;
-                    if (target.tagName.toLowerCase() == 'a') {
-                        let href = target.getAttribute('href');
-                        if (href != null && href.indexOf('/') == 0) {
-                            e.preventDefault();
+                    //let target = e.target;
+                    for (element of e.path) {
+                        if (element.tagName.toLowerCase() == 'a') {
+                            let href = element.getAttribute('href');
+                            if (href != null && href.indexOf('/') == 0) {
+                                e.preventDefault();
 
-                            //dispatch routing event
-                            var event = new CustomEvent("routingSensorWasTriggered", {
-                                detail: {
-                                    href: href
-                                }
-                            });
-                            window.dispatchEvent(event);
+                                //dispatch routing event
+                                var event = new CustomEvent("routingSensorWasTriggered", {
+                                    detail: {
+                                        href: href
+                                    }
+                                });
+                                window.dispatchEvent(event);
+                            }
                         }
                     }
                 });
