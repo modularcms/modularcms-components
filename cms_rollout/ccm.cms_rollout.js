@@ -43,7 +43,7 @@
                     this.routing.registerRoutingCallback(async (detail) => { // TODO routing entry point
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
-                            const url = website.baseUrl.substring(website.baseUrl.length - 1);
+                            const url = detail.url.substring(website.baseUrl.length - 1);
                             console.log(url);
 
                             // get page
