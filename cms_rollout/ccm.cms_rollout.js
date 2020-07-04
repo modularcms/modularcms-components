@@ -46,6 +46,7 @@
                 document.head.appendChild(base);
 
                 if (website != null) {
+                    await this.routing.navigateRoot(window.location.pathname);
                     this.routing.registerRoutingCallback(async (detail) => {
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
