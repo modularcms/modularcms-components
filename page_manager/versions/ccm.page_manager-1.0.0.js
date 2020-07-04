@@ -145,18 +145,20 @@
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                 const page = await this.data_controller.getPage(websiteKey, pageKey);
 
+                if (page != null) {
+                    const content = $.html(this.html.editPage, {});
+                    $.setContent(this.element, content);
 
-                const content = $.html(this.html.editPage, {});
-                $.setContent(this.element, content);
-                
-                $.append(content.querySelector('#edit-content'), loader);
-                const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
-                    websiteKey: websiteKey,
-                    page: page,
-                    parent: this
-                });
-                $.setContent(content.querySelector('#edit-content'), pageRenderer.root);
-
+                    $.append(content.querySelector('#edit-content'), loader);
+                    const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
+                        websiteKey: websiteKey,
+                        page: page,
+                        parent: this
+                    });
+                    $.setContent(content.querySelector('#edit-content'), pageRenderer.root);
+                } else {
+                    this.routing.navigateTo('/pages');
+                }
             };
 
             /**

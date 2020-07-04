@@ -43,6 +43,12 @@
             this.start = async () => {
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
+                    // Make sure that user has the permissions
+                    if (await this.data_controller.getUserWebsiteRole(await this.data_controller.getCurrentWorkingUsername(), await this.getSelectedWebsiteKey()) != 'admin') {
+                        this.routing.navigateTo('/pages');
+                        return;
+                    }
+
                     if (detail.url == '/users/add') {
                         if (!this.modalCreated) {
                             this.modalCreated = true;
@@ -134,40 +140,45 @@
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                 const websiteUser = await this.data_controller.getWebsiteUser(websiteKey, username);
                 const user = await this.data_controller.getUserFromUsername(username);
-                let content = $.html(this.html.editUser, {
-                    username: username,
-                    role: websiteUser.role,
-                    imageUrl: user.image != null ? user.image.thumbnailUrl : this.userAvatarPlaceholder
-                });
-                $.setContent(this.element, content);
 
-                const userRoleInput = content.querySelector('#user-role');
-                const saveButton = content.querySelector('#save-button');
-                userRoleInput.value = websiteUser.role;
-                saveButton.addEventListener('click', async () => {
-                    saveButton.classList.add('button-disabled');
-                    saveButton.querySelector('.button-text').innerHTML = 'Saving... (may take a while)';
+                if (user != null) {
+                    let content = $.html(this.html.editUser, {
+                        username: username,
+                        role: websiteUser.role,
+                        imageUrl: user.image != null ? user.image.thumbnailUrl : this.userAvatarPlaceholder
+                    });
+                    $.setContent(this.element, content);
 
-                    const role = userRoleInput.value;
+                    const userRoleInput = content.querySelector('#user-role');
+                    const saveButton = content.querySelector('#save-button');
+                    userRoleInput.value = websiteUser.role;
+                    saveButton.addEventListener('click', async () => {
+                        saveButton.classList.add('button-disabled');
+                        saveButton.querySelector('.button-text').innerHTML = 'Saving... (may take a while)';
 
-                    let end = () => {
-                        $.remove(loader);
-                        saveButton.classList.remove('button-disabled');
-                        saveButton.querySelector('.button-text').innerHTML = 'Save';
-                    };
-                    if (username != await this.data_controller.getCurrentWorkingUsername()) {
-                        this.data_controller.addUserToWebsite(websiteKey, username, role).then(() => {
+                        const role = userRoleInput.value;
+
+                        let end = () => {
+                            $.remove(loader);
+                            saveButton.classList.remove('button-disabled');
+                            saveButton.querySelector('.button-text').innerHTML = 'Save';
+                        };
+                        if (username != await this.data_controller.getCurrentWorkingUsername()) {
+                            this.data_controller.addUserToWebsite(websiteKey, username, role).then(() => {
+                                end();
+                            }).catch(() => {
+                                // Error handling
+                                end();
+                                alert('Failed to add a user with the given username. Please check your entered username.');
+                            });
+                        } else {
                             end();
-                        }).catch(() => {
-                            // Error handling
-                            end();
-                            alert('Failed to add a user with the given username. Please check your entered username.');
-                        });
-                    } else {
-                        end();
-                        alert('You can\'t edit your own role.');
-                    }
-                });
+                            alert('You can\'t edit your own role.');
+                        }
+                    });
+                } else {
+                    this.routing.navigateTo('/users');
+                }
             };
 
             /**

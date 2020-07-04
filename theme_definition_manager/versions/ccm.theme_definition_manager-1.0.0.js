@@ -61,6 +61,12 @@
 
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
+                    // Make sure that user has the permissions
+                    if (await this.data_controller.getUserWebsiteRole(await this.data_controller.getCurrentWorkingUsername(), await this.getSelectedWebsiteKey()) != 'admin') {
+                        this.routing.navigateTo('/pages');
+                        return;
+                    }
+
                     if (detail.url.indexOf('/theme-definitions/') == 0 && ['create', 'import'].indexOf(detail.urlParts[1]) >= 0 && detail.urlParts[2] !== undefined) {
                         let type = detail.urlParts[2];
                         let action = detail.urlParts[1];
@@ -250,116 +256,121 @@
                 } else {
                     themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, themeKey, themeDefinitionKey);
                 }
-                let content = $.html(this.html.editThemeDefinition, {});
 
-                const nameInput = content.querySelector('#theme-definition-edit-name');
-                const ccmUrlInput = content.querySelector('#theme-definition-edit-ccm-component-url');
-                const ccmConfigWrapper = content.querySelector('#theme-definition-edit-ccm-component-config');
+                if (theme != null || themeDefinition != null) {
+                    let content = $.html(this.html.editThemeDefinition, {});
 
-                if (type == 'theme') {
-                    nameInput.value = theme.name;
-                    ccmUrlInput.value = theme.ccmComponent.url;
-                    this.json_builder.data = {json: theme.ccmComponent.config};
-                } else {
-                    nameInput.value = themeDefinition.name;
-                    ccmUrlInput.value = themeDefinition.ccmComponent.url;
-                    this.json_builder.data = {json: themeDefinition.ccmComponent.config};
-                }
-                await this.json_builder.start();
-                $.setContent(ccmConfigWrapper, this.json_builder.root, {});
+                    const nameInput = content.querySelector('#theme-definition-edit-name');
+                    const ccmUrlInput = content.querySelector('#theme-definition-edit-ccm-component-url');
+                    const ccmConfigWrapper = content.querySelector('#theme-definition-edit-ccm-component-config');
 
-
-                $.setContent(this.element, content);
-
-                // event for export button
-                const exportButton = content.querySelector('#export-button');
-                exportButton.addEventListener('click', async () => {
-                    exportButton.classList.add('button-disabled');
-                    exportButton.querySelector('.button-text').innerHTML = 'Exporting...';
-
-                    let exportObject = {};
                     if (type == 'theme') {
-                        // Handle theme export
-                        let themeExport = await this.data_controller.getTheme(websiteKey, themeKey);
-                        delete themeExport['themeKey'];
-
-                        // get theme definitions
-                        let themeDefinitionExport = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, themeKey);
-                        for (let themeDefinition of themeDefinitionExport) {
-                            delete themeDefinition['themeDefinitionKey'];
-                        }
-
-                        // Assign to export object
-                        Object.assign(exportObject, themeExport, {
-                            type: 'theme',
-                            themeDefinitions: themeDefinitionExport
-                        });
+                        nameInput.value = theme.name;
+                        ccmUrlInput.value = theme.ccmComponent.url;
+                        this.json_builder.data = {json: theme.ccmComponent.config};
                     } else {
-                        // Handle theme definition export
-                        let themeDefinitionExport = await this.data_controller.getThemeDefinition(websiteKey, themeKey, themeDefinitionKey);
-                        delete themeDefinitionExport['themeDefinitionKey'];
-
-                        // Assign to export object
-                        Object.assign(exportObject, themeDefinitionExport);
+                        nameInput.value = themeDefinition.name;
+                        ccmUrlInput.value = themeDefinition.ccmComponent.url;
+                        this.json_builder.data = {json: themeDefinition.ccmComponent.config};
                     }
+                    await this.json_builder.start();
+                    $.setContent(ccmConfigWrapper, this.json_builder.root, {});
 
-                    await this.download(JSON.stringify(exportObject), 'application/json', type + '_' + (type == 'theme'?themeKey:themeDefinitionKey) + '.json');
-                    exportButton.classList.remove('button-disabled');
-                    exportButton.querySelector('.button-text').innerHTML = 'Export';
-                });
 
-                // event for save button
-                const form = this.element.querySelector('#theme-definition-edit-form');
-                const saveButton = content.querySelector('#save-button');
-                saveButton.addEventListener('click', async () => {
-                    saveButton.classList.add('button-disabled');
-                    saveButton.querySelector('.button-text').innerHTML = 'Saving...';
+                    $.setContent(this.element, content);
 
-                    const name = nameInput.value;
-                    const ccmUrl = ccmUrlInput.value;
-                    const ccmConfig = this.json_builder.getValue().json;
+                    // event for export button
+                    const exportButton = content.querySelector('#export-button');
+                    exportButton.addEventListener('click', async () => {
+                        exportButton.classList.add('button-disabled');
+                        exportButton.querySelector('.button-text').innerHTML = 'Exporting...';
 
-                    let themeSet = {};
-                    let themeDefinitionSet = {};
-                    let overwriteObject = {
-                        name: name,
-                        ccmComponent: {
-                            url: ccmUrl,
-                            config: ccmConfig
-                        }
-                    };
-                    if (type == 'theme') {
-                        // Assign theme values
-                        Object.assign(themeSet, theme, overwriteObject);
-                    } else {
-                        // Assign theme definition values
-                        Object.assign(themeDefinitionSet, themeDefinition, overwriteObject);
-                    }
+                        let exportObject = {};
+                        if (type == 'theme') {
+                            // Handle theme export
+                            let themeExport = await this.data_controller.getTheme(websiteKey, themeKey);
+                            delete themeExport['themeKey'];
 
-                    let end = () => {
-                        $.remove(loader);
-                        saveButton.classList.remove('button-disabled');
-                        saveButton.querySelector('.button-text').innerHTML = 'Save';
-                    };
-                    if (form.checkValidity()) {
-                        if (this.json_builder.isValid()) {
-                            if (type == 'theme') {
-                                // Assign theme values
-                                await this.data_controller.setThemeObject(websiteKey, themeKey, themeSet);
-                            } else {
-                                // Assign theme definition values
-                                await this.data_controller.setThemeDefinitionObject(websiteKey, themeKey, themeDefinitionKey, themeDefinitionSet);
+                            // get theme definitions
+                            let themeDefinitionExport = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, themeKey);
+                            for (let themeDefinition of themeDefinitionExport) {
+                                delete themeDefinition['themeDefinitionKey'];
                             }
-                            end();
+
+                            // Assign to export object
+                            Object.assign(exportObject, themeExport, {
+                                type: 'theme',
+                                themeDefinitions: themeDefinitionExport
+                            });
+                        } else {
+                            // Handle theme definition export
+                            let themeDefinitionExport = await this.data_controller.getThemeDefinition(websiteKey, themeKey, themeDefinitionKey);
+                            delete themeDefinitionExport['themeDefinitionKey'];
+
+                            // Assign to export object
+                            Object.assign(exportObject, themeDefinitionExport);
+                        }
+
+                        await this.download(JSON.stringify(exportObject), 'application/json', type + '_' + (type == 'theme'?themeKey:themeDefinitionKey) + '.json');
+                        exportButton.classList.remove('button-disabled');
+                        exportButton.querySelector('.button-text').innerHTML = 'Export';
+                    });
+
+                    // event for save button
+                    const form = this.element.querySelector('#theme-definition-edit-form');
+                    const saveButton = content.querySelector('#save-button');
+                    saveButton.addEventListener('click', async () => {
+                        saveButton.classList.add('button-disabled');
+                        saveButton.querySelector('.button-text').innerHTML = 'Saving...';
+
+                        const name = nameInput.value;
+                        const ccmUrl = ccmUrlInput.value;
+                        const ccmConfig = this.json_builder.getValue().json;
+
+                        let themeSet = {};
+                        let themeDefinitionSet = {};
+                        let overwriteObject = {
+                            name: name,
+                            ccmComponent: {
+                                url: ccmUrl,
+                                config: ccmConfig
+                            }
+                        };
+                        if (type == 'theme') {
+                            // Assign theme values
+                            Object.assign(themeSet, theme, overwriteObject);
+                        } else {
+                            // Assign theme definition values
+                            Object.assign(themeDefinitionSet, themeDefinition, overwriteObject);
+                        }
+
+                        let end = () => {
+                            $.remove(loader);
+                            saveButton.classList.remove('button-disabled');
+                            saveButton.querySelector('.button-text').innerHTML = 'Save';
+                        };
+                        if (form.checkValidity()) {
+                            if (this.json_builder.isValid()) {
+                                if (type == 'theme') {
+                                    // Assign theme values
+                                    await this.data_controller.setThemeObject(websiteKey, themeKey, themeSet);
+                                } else {
+                                    // Assign theme definition values
+                                    await this.data_controller.setThemeDefinitionObject(websiteKey, themeKey, themeDefinitionKey, themeDefinitionSet);
+                                }
+                                end();
+                            } else {
+                                end();
+                                alert('Please check your entered ccm config json data!');
+                            }
                         } else {
                             end();
-                            alert('Please check your entered ccm config json data!');
+                            form.reportValidity();
                         }
-                    } else {
-                        end();
-                        form.reportValidity();
-                    }
-                });
+                    });
+                } else {
+                    this.routing.navigateTo('/theme-definitions');
+                }
             };
 
             /**
