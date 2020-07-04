@@ -47,6 +47,8 @@
 
                 if (website != null) {
                     this.routing.registerRoutingCallback(async (detail) => {
+                        this.cleanup404();
+
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
                             const url = detail.url.substring(website.baseUrl.length - 1);
