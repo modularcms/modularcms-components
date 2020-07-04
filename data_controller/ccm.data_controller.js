@@ -276,7 +276,7 @@
                                                     'themeDefinitionKey': rowWithColumnsDefinitionKey
                                                 },
                                                 contentZones: {
-                                                    'zone1': [
+                                                    'column1': [
                                                         {
                                                             'type': 'header',
                                                             'data': {
@@ -300,9 +300,6 @@
                                 }
                             ]
                         },
-                        blocks: [ // TODO
-
-                        ],
                         changeLog: []
                     };
                     const pageKey = await this.createPage(websiteKey, startPage);
