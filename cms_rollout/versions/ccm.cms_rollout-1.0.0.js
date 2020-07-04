@@ -11,6 +11,8 @@
 
         name: 'cms_rollout',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
@@ -32,14 +34,13 @@
             };
 
             let currentContent = '';
-            let website = null;
 
             /**
              * Component start closure
              * @returns {Promise<void>}
              */
             this.start = async () => {
-                website = await this.data_controller.getWebsiteFromDomain(window.location.hostname);
+                const website = await this.data_controller.getWebsiteFromDomain(window.location.hostname);
 
                 // Add base head tag
                 let base = document.createElement('base');
@@ -104,9 +105,7 @@
             };
 
             this.render404 = () => {
-                $.setContent(this.element, $.html(this.html.error404, {
-                    baseUrl: website.baseUrl
-                }));
+                $.setContent(this.element, $.html(this.html.error404, {}));
             }
         }
     };
