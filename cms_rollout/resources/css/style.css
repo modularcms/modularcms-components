@@ -1,0 +1,8 @@
+#error404 {
+    text-align: center;
+}
+
+#error404 img {
+    width: 75%;
+    max-width: 1000px;
+}

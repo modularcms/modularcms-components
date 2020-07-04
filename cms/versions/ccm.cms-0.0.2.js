@@ -3,9 +3,6 @@
  * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  * @version latest (1.0.0)
- * @changes
- * version 1.0.0 (17.05.2020)
- * - initial commit
  */
 
 ( () => {
@@ -19,26 +16,14 @@
     ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
     config: {
-      //    "add_version": true,
-      //    "analytics": [ "ccm.component", "https://ccmjs.github.io/akless-components/dms_analytics/versions/ccm.dms_analytics-1.1.0.js" ],
-      //    "app_manager": [ "ccm.component", "https://ccmjs.github.io/akless-components/app_manager/versions/ccm.app_manager-2.0.1.js" ],
-      // "apps": [ "ccm.store", { "name": "dms-apps", "url": "https://ccm2.inf.h-brs.de" } ],
       "css": [ "ccm.load",
         "https://modularcms.github.io/modularcms-components/cms/resources/css/colors.css",
         "https://modularcms.github.io/modularcms-components/cms/resources/css/style.css",
         "https://modularcms.github.io/modularcms-components/cms/resources/css/global.css"
       ],
-      //    "component_manager": [ "ccm.component", "https://ccmjs.github.io/akless-components/component_manager/versions/ccm.component_manager-3.4.1.js" ],
-      // "components": [ "ccm.store", { "name": "dms-components", "url": "https://ccm2.inf.h-brs.de" } ],
-      //    "default_icon": "https://modularcms.github.io/modularcms-components/cms/resources/img/default.png",
-      //    "form": [ "ccm.component", "https://ccmjs.github.io/akless-components/submit/versions/ccm.submit-8.1.1.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/submit/resources/configs.js", "component_meta" ] ],
       "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
       "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cms/resources/html/cms.html" ],
-      //    "lang": [ "ccm.instance", "https://ccmjs.github.io/tkless-components/lang/versions/ccm.lang-1.0.0.js" ],
-      //    "listing": { "apps": [ "ccm.component", ... ], "components": [ "ccm.component", ... ] },
-      //    "logger": [ "ccm.instance", "https://ccmjs.github.io/akless-components/log/versions/ccm.log-5.0.0.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/log/resources/configs.js", "greedy" ] ],
       "logo": "https://modularcms.github.io/modularcms-components/cms/resources/img/logo.svg",
-      //    "rating": { "apps": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] }, { "components": { "component": [ "ccm.component", ... ], "store": [ "ccm.store", ... ] } },
       "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
       "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
       "user": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user/versions/ccm.user-10.0.0.js" ],
@@ -61,7 +46,6 @@
 
       this.ready = async () => {
         $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
-        this.logger && this.logger.log( 'ready', $.privatize( this, true ) );  // logging of 'ready' event
       };
 
       let content;
