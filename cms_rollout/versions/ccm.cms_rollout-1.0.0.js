@@ -62,6 +62,7 @@
                                     // Set page title
                                     let title = document.createElement('title');
                                     title.innerHTML = page.title;
+                                    document.head.appendChild(title);
 
                                     // Add meta head tags
                                     let addMeta = (name, content) => {
