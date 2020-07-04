@@ -84,5 +84,37 @@
     </div>
 </ccm-template>
 <ccm-template key="editPage">
-    Hello
+    <form id="page-edit-form" class="edit-container" action="#">
+        <div class="edit-head-wrapper">
+            <div class="edit-head">
+                <div class="edit-head-title"><input type="text" id="theme-definition-edit-name" /></div>
+                <div id="save-button" class="button button-primary button-responsive-hide-text button-disabled">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg" />
+                    <div class="button-text">Save</div>
+                </div>
+                <div id="publish-button" class="button button-primary button-responsive-hide-text button-disabled">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/megaphone-icon.svg" />
+                    <div class="button-text">Publish</div>
+                </div>
+            </div>
+            <div class="edit-menu">
+                <div class="menu-item active">Content</div>
+                <div class="menu-item">Layout</div>
+                <div class="menu-item">Details</div>
+                <!--<div class="menu-item active">Teaser</div>-->
+                <div class="menu-item">History</div>
+            </div>
+        </div>
+        <div class="edit-content" id="edit-content"></div>
+        <div class="edit-content" id="edit-layout">
+            <div>
+                <label for="theme-definition-edit-ccm-component-url">Url to the ccm based component to work with</label>
+                <input type="url" id="theme-definition-edit-ccm-component-url" required="" pattern="https://.+[.]js" />
+            </div>
+            <div>
+                <label for="theme-definition-edit-ccm-component-config">ccm component config in the JSON format</label>
+                <div id="theme-definition-edit-ccm-component-config"></div>
+            </div>
+        </div>
+    </form>
 </ccm-template>

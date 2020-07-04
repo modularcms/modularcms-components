@@ -21,7 +21,8 @@
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
             "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
-            "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ]
+            "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
+            "pageRendererUrl": "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js"
         },
 
         Instance: function () {
@@ -136,7 +137,24 @@
              * @returns {Promise<void>}
              */
             this.renderEdit = async (pageKey) => {
-                $.setContent(this.element, $.html(this.html.editPage, {}));
+                const loader = $.html(this.html.loader, {});
+                $.append(this.element.querySelector('.edit-container'), loader);
+
+                const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+                const page = await this.data_controller.getPage(websiteKey, pageKey);
+
+
+                const content = $.html(this.html.editPage, {});
+                $.setContent(this.element, content);
+
+                $.append(content.querySelector('#edit-content'), loader);
+                const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
+                    websiteKey: websiteKey,
+                    page: page,
+                    parent: this
+                });
+                $.setContent(content.querySelector('#edit-content'), pageRenderer.root);
+
             };
 
             /**

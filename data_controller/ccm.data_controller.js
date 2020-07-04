@@ -235,16 +235,16 @@
                     const themeKey = await this.createTheme(websiteKey, standardTheme);
 
                     // Create standard theme definitions
-                    let landingPageDefinitionKey = null;
-                    let rowWithColumnsDefinitionKey = null;
+                    let plainLayoutDefinitionKey = null;
+                    let rowWithColumnsLayoutDefinitionKey = null;
                     for (let themeDefinition of themeImportObject.themeDefinitions) {
                         const definition = await getObject(themeDefinition);
                         const definitionKey = await this.createThemeDefinition(websiteKey, themeKey, definition);
-                        if (definition.name == 'Landing page') {
-                            landingPageDefinitionKey = definitionKey;
+                        if (definition.name == 'Plain') {
+                            plainLayoutDefinitionKey = definitionKey;
                         }
                         if (definition.name == 'Row with columns') {
-                            rowWithColumnsDefinitionKey = definitionKey;
+                            rowWithColumnsLayoutDefinitionKey = definitionKey;
                         }
                     }
 
@@ -265,7 +265,7 @@
                                     'type': 'themeDefinition',
                                     'data': {
                                         'themeDefinitionType': 'layout',
-                                        'themeDefinitionKey': landingPageDefinitionKey
+                                        'themeDefinitionKey': plainLayoutDefinitionKey
                                     },
                                     contentZones: {
                                         'main': [
@@ -273,7 +273,7 @@
                                                 'type': 'themeDefinition',
                                                 'data': {
                                                     'themeDefinitionType': 'block',
-                                                    'themeDefinitionKey': rowWithColumnsDefinitionKey
+                                                    'themeDefinitionKey': rowWithColumnsLayoutDefinitionKey
                                                 },
                                                 contentZones: {
                                                     'column1': [

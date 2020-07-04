@@ -552,6 +552,7 @@ input[type="submit"], button {
     margin-top: 10px;
     border: 1px solid #c4c4c4;
     z-index: 1001;
+    position: relative;
 }
 
 .edit-head-title input[type="text"] {

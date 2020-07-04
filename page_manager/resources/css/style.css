@@ -19,7 +19,12 @@
     margin-bottom: 10px;
 }
 
-#save-button {
+#save-button, #publish-button {
     margin-left: 10px;
     cursor: pointer;
+}
+
+#edit-content {
+    padding: 0px;
+    overflow: auto;
 }
