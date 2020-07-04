@@ -20,7 +20,7 @@
                 // detect and prevent clicks to a tags
                 this.parent.element.addEventListener('click', (e) => {
                     //let target = e.target;
-                    for (element of e.path) {
+                    for (let element of e.path) {
                         if (element.tagName.toLowerCase() == 'a') {
                             let href = element.getAttribute('href');
                             if (href != null && href.indexOf('/') == 0) {
