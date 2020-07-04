@@ -11,15 +11,14 @@
 
         name: 'cms_rollout',
 
-        version: [1, 0, 0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cms_rollout/resources/html/templates.html" ],
             "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cms_rollout/resources/css/style.css" ],
             "helper": ["ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs"],
-            "routing": ["ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", ["ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing"]],
+            "routing": ["ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js"],
+            "routing_sensor": ["ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js"],
             "data_controller": ["ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js"],
             "pageRendererUrl": "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js"
         },
@@ -34,13 +33,14 @@
             };
 
             let currentContent = '';
+            let website = null;
 
             /**
              * Component start closure
              * @returns {Promise<void>}
              */
             this.start = async () => {
-                const website = await this.data_controller.getWebsiteFromDomain(window.location.hostname);
+                website = await this.data_controller.getWebsiteFromDomain(window.location.hostname);
 
                 // Add base head tag
                 let base = document.createElement('base');
@@ -105,7 +105,9 @@
             };
 
             this.render404 = () => {
-                $.setContent(this.element, $.html(this.html.error404, {}));
+                $.setContent(this.element, $.html(this.html.error404, {
+                    baseUrl: website.baseUrl
+                }));
             }
         }
     };
