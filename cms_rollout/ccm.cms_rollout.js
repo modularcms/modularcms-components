@@ -31,7 +31,9 @@
                 $ = Object.assign({}, this.ccm.helper, this.helper);                 // set shortcut to help functions
             };
 
-            let currentContent = '';
+            let currentContent = null;
+
+            let pageRenderer = null;
 
             /**
              * Component start closure
@@ -67,11 +69,18 @@
                                     this.setMeta('robots', page.meta.robots ? 'index, follow' : 'noindex, nofollow');
 
                                     // render page
-                                    const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
+                                    const config = {
                                         parent: this,
                                         websiteKey: website.websiteKey,
                                         page: page
-                                    });
+                                    };
+
+                                    if (pageRenderer == null) {
+                                        pageRenderer = await this.ccm.start(this.pageRendererUrl, config);
+                                    } else {
+                                        await pageRenderer.update(config);
+                                    }
+
                                     $.setContent(this.element, $.html(this.html.main, {}));
                                     $.setContent(this.element.querySelector('#page-renderer-container'), pageRenderer.root);
                                 }
@@ -90,6 +99,7 @@
             };
 
             this.render404 = () => {
+                currentContent = null;
                 this.setTitle('Page not found.');
                 this.setMeta('description', '');
                 this.setMeta('keywords', '');
