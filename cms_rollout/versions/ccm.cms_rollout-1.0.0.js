@@ -73,6 +73,7 @@
                                     websiteKey: website.websiteKey,
                                     page: page
                                 });
+                                $.setContent(this.element, pageRenderer.root);
                             } else {
                                 // render 404
                                 // TODO 404

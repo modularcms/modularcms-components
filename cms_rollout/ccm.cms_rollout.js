@@ -1,11 +1,8 @@
 /**
- * @overview ccm component for modularcms backend
+ * @overview ccm component for rollout of modularcms pages
  * @author Felix Bröhl <broehl@everoo.io> 2020
  * @license The MIT License (MIT)
  * @version latest (1.0.0)
- * @changes
- * version 1.0.0 (17.05.2020)
- * - initial commit
  */
 
 ( () => {
@@ -13,8 +10,6 @@
     const component = {
 
         name: 'cms_rollout',
-
-        version: [1, 0, 0],
 
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
@@ -76,6 +71,7 @@
                                     websiteKey: website.websiteKey,
                                     page: page
                                 });
+                                $.setContent(this.element, pageRenderer.root);
                             } else {
                                 // render 404
                                 // TODO 404
