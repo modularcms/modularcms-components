@@ -73,7 +73,8 @@
                                         websiteKey: website.websiteKey,
                                         page: page
                                     });
-                                    $.setContent(this.element, pageRenderer.root);
+                                    $.setContent(this.element, $.html(this.html.main, {}));
+                                    $.setContent(this.element.querySelector('#page-renderer-container'), pageRenderer.root);
                                 }
                             } else {
                                 // render 404
@@ -94,7 +95,8 @@
                 this.setMeta('description', '');
                 this.setMeta('keywords', '');
                 this.setMeta('robots', 'noindex, nofollow');
-                $.setContent(this.element, $.html(this.html.error404, {}));
+                $.setContent(this.element, $.html(this.html.main, {}));
+                $.setContent(this.element.querySelector('#page-renderer-container'), $.html(this.html.error404, {}));
             }
 
             this.setTitle = (title) => {
