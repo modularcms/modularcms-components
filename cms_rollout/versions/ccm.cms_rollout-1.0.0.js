@@ -52,7 +52,6 @@
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
                             const url = detail.url.substring(website.baseUrl.length - 1);
-                            console.log(url);
 
                             // get page
                             const page = await this.data_controller.getPageByUrl(website.websiteKey, url, true);
@@ -66,7 +65,7 @@
                                         title = document.createElement('title');
                                         document.head.appendChild(title);
                                     }
-                                    title.innerHTML = page.title;
+                                    title.innerText = page.title;
 
                                     // Add meta head tags
                                     let addMeta = (name, content) => {
