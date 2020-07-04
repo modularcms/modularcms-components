@@ -68,9 +68,9 @@
                                         meta.setAttribute('content', content);
                                         document.head.appendChild(meta);
                                     };
-                                    addMeta('description', this.page.description);
-                                    addMeta('keywords', this.page.keywords);
-                                    addMeta('robots', this.page.robots ? 'index, follow' : 'noindex, nofollow');
+                                    addMeta('description', this.page.meta.description);
+                                    addMeta('keywords', this.page.meta.keywords);
+                                    addMeta('robots', this.page.meta.robots ? 'index, follow' : 'noindex, nofollow');
 
                                     // render page
                                     const pageRenderer = await this.ccm.start(this.pageRendererUrl, {

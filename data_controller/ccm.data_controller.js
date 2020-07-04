@@ -1313,11 +1313,11 @@
                     });
 
                     // Create/update link in parent children table
-                    const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageBefore.parentKey);
+                    const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, publishedPageBefore.parentKey);
                     if (publishedPageBefore != null && publishedPageBefore.parentKey !== undefined) {
                         await websitePageChildrenDataStore.del(pageKey + '_live');
                     }
-                    if (pageObject.parentKey !== undefined) {
+                    if (page.parentKey !== undefined) {
                         await websitePageChildrenDataStore.set({
                             key: pageKey + '_live',
                             value: null,
