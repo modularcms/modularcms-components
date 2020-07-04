@@ -31,7 +31,6 @@
                 this.logger && this.logger.log('ready', $.privatize(this, true));  // logging of 'ready' event
             };
 
-            let content;
             let currentContent = '';
 
             /**
@@ -50,33 +49,37 @@
                             // get page
                             const page = await this.data_controller.getPageByUrl(website.websiteKey, url);
                             if (page != null) {
-                                // Add base head tag
-                                let base = document.createElement('base');
-                                base.setAttribute('href', website.baseUrl);
-                                document.head.appendChild(base);
+                                if (currentContent != url) {
+                                    currentContent = url;
 
-                                // Set page title
-                                let title = document.createElement('title');
-                                title.innerHTML = page.title;
+                                    // Add base head tag
+                                    let base = document.createElement('base');
+                                    base.setAttribute('href', website.baseUrl);
+                                    document.head.appendChild(base);
 
-                                // Add meta head tags
-                                let addMeta = (name, content) => {
-                                    let meta = document.createElement('meta');
-                                    meta.setAttribute('name', name);
-                                    meta.setAttribute('content', content);
-                                    document.head.appendChild(meta);
-                                };
-                                addMeta('description', this.page.description);
-                                addMeta('keywords', this.page.keywords);
-                                addMeta('robots', this.page.robots ? 'index, follow' : 'noindex, nofollow');
+                                    // Set page title
+                                    let title = document.createElement('title');
+                                    title.innerHTML = page.title;
 
-                                // render page
-                                const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
-                                    parent: this,
-                                    websiteKey: website.websiteKey,
-                                    page: page
-                                });
-                                $.setContent(this.element, pageRenderer.root);
+                                    // Add meta head tags
+                                    let addMeta = (name, content) => {
+                                        let meta = document.createElement('meta');
+                                        meta.setAttribute('name', name);
+                                        meta.setAttribute('content', content);
+                                        document.head.appendChild(meta);
+                                    };
+                                    addMeta('description', this.page.description);
+                                    addMeta('keywords', this.page.keywords);
+                                    addMeta('robots', this.page.robots ? 'index, follow' : 'noindex, nofollow');
+
+                                    // render page
+                                    const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
+                                        parent: this,
+                                        websiteKey: website.websiteKey,
+                                        page: page
+                                    });
+                                    $.setContent(this.element, pageRenderer.root);
+                                }
                             } else {
                                 // render 404
                                 this.render404();
