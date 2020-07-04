@@ -90,7 +90,7 @@
                             // render 404
                             this.render404();
                         }
-                    }, 'cms_deploy');
+                    }, 'cms_rollout');
                 } else {
                     alert('This site was not registered for modularcms.');
                 }
