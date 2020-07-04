@@ -738,7 +738,6 @@
 
                 // Update published pages without publishing the current draft
                 for (let page of pages.filter(item => /_live$/.test(item.pageKey))) {
-                    // TODO Update page publish
                     const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                     let pageCopy = {};
                     Object.assign(pageCopy, page)
@@ -751,7 +750,7 @@
                     });
 
                     // Update page url mapping
-                    const pageUrl = await this.getFullPageUrl(websiteKey, page.pageKey.replace('_live', ''));
+                    const pageUrl = await this.getFullPageUrl(websiteKey, page.pageKey);
                     if (pageUrl != null) {
                         const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
                         const mapping = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
