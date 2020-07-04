@@ -80,7 +80,7 @@
                                     if (pageRenderer == null) {
                                         pageRenderer = await this.ccm.start(this.pageRendererUrl, config);
                                     } else {
-                                        await pageRenderer.update(config);
+                                        await pageRenderer.start(config);
                                     }
 
                                     $.setContent(this.element, $.html(this.html.main, {}));
