@@ -49,8 +49,6 @@
 
                 if (website != null) {
                     this.routing.registerRoutingCallback(async (detail) => {
-                        this.cleanup404();
-
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
                             const url = detail.url.substring(website.baseUrl.length - 1);
@@ -107,24 +105,7 @@
             };
 
             this.render404 = () => {
-                let metaStatus = document.head.querySelector('meta[http-equiv="Status"]');
-                let setMetaStatusAttributes = () => {
-                    metaStatus.setAttribute('http-equiv', 'Status');
-                    metaStatus.setAttribute('content', '404');
-                };
-                if (metaStatus == null) {
-                    metaStatus = document.createElement('meta');
-                    setMetaStatusAttributes();
-                    document.head.appendChild(metaStatus);
-                } else {
-                    setMetaStatusAttributes();
-                }
                 $.setContent(this.element, $.html(this.html.error404, {}));
-            }
-
-            this.cleanup404 = () => {
-                const metaStatus = document.head.querySelector('meta[http-equiv="Status"]');
-                $.remove(metaStatus);
             }
         }
     };
