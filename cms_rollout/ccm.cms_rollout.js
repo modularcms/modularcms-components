@@ -39,6 +39,12 @@
              */
             this.start = async () => {
                 const website = await this.data_controller.getWebsiteFromDomain(window.location.hostname);
+
+                // Add base head tag
+                let base = document.createElement('base');
+                base.setAttribute('href', website.baseUrl);
+                document.head.appendChild(base);
+
                 if (website != null) {
                     this.routing.registerRoutingCallback(async (detail) => { // TODO routing entry point
                         // routing entrypoint
@@ -52,22 +58,23 @@
                                 if (currentContent != url) {
                                     currentContent = url;
 
-                                    // Add base head tag
-                                    let base = document.createElement('base');
-                                    base.setAttribute('href', website.baseUrl);
-                                    document.head.appendChild(base);
-
                                     // Set page title
-                                    let title = document.createElement('title');
+                                    let title = document.head.querySelector('title');
+                                    if (title == null) {
+                                        title = document.createElement('title');
+                                        document.head.appendChild(title);
+                                    }
                                     title.innerHTML = page.title;
-                                    document.head.appendChild(title);
 
                                     // Add meta head tags
                                     let addMeta = (name, content) => {
-                                        let meta = document.createElement('meta');
+                                        let meta = document.head.querySelector('meta[name="' + name + '"]');
+                                        if (meta == null) {
+                                            meta = document.createElement('meta');
+                                            document.head.appendChild(meta);
+                                        }
                                         meta.setAttribute('name', name);
                                         meta.setAttribute('content', content);
-                                        document.head.appendChild(meta);
                                     };
                                     addMeta('description', page.meta.description);
                                     addMeta('keywords', page.meta.keywords);
