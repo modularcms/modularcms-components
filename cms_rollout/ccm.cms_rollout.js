@@ -47,7 +47,7 @@
                             console.log(url);
 
                             // get page
-                            const page = await this.data_controller.getPageByUrl(website.websiteKey, url);
+                            const page = await this.data_controller.getPageByUrl(website.websiteKey, url, true);
                             if (page != null) {
                                 if (currentContent != url) {
                                     currentContent = url;
