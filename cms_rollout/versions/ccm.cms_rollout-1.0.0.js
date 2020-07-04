@@ -29,7 +29,6 @@
 
             this.ready = async () => {
                 $ = Object.assign({}, this.ccm.helper, this.helper);                 // set shortcut to help functions
-                this.logger && this.logger.log('ready', $.privatize(this, true));  // logging of 'ready' event
             };
 
             let currentContent = '';
@@ -48,7 +47,7 @@
                 document.head.appendChild(base);
 
                 if (website != null) {
-                    this.routing.registerRoutingCallback(async (detail) => { // TODO routing entry point
+                    this.routing.registerRoutingCallback(async (detail) => {
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
                             const url = detail.url.substring(website.baseUrl.length - 1);
