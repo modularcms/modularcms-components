@@ -60,26 +60,12 @@
                                     currentContent = url;
 
                                     // Set page title
-                                    let title = document.head.querySelector('title');
-                                    if (title == null) {
-                                        title = document.createElement('title');
-                                        document.head.appendChild(title);
-                                    }
-                                    title.innerText = page.title;
+                                    this.setTitle(page.title)
 
                                     // Add meta head tags
-                                    let addMeta = (name, content) => {
-                                        let meta = document.head.querySelector('meta[name="' + name + '"]');
-                                        if (meta == null) {
-                                            meta = document.createElement('meta');
-                                            document.head.appendChild(meta);
-                                        }
-                                        meta.setAttribute('name', name);
-                                        meta.setAttribute('content', content);
-                                    };
-                                    addMeta('description', page.meta.description);
-                                    addMeta('keywords', page.meta.keywords);
-                                    addMeta('robots', page.meta.robots ? 'index, follow' : 'noindex, nofollow');
+                                    this.setMeta('description', page.meta.description);
+                                    this.setMeta('keywords', page.meta.keywords);
+                                    this.setMeta('robots', page.meta.robots ? 'index, follow' : 'noindex, nofollow');
 
                                     // render page
                                     const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
@@ -104,8 +90,31 @@
             };
 
             this.render404 = () => {
+                this.setTitle('Page not found.');
+                this.setMeta('description', '');
+                this.setMeta('keywords', '');
+                this.setMeta('robots', 'noindex, nofollow');
                 $.setContent(this.element, $.html(this.html.error404, {}));
             }
+
+            this.setTitle = (title) => {
+                let titleElement = document.head.querySelector('title');
+                if (titleElement == null) {
+                    titleElement = document.createElement('title');
+                    document.head.appendChild(titleElement);
+                }
+                titleElement.innerText = title;
+            }
+
+            this.setMeta = (name, content) => {
+                let meta = document.head.querySelector('meta[name="' + name + '"]');
+                if (meta == null) {
+                    meta = document.createElement('meta');
+                    document.head.appendChild(meta);
+                }
+                meta.setAttribute('name', name);
+                meta.setAttribute('content', content);
+            };
         }
     };
 
