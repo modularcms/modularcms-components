@@ -144,8 +144,11 @@
              */
             this.getWebsiteFromDomain = async (domain) => {
                 let storeGet = await this.domains_websites_mapping.get(this.hash.md5(domain));
-                let re = this.getWebsite(storeGet.value);
-                return re;
+                if (storeGet != null) {
+                    let re = this.getWebsite(storeGet.value);
+                    return re;
+                }
+                return null;
             };
 
             /**
