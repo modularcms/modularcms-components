@@ -171,7 +171,12 @@
           }
         }, this.index);
         window.addEventListener('selectedWebsiteChanged', async () => {
-          this.routing.changeUrl(window.location.pathname, true);
+          const newUrl = window.location.pathname.split('/').filter((item, index) => index <= 1).join('/');
+          if (newUrl != window.location.pathname) {
+            this.routing.navigateTo(newUrl);
+          } else {
+            this.routing.changeUrl(newUrl, true);
+          }
           await this.renderMenu();
         })
 
