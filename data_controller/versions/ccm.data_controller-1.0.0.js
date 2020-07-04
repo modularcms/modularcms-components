@@ -1291,6 +1291,7 @@
             this.publishPage = (websiteKey, pageKey, commitMessage = false) => new Promise(async (resolve, reject) => {
                 const username = await this.getCurrentWorkingUsername();
                 const user = await this.getWebsiteUser(websiteKey, username);
+                const publishedPageBefore = this.getPage(websiteKey, pageKey + '_live');
                 const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey);
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let page = await this.getPage(websiteKey, pageKey);
@@ -1314,6 +1315,19 @@
                         _: await this.getPagePublishPermissions(websiteKey)
                     });
 
+                    // Create/update link in parent children table
+                    const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageBefore.parentKey);
+                    if (publishedPageBefore != null && publishedPageBefore.parentKey !== undefined) {
+                        await websitePageChildrenDataStore.del(pageKey + '_live');
+                    }
+                    if (pageObject.parentKey !== undefined) {
+                        await websitePageChildrenDataStore.set({
+                            key: pageKey + '_live',
+                            value: null,
+                            _: await this.getPagePermissions(websiteKey)
+                        });
+                    }
+
                     // Set/update page url mapping
                     const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, true);
                     const pageUrl = await this.getFullPageUrl(websiteKey, pageKey);
@@ -1322,7 +1336,7 @@
                     }
                     await websitePageUrlMappingDataStore.set({
                         key: this.hash.md5(pageUrl),
-                        value: pageKey,
+                        value: pageKey + '_live',
                         _: await this.getPagePublishPermissions(websiteKey)
                     });
                     resolve();
