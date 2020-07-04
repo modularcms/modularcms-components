@@ -1027,9 +1027,12 @@
             this.getPageByUrl = async (websiteKey, pageUrl) => {
                 const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                 const pageUrlMappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
-                const pageKey = pageUrlMappingGet.value;
-                const page = this.getPage(websiteKey, pageKey);
-                return page;
+                if (pageUrlMappingGet != null) {
+                    const pageKey = pageUrlMappingGet.value;
+                    const page = this.getPage(websiteKey, pageKey);
+                    return page;
+                }
+                return null;
             }
 
             /**
