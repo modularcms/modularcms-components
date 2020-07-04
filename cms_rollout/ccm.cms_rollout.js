@@ -44,8 +44,11 @@
                     this.routing.registerRoutingCallback(async (detail) => { // TODO routing entry point
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
+                            const url = website.baseUrl.substring(website.baseUrl.length - 1);
+                            console.log(url);
+
                             // get page
-                            const page = await this.data_controller.getPageByUrl(website.websiteKey, detail.url);
+                            const page = await this.data_controller.getPageByUrl(website.websiteKey, url);
                             if (page != null) {
                                 // Add base head tag
                                 let base = document.createElement('base');
