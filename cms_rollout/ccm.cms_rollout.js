@@ -45,11 +45,11 @@
                         // routing entrypoint
                         if (detail.url.indexOf(website.baseUrl) == 0) {
                             // get page
-                            const page = await this.data_controller.getPageByUrl(detail.url);
+                            const page = await this.data_controller.getPageByUrl(website.websiteKey, detail.url);
                             if (page != null) {
                                 // Add base head tag
                                 let base = document.createElement('base');
-                                base.setAttribute('href', website.entryPoint);
+                                base.setAttribute('href', website.baseUrl);
                                 document.head.appendChild(base);
 
                                 // Set page title
