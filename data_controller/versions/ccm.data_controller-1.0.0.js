@@ -242,10 +242,10 @@
                     for (let themeDefinition of themeImportObject.themeDefinitions) {
                         const definition = await getObject(themeDefinition);
                         const definitionKey = await this.createThemeDefinition(websiteKey, themeKey, definition);
-                        if (definition.name = 'Landing page') {
+                        if (definition.name == 'Landing page') {
                             landingPageDefinitionKey = definitionKey;
                         }
-                        if (definition.name = 'Row with columns') {
+                        if (definition.name == 'Row with columns') {
                             rowWithColumnsDefinitionKey = definitionKey;
                         }
                     }
