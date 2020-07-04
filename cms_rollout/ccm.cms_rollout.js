@@ -76,17 +76,21 @@
                                 $.setContent(this.element, pageRenderer.root);
                             } else {
                                 // render 404
-                                // TODO 404
+                                this.render404();
                             }
                         } else {
                             // render 404
-                            // TODO 404
+                            this.render404();
                         }
                     }, 'cms_deploy');
                 } else {
                     alert('This site was not registered for modularcms.');
                 }
             };
+
+            this.render404 = () => {
+                $.setContent(this.element, $.html(this.html.error404, {}));
+            }
         }
     };
 
