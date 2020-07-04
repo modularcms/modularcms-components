@@ -42,7 +42,7 @@
                 // Add routing
                 await this.routing.registerRoutingCallback(async (detail) => {
                     // Make sure that user has the permissions
-                    if (await this.data_controller.getUserWebsiteRole(await this.data_controller.getCurrentWorkingUsername(), await this.getSelectedWebsiteKey()) != 'admin') {
+                    if (await this.data_controller.getUserWebsiteRole(await this.data_controller.getCurrentWorkingUsername(), await this.data_controller.getSelectedWebsiteKey()) != 'admin') {
                         this.routing.navigateTo('/pages');
                         return;
                     }
