@@ -45,7 +45,7 @@
                 if (website != null) {
                     this.routing.registerRoutingCallback(async (detail) => { // TODO routing entry point
                         // routing entrypoint
-                        if (detail.url.indexOf(website.entryPoint) == 0) {
+                        if (detail.url.indexOf(website.baseUrl) == 0) {
                             // get page
                             const page = await this.data_controller.getPageByUrl(detail.url);
                             if (page != null) {
