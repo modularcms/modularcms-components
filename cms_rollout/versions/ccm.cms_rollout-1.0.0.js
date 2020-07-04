@@ -105,7 +105,24 @@
             };
 
             this.render404 = () => {
+                let metaStatus = document.head.querySelector('meta[http-equiv="Status"]');
+                let setMetaStatusAttributes = () => {
+                    metaStatus.setAttribute('http-equiv', 'Status');
+                    metaStatus.setAttribute('content', '404');
+                };
+                if (metaStatus == null) {
+                    metaStatus = document.createElement('meta');
+                    setMetaStatusAttributes();
+                    document.head.appendChild(metaStatus);
+                } else {
+                    setMetaStatusAttributes();
+                }
                 $.setContent(this.element, $.html(this.html.error404, {}));
+            }
+
+            this.cleanup404 = () => {
+                const metaStatus = document.head.querySelector('meta[http-equiv="Status"]');
+                $.remove(metaStatus);
             }
         }
     };
