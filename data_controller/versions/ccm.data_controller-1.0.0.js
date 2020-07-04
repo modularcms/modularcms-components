@@ -730,7 +730,7 @@
                     if (pageUrl != null) {
                         const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                         const mapping = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
-                        mapping._ =  await this.getPagePublishPermissions(websiteKey);
+                        mapping._ =  await this.getPagePermissions(websiteKey);
                         await websitePageUrlMappingDataStore.set(mapping);
                     }
                 }
@@ -1024,10 +1024,11 @@
              * Get page by page url
              * @param {string}  websiteKey  The website key
              * @param {string}  pageUrl     The page url
+             * @param {boolean} live        Specifies if the page mapping should be grabbed from the live data store
              * @returns {Promise<any>}
              */
-            this.getPageByUrl = async (websiteKey, pageUrl) => {
-                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+            this.getPageByUrl = async (websiteKey, pageUrl, live = false) => {
+                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, live);
                 const pageUrlMappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
                 if (pageUrlMappingGet != null) {
                     const pageKey = pageUrlMappingGet.value;
