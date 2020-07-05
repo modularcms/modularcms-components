@@ -29,25 +29,24 @@
 
             let _themeComponent = null;
             let _themeComponentUrl = null;
-
-            let theme = null;
+            let _theme = null;
 
 
             this.start = async () => {
-                if (theme == null || theme.themeKey != this.page.themeKey) {
-                    theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
+                if (_theme == null || _theme.themeKey != this.page.themeKey) {
+                    _theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
                 }
 
                 const themeConfig = {};
-                Object.assign(themeConfig, theme.ccmComponent.config, {
+                Object.assign(themeConfig, _theme.ccmComponent.config, {
                     parent: this,
                     contentZones: this.page.contentZones,
                     websiteKey: this.websiteKey,
                     page: this.page,
                     edit: this.edit
                 });
-                if (_themeComponent == null || _themeComponentUrl != theme.ccmComponent.url) {
-                    _themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
+                if (_themeComponent == null || _themeComponentUrl != _theme.ccmComponent.url) {
+                    _themeComponent = await this.ccm.start(_theme.ccmComponent.url, themeConfig);
                 } else {
                     Object.assign(_themeComponent, themeConfig);
                     _themeComponent.update();

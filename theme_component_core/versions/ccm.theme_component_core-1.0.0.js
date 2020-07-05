@@ -36,6 +36,8 @@
             let _contentZoneComponents = {};
             let _contentZoneElements = {};
 
+            let _themeDefinitions = {};
+
             /**
              *
              * @param html              The input html
@@ -73,7 +75,10 @@
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
                                 // init theme definition
-                                const themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
+                                if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
+                                    _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
+                                }
+                                const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
                                 if (themeDefinition) {
                                     let config = {};
                                     Object.assign(config, themeDefinition.ccmComponent.config, {
@@ -187,8 +192,7 @@
             this.checkIfZoneComponentAtIndexIsEqual = (zone, zoneComponent, index) => {
                 if (_contentZonesBefore[zone] !== undefined && _contentZonesBefore[zone][index] !== undefined) {
                     let getZoneComponentComparableData = (zoneComponent) => {
-                        let zoneComponentCopy = Object.assign({}, zoneComponent);
-                        zoneComponentCopy.data = Object.assign({}, zoneComponent.data);
+                        let zoneComponentCopy = $.clone(zoneComponent);
                         delete zoneComponentCopy['contentZones'];
                         delete zoneComponentCopy.data['config'];
                         return zoneComponentCopy;
