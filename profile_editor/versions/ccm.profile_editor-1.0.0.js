@@ -116,7 +116,12 @@
                     let end = () => {
                         $.remove(loader);
                         saveButton.classList.remove('button-disabled');
-                        saveButton.querySelector('.button-text').innerHTML = 'Save';
+                        saveButton.querySelector('.button-text').innerHTML = 'Saved';
+                        saveButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg';
+                        setTimeout(() => {
+                            saveButton.querySelector('.button-text').innerHTML = 'Save';
+                            saveButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg';
+                        }, 1500);
                     };
                     if (passwordInput.value != '' || passwordRepetitionInput.value != '') {
                         if (passwordInput.value == passwordRepetitionInput.value) {

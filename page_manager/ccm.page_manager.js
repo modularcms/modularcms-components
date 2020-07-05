@@ -163,6 +163,7 @@
                     });
                     $.setContent(this.element, content);
 
+                    // page preview
                     $.append(content.querySelector('#edit-content'), loader);
                     const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
                         websiteKey: websiteKey,
@@ -247,7 +248,12 @@
                                 // themeKey
                             });
                             let end = () => {
-                                saveButton.querySelector('.button-text').innerHTML = 'Save';
+                                saveButton.querySelector('.button-text').innerHTML = 'Saved';
+                                saveButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg';
+                                setTimeout(() => {
+                                    saveButton.querySelector('.button-text').innerHTML = 'Save';
+                                    saveButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg';
+                                }, 1500);
                             };
                             this.data_controller.setPageObject(websiteKey, pageKey, pageSet, 'Save page').then(() => {
                                 end();
@@ -266,7 +272,12 @@
                         publishButton.classList.add('button-disabled');
                         publishButton.querySelector('.button-text').innerHTML = 'Publishing...';
                         let end = () => {
-                            publishButton.querySelector('.button-text').innerHTML = 'Publish';
+                            publishButton.querySelector('.button-text').innerHTML = 'Published';
+                            publishButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg';
+                            setTimeout(() => {
+                                publishButton.querySelector('.button-text').innerHTML = 'Publish';
+                                publishButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg';
+                            }, 1500);
                         };
                         await this.data_controller.publishPage(websiteKey, pageKey, 'Publish page').then(() => {
                             end();
@@ -301,14 +312,13 @@
                 });
 
                 // render theme layout select
-                let uniqueItemIndex = 0;
                 for (let theme of websiteThemes) {
                     let optGroup = document.createElement('optgroup');
                     optGroup.label = theme.name;
 
                     //Load all theme definitions
                     let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, theme.themeKey);
-                    themeDefinitions = themeDefinitions.filter(item => item.type == 'layout')
+                    themeDefinitions = themeDefinitions.filter(item => item.type == 'layout');
                     themeDefinitions.sort((a, b) => {
                         if (a.name < b.name) {
                             return -1;
@@ -347,14 +357,30 @@
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
 
                 if (websiteKey != null) {
+                    // get layout definitions
+                    let themeLayoutNames = {};
+                    const websiteThemes = await this.data_controller.getAllThemesOfWebsite(websiteKey);
+                    for (let theme of websiteThemes) {
+                        themeLayoutNames[theme.themeKey] = {};
+
+                        // Load all theme definitions
+                        let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, theme.themeKey);
+                        themeDefinitions = themeDefinitions.filter(item => item.type == 'layout');
+                        for (let themeDefinition of themeDefinitions) {
+                            themeLayoutNames[theme.themeKey][themeDefinition.themeDefinitionKey] = themeDefinition.name;
+                        }
+                    }
+
                     let uniqueItemIndex = 0;
                     // Closure for adding a page item
                     const getPageListItemElement = async (page, depth = 0) => {
                         let pageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.pageKey);
+                        const layoutName = (themeLayoutNames[page.themeKey] != undefined && themeLayoutNames[page.themeKey][page.contentZones.layout[0].data.themeDefinitionKey] != undefined) ? themeLayoutNames[page.themeKey][page.contentZones.layout[0].data.themeDefinitionKey]: '!UNKNOWN LAYOUT!';
                         let itemWrapper = $.html(this.html.listItem, {
                             title: page.title,
                             urlName: pageUrl,
-                            pageKey: page.pageKey
+                            pageKey: page.pageKey,
+                            layoutTypeName: layoutName
                         });
                         const item = itemWrapper.querySelector('.list-item');
                         item.style.paddingLeft = ((depth * 20) + 15) + 'px';
