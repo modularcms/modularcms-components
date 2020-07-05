@@ -28,12 +28,13 @@
             let _themeComponent = null;
             let _themeComponentUrl = null;
 
-            this.start = async () => {
-                await this.update();
-            };
+            let theme = null;
 
-            this.update = async () => {
-                const theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
+
+            this.start = async () => {
+                if (theme != null && theme.themeKey != this.page.themeKey) {
+                    theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
+                }
 
                 const themeConfig = {};
                 Object.assign(themeConfig, theme.ccmComponent.config, {
@@ -50,7 +51,7 @@
                     _themeComponent.update();
                 }
                 $.setContent(this.element, _themeComponent.root);
-            }
+            };
         }
 
     };
