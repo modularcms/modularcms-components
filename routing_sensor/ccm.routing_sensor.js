@@ -19,13 +19,13 @@
                 this.parent.element.addEventListener('click', (e) => {
                     let target = e.target;
                     do {
-                        if (element.nodeType === 1 && element.tagName.toLowerCase() == 'a') {
-                            let href = element.getAttribute('href');
+                        if (target.nodeType === 1 && target.tagName.toLowerCase() == 'a') {
+                            let href = target.getAttribute('href');
                             if (href != null && href.indexOf('/') == 0) {
                                 e.preventDefault();
 
                                 //dispatch routing event
-                                var event = new CustomEvent("routingSensorWasTriggered", {
+                                const event = new CustomEvent("routingSensorWasTriggered", {
                                     detail: {
                                         href: href
                                     }
