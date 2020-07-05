@@ -90,7 +90,7 @@
                                         Object.assign(_contentZoneComponents[contentZoneName][i], config);
                                         _contentZoneComponents[contentZoneName][i].update();
                                     }
-                                    appendElement = component.root;
+                                    appendElement = _contentZoneComponents[contentZoneName][i].root;
                                 }
                             } else if (contentZoneItem.type == 'ccmComponent') {
                                 // init ccm component
@@ -111,7 +111,7 @@
                                     Object.assign(_contentZoneComponents[contentZoneName][i], config);
                                     _contentZoneComponents[contentZoneName][i].update();
                                 }
-                                appendElement = component.root;
+                                appendElement = _contentZoneComponents[contentZoneName][i].root;
                             } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
