@@ -171,7 +171,6 @@
                         // Append elements
                         contentZoneElement.innerHTML = '';
                         for (let appendElement of appendElements) {
-                            console.log(appendElements);
                             $.append(contentZoneElement, appendElement);
                         }
                     }
