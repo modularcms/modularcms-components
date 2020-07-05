@@ -607,7 +607,8 @@
                                     'type': 'themeDefinition',
                                     'data': {
                                         'themeDefinitionType': 'layout',
-                                        'themeDefinitionKey': layoutDefinitionKey
+                                        'themeDefinitionKey': layoutDefinitionKey,
+                                        'config': {}
                                     },
                                     contentZones: {
                                         'main': []

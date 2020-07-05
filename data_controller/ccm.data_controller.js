@@ -268,7 +268,8 @@
                                     'type': 'themeDefinition',
                                     'data': {
                                         'themeDefinitionType': 'layout',
-                                        'themeDefinitionKey': plainLayoutDefinitionKey
+                                        'themeDefinitionKey': plainLayoutDefinitionKey,
+                                        'config': {}
                                     },
                                     contentZones: {
                                         'main': [
@@ -276,7 +277,8 @@
                                                 'type': 'themeDefinition',
                                                 'data': {
                                                     'themeDefinitionType': 'block',
-                                                    'themeDefinitionKey': rowWithColumnsLayoutDefinitionKey
+                                                    'themeDefinitionKey': rowWithColumnsLayoutDefinitionKey,
+                                                    'config': {}
                                                 },
                                                 contentZones: {
                                                     'column1': [
