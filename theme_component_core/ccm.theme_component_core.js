@@ -156,6 +156,7 @@
                             // Remember element
                             _contentZoneElements[contentZoneName][i] = appendElement;
 
+                            console.log(appendElement);
                             if (appendElement != null) {
                                 appendElements.push(appendElement);
                             }
@@ -165,6 +166,7 @@
                         // Append elements
                         contentZoneElement.innerHTML = '';
                         for (let appendElement of appendElements) {
+                            console.log(appendElements);
                             $.append(contentZoneElement, appendElement);
                         }
                     }
