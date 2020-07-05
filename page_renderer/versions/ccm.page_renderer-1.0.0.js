@@ -17,6 +17,7 @@
         config: {
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+            "edit": false
         },
 
         Instance: function () {
@@ -30,6 +31,10 @@
             let _themeComponentUrl = null;
 
             this.start = async () => {
+                await this.update();
+            };
+
+            this.update = async () => {
                 const theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
 
                 const themeConfig = {};
@@ -37,16 +42,17 @@
                     parent: this,
                     contentZones: this.page.contentZones,
                     websiteKey: this.websiteKey,
-                    page: this.page
+                    page: this.page,
+                    edit: this.edit
                 });
                 if (_themeComponent == null || _themeComponentUrl != theme.ccmComponent.url) {
                     _themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
                 } else {
                     Object.assign(_themeComponent, themeConfig);
-                    _themeComponent.start();
+                    _themeComponent.update();
                 }
                 $.setContent(this.element, _themeComponent.root);
-            };
+            }
         }
 
     };

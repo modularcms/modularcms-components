@@ -15,6 +15,7 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
+            "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ]
         },
@@ -30,6 +31,11 @@
 
             };
 
+            let _contentZonesBefore = {};
+
+            let _contentZoneComponents = {};
+            let _contentZoneElements = {};
+
             /**
              *
              * @param html              The input html
@@ -42,6 +48,7 @@
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const contentZones = this.parent.contentZones || {};
+                const edit = this.parent.edit;
 
                 // Set content
                 $.setContent(element, $.html(html, htmlOptions));
@@ -55,7 +62,13 @@
                 for (let contentZoneName in contentZones) {
                     const contentZoneItems = contentZones[contentZoneName];
                     const contentZoneElement = element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]');
+                    if (_contentZoneElements[contentZoneName] !== undefined) {
+                        _contentZoneComponents[contentZoneName] = [];
+                        _contentZoneElements[contentZoneName] = [];
+                    }
                     if (contentZoneElement) {
+                        let i = 0;
+                        let appendElements = [];
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
@@ -67,9 +80,18 @@
                                         parent: this.parent,
                                         contentZones: contentZoneItem.contentZones,
                                         websiteKey: websiteKey,
-                                        page: page
+                                        page: page,
+                                        edit: edit
                                     });
-                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                                    if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                        // Start component
+                                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                                        _contentZoneComponents[contentZoneName][i] = component;
+                                    } else {
+                                        // Update existing component
+                                        Object.assign(_contentZoneComponents[contentZoneName][i], config);
+                                        _contentZoneComponents[contentZoneName][i].update();
+                                    }
                                     appendElement = component.root;
                                 }
                             } else if (contentZoneItem.type == 'ccmComponent') {
@@ -79,10 +101,21 @@
                                     parent: this.parent,
                                     contentZones: contentZoneItem.contentZones,
                                     websiteKey: websiteKey,
-                                    page: page
+                                    page: page,
+                                    edit: edit
                                 });
-                                const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
+                                if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                    // Start component
+                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
+                                    _contentZoneComponents[contentZoneName][i] = component;
+                                } else {
+                                    // Update existing component
+                                    Object.assign(_contentZoneComponents[contentZoneName][i], config);
+                                    _contentZoneComponents[contentZoneName][i].update();
+                                }
                                 appendElement = component.root;
+                            } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
                                 // init header
                                 appendElement = document.createElement('h' + contentZoneItem.data.level);
@@ -121,13 +154,54 @@
                                     appendElement.appendChild(caption);
                                 }
                             }
+
+                            // Remember element
+                            _contentZoneElements[contentZoneName][i] = appendElement;
+
                             if (appendElement != null) {
-                                $.append(contentZoneElement, appendElement);
+                                appendElements.push(appendElement);
                             }
+                            i++;
+                        }
+
+                        // Append elements
+                        contentZoneElement.innerHTML = '';
+                        for (let appendElement of appendElements) {
+                            $.append(contentZoneElement, appendElement);
                         }
                     }
                 }
+
+                _contentZonesBefore = contentZones;
             };
+
+            /**
+             * Checks if an zone component has changed
+             * @param zone
+             * @param zoneComponent
+             * @param index
+             * @returns {boolean}
+             */
+            this.checkIfZoneComponentAtIndexIsEqual = (zone, zoneComponent, index) => {
+                if (_contentZonesBefore[zone] !== undefined && _contentZonesBefore[zone][index] !== undefined) {
+                    let getZoneComponentComparableData = (zoneComponent) => {
+                        let zoneComponentCopy = Object.assign({}, zoneComponent);
+                        zoneComponentCopy.data = Object.assign({}, zoneComponent.data);
+                        delete zoneComponentCopy['contentZones'];
+                        delete zoneComponentCopy.data['config'];
+                        return zoneComponentCopy;
+                    }
+                    let getZoneComponentHash = (zoneComponent) => {
+                        const json = JSON.stringify(zoneComponent);
+                        const hash = this.hash.md5(json);
+                        return hash;
+                    }
+                    const zoneComponentBefore = getZoneComponentComparableData(_contentZonesBefore[zone][index]);
+                    const zoneComponent = getZoneComponentComparableData(zoneComponent);
+                    return getZoneComponentHash(zoneComponentBefore) == getZoneComponentHash(zoneComponent);
+                }
+                return false;
+            }
         }
 
     };
