@@ -40,12 +40,12 @@
                     page: this.page
                 });
                 if (_themeComponent == null || _themeComponentUrl != theme.ccmComponent.url) {
-                    themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
+                    _themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
                 } else {
-                    Object.assign(themeComponent, themeConfig);
+                    Object.assign(_themeComponent, themeConfig);
                     _themeComponent.start();
                 }
-                $.setContent(this.element, themeComponent.root);
+                $.setContent(this.element, _themeComponent.root);
             };
         }
 
