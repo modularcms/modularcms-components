@@ -121,7 +121,6 @@
                     if (passwordInput.value != '' || passwordRepetitionInput.value != '') {
                         if (passwordInput.value == passwordRepetitionInput.value) {
                             if (passwordInput.value.length >= 8) {
-                                console.log(this);
                                 this.parent.user.changePassword(passwordInput.value, passwordRepetitionInput.value).then(() => {
                                     end();
                                 }).catch((message) => {
