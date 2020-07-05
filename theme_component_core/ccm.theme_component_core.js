@@ -60,7 +60,7 @@
                 for (let contentZoneName in contentZones) {
                     const contentZoneItems = contentZones[contentZoneName];
                     const contentZoneElement = element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]');
-                    if (_contentZoneElements[contentZoneName] !== undefined) {
+                    if (_contentZoneElements[contentZoneName] === undefined) {
                         _contentZoneComponents[contentZoneName] = [];
                         _contentZoneElements[contentZoneName] = [];
                     }
