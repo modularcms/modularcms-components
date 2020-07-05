@@ -163,7 +163,6 @@
                             // Remember element
                             _contentZoneElements[contentZoneName][i] = appendElement;
 
-                            console.log(appendElement);
                             if (appendElement != null) {
                                 appendElements.push(appendElement);
                             }
