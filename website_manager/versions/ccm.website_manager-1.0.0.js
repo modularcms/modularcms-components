@@ -273,6 +273,15 @@
 
                     let elementRoot = document.createElement('div');
                     const userWebsites = await this.data_controller.getUserAdminWebsites(await this.data_controller.getCurrentWorkingUsername());
+                    userWebsites.sort((a, b) => {
+                        if (a.domain < b.domain) {
+                            return -1;
+                        }
+                        if (a.domain > b.domain) {
+                            return 1;
+                        }
+                        return 0;
+                    });
                     let uniqueItemIndex = 0;
                     for (let userWebsite of userWebsites) {
                         const element = $.html(this.html.manageListItem, {
