@@ -24,6 +24,9 @@
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
 
+            let _themeComponent = null;
+            let _themeComponentUrl = null;
+
             this.start = async () => {
                 const theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
 
@@ -34,7 +37,12 @@
                     websiteKey: this.websiteKey,
                     page: this.page
                 });
-                const themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
+                if (_themeComponent == null || _themeComponentUrl != theme.ccmComponent.url) {
+                    themeComponent = await this.ccm.start(theme.ccmComponent.url, themeConfig);
+                } else {
+                    Object.assign(themeComponent, themeConfig);
+                    _themeComponent.start();
+                }
                 $.setContent(this.element, themeComponent.root);
             };
         }

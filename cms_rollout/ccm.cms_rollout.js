@@ -78,7 +78,8 @@
                                     if (pageRenderer == null) {
                                         pageRenderer = await this.ccm.start(this.pageRendererUrl, config);
                                     } else {
-                                        await pageRenderer.start(config);
+                                        Object.assign(pageRenderer, config);
+                                        await pageRenderer.start();
                                     }
 
                                     $.setContent(this.element, $.html(this.html.main, {}));
