@@ -17,8 +17,8 @@
             this.ready = async () => {
                 // detect and prevent clicks to a tags
                 this.parent.element.addEventListener('click', (e) => {
-                    //let target = e.target;
-                    for (let element of e.path) {
+                    let target = e.target;
+                    do {
                         if (element.nodeType === 1 && element.tagName.toLowerCase() == 'a') {
                             let href = element.getAttribute('href');
                             if (href != null && href.indexOf('/') == 0) {
@@ -31,9 +31,11 @@
                                     }
                                 });
                                 window.dispatchEvent(event);
+                                break;
                             }
                         }
-                    }
+                        target = target.parentElement;
+                    } while (target != null)
                 });
             };
 
