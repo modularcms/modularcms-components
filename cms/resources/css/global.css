@@ -55,10 +55,11 @@
     pointer-events: none;
 }
 
-input[type="text"], input[type="password"], input[type="email"], input[type="url"], select {
+input[type="text"], input[type="password"], input[type="email"], input[type="url"], select, textarea {
     padding: 0px 15px;
     font-size: 20px;
     font-family: 'Open Sans';
+    border-radius: 5px;
     width: 100%;
     border: 1px solid #C4C4C4;
     color: var(--color-text);
@@ -67,8 +68,13 @@ input[type="text"], input[type="password"], input[type="email"], input[type="url
     outline: none !important;
 }
 
-input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="url"]:focus {
+input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="url"]:focus, textarea:focus {
     border: 1px solid var(--color-primary);
+}
+
+textarea {
+    padding: 15px;
+    height: 180px;
 }
 
 input[type="submit"], button {
@@ -84,6 +90,20 @@ input[type="submit"], button {
     margin: 0 auto;
     display: block;
     outline: none !important;
+}
+
+div.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+div.checkbox-wrapper input[type="checkbox"] {
+    height: 28px;
+    width: 28px;
+}
+
+div.checkbox-wrapper label {
+    padding-left: 10px;
 }
 
 ::placeholder {

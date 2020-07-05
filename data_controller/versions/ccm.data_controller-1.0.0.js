@@ -253,7 +253,7 @@
                         }
                     }
 
-                    // TODO Create start page
+                    // Create start page
                     const startPage = {
                         parentKey: null,
                         title: 'Hello world!',
@@ -1017,6 +1017,7 @@
                 if (pageGet != null) {
                     let page = pageGet.value;
                     page.pageKey = pageGet.key;
+                    page._ = pageGet._;
                     return page;
                 }
                 return null;
@@ -1216,67 +1217,75 @@
              */
             this.setPageObject = (websiteKey, pageKey, pageObject, commitMessage = false) => new Promise(async (resolve, reject) => {
                 const username = await this.getCurrentWorkingUsername();
+                const user = await this.getWebsiteUser(websiteKey, username);
 
-                const pageBefore = this.getPage(websiteKey, pageKey);
+                const pageBefore = await this.getPage(websiteKey, pageKey);
                 const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey);
 
-                const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
-                let pageUrl = '/';
-                if (pageObject.parentKey != null) {
-                    pageUrl = await this.getFullPageUrl(websiteKey, pageObject.parentKey) + pageObject.urlPart;
-                }
+                if (user.role != 'member' || (user.role == 'member' && pageBefore._.creator == username)) {
 
-                // Check if new domain is already existing
-                if (pageUrl != pageUrlBefore) {
-                    const mappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
-                    if (mappingGet != null) {
-                        reject();
-                        return;
+                    const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
+                    let pageUrl = '/';
+                    if (pageObject.parentKey != null) {
+                        const parentPageUrl =  await this.getFullPageUrl(websiteKey, pageObject.parentKey);
+                        pageUrl = (parentPageUrl == '/' ? '' : parentPageUrl) + pageObject.urlPart;
                     }
-                }
 
-                const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
-                pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
-                if (commitMessage !== false) {
-                    if (pageObject.changeLog === undefined) {
-                        pageObject['changeLog'] = [];
+                    // Check if page url is already existing
+                    if (pageUrl != pageUrlBefore) {
+                        const mappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
+                        if (mappingGet != null) {
+                            reject('Specified page url is already existing');
+                            return;
+                        }
                     }
-                    pageObject.changeLog.push({
-                        timestamp: (new Date()).getTime(),
-                        username: username,
-                        commitMessage: commitMessage,
-                        publish: false
-                    });
-                }
-                await websitePagesDataStore.set({
-                    key: pageKey,
-                    value: pageObject,
-                    _: await this.getPagePermissions(websiteKey)
-                });
 
-                // Create/update link in parent children table
-                const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageBefore.parentKey);
-                if (pageBefore.parentKey !== undefined) {
-                    await websitePageChildrenDataStore.del(pageKey);
-                }
-                if (pageObject.parentKey !== undefined) {
-                    await websitePageChildrenDataStore.set({
+                    pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
+                    pageObject['_'] !== undefined && delete pageObject['_'];
+                    if (commitMessage !== false) {
+                        if (pageObject.changeLog === undefined) {
+                            pageObject['changeLog'] = [];
+                        }
+                        pageObject.changeLog.push({
+                            timestamp: (new Date()).getTime(),
+                            username: username,
+                            commitMessage: commitMessage,
+                            publish: false
+                        });
+                    }
+                    const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
+                    await websitePagesDataStore.set({
                         key: pageKey,
-                        value: null,
+                        value: pageObject,
                         _: await this.getPagePermissions(websiteKey)
                     });
-                }
 
-                // Set/update page url mapping
-                if (pageUrlBefore != pageUrl) {
-                    await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
+                    // Create/update link in parent children table
+                    const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageBefore.parentKey);
+                    if (pageBefore.parentKey !== undefined) {
+                        await websitePageChildrenDataStore.del(pageKey);
+                    }
+                    if (pageObject.parentKey !== undefined) {
+                        await websitePageChildrenDataStore.set({
+                            key: pageKey,
+                            value: null,
+                            _: await this.getPagePermissions(websiteKey)
+                        });
+                    }
+
+                    // Set/update page url mapping
+                    if (pageUrlBefore != pageUrl) {
+                        await websitePageUrlMappingDataStore.del(this.hash.md5(pageUrlBefore));
+                    }
+                    await websitePageUrlMappingDataStore.set({
+                        key: this.hash.md5(pageUrl),
+                        value: pageKey,
+                        _: await this.getPagePermissions(websiteKey)
+                    });
+                    resolve();
+                } else {
+                    reject('You\'re not allowed to save this page');
                 }
-                await websitePageUrlMappingDataStore.set({
-                    key: this.hash.md5(pageUrl),
-                    value: pageKey,
-                    _: await this.getPagePermissions(websiteKey)
-                });
-                resolve();
             });
 
             /**
@@ -1291,11 +1300,25 @@
                 const username = await this.getCurrentWorkingUsername();
                 const user = await this.getWebsiteUser(websiteKey, username);
                 const publishedPageBefore = this.getPage(websiteKey, pageKey + '_live');
-                const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey);
+                const pageUrlBefore = await this.getFullPageUrl(websiteKey, pageKey + '_live');
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 let page = await this.getPage(websiteKey, pageKey);
 
                 if ((user.role != 'member' && user.role != 'author') || (user.role == 'author' && page._.creator == username)) {
+
+                    // Update parent key to live parent key
+                    if (page.parentKey) {
+                        page.parentKey += '_live';
+                    }
+
+                    // Check if published page parent is published
+                    if (page.parentKey) {
+                        const publishedParentPage = await this.getPage(websiteKey, page.parentKey);
+                        if (!publishedParentPage) {
+                            reject('THe page can only be published if the parent page was published');
+                            return
+                        }
+                    }
 
                     if (commitMessage !== false) {
                         if (page.changeLog === undefined) {
@@ -1316,14 +1339,15 @@
 
                     // Create/update link in parent children table
                     const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, publishedPageBefore.parentKey);
-                    if (publishedPageBefore != null && publishedPageBefore.parentKey !== undefined) {
-                        await websitePageChildrenDataStore.del(pageKey + '_live');
+                    if (publishedPageBefore != null && publishedPageBefore.parentKey) {
+                        await websitePageChildrenDataStore.del(publishedPageBefore.parentKey);
                     }
-                    if (page.parentKey !== undefined) {
+                    if (page.parentKey) {
+                        const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, page.parentKey);
                         await websitePageChildrenDataStore.set({
                             key: pageKey + '_live',
                             value: null,
-                            _: await this.getPagePermissions(websiteKey)
+                            _: await this.getPagePublishPermissions(websiteKey)
                         });
                     }
 
@@ -1340,7 +1364,7 @@
                     });
                     resolve();
                 } else {
-                    reject();
+                    reject('You\'re not allowed to publish this page');
                 }
             });
 

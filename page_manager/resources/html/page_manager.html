@@ -74,6 +74,10 @@
                 <label for="create-modal-page-url">Please enter a url for the new page</label>
                 <input type="text" id="create-modal-page-url" />
             </div>
+            <div>
+                <label for="modal-layout-select">Layout</label>
+                <select id="modal-layout-select"></select>
+            </div>
             <div class="modal-footer">
                 <div id="modal-create-button" class="button button-primary button-disabled">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
@@ -87,7 +91,7 @@
     <form id="page-edit-form" class="edit-container" action="#">
         <div class="edit-head-wrapper">
             <div class="edit-head">
-                <div class="edit-head-title"><input type="text" id="theme-definition-edit-name" /></div>
+                <div class="edit-head-title"><input type="text" id="edit-page-title" value="%title%" required="" /></div>
                 <div id="save-button" class="button button-primary button-responsive-hide-text button-disabled">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg" />
                     <div class="button-text">Save</div>
@@ -98,23 +102,83 @@
                 </div>
             </div>
             <div class="edit-menu">
-                <div class="menu-item active">Content</div>
-                <div class="menu-item">Layout</div>
-                <div class="menu-item">Details</div>
-                <!--<div class="menu-item active">Teaser</div>-->
-                <div class="menu-item">History</div>
+                <div class="menu-item active" data-content-name="content">Content</div>
+                <div class="menu-item" data-content-name="layout">Layout</div>
+                <div class="menu-item" data-content-name="details">Details</div>
+                <!--<div class="menu-item" data-content-name="menu">Menu</div>-->
+                <!--<div class="menu-item" data-content-name="teaser">Teaser</div>-->
+                <!--<div class="menu-item" data-content-name="history">History</div>-->
             </div>
         </div>
-        <div class="edit-content" id="edit-content"></div>
-        <div class="edit-content" id="edit-layout">
+        <div class="edit-content active" id="edit-content" data-content-name="content"></div>
+        <div class="edit-content" id="edit-layout" data-content-name="layout">
             <div>
-                <label for="theme-definition-edit-ccm-component-url">Url to the ccm based component to work with</label>
-                <input type="url" id="theme-definition-edit-ccm-component-url" required="" pattern="https://.+[.]js" />
-            </div>
-            <div>
-                <label for="theme-definition-edit-ccm-component-config">ccm component config in the JSON format</label>
-                <div id="theme-definition-edit-ccm-component-config"></div>
+                <label for="edit-page-layout-select">Layout</label>
+                <select id="edit-page-layout-select"></select>
             </div>
         </div>
+        <div class="edit-content" id="edit-details" data-content-name="details">
+            <div>
+                <label for="edit-page-url-part">Url part</label>
+                <div>%parentUrl%</div><input type="text" id="edit-page-url-part" required="" pattern="/.*" value="%urlPart%" />
+            </div>
+            <div>
+                <label for="edit-page-meta-description">Description</label>
+                <textarea id="edit-page-meta-description">%metaDescription%</textarea>
+            </div>
+            <div>
+                <label for="edit-page-meta-keywords">Keywords</label>
+                <input type="text" id="edit-page-meta-keywords" value="%metaKeywords%" />
+            </div>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="edit-page-meta-robots" checked="%metaRobots%" />
+                <label for="edit-page-meta-robots">Allow search engines to index page</label>
+            </div>
+        </div>
+        <!--<div class="edit-content" id="edit-menu" data-content-name="menu">
+            <div>
+                <label for="edit-page-menu-title">Menu title (keep empty to use the page title)</label>
+                <input type="text" id="edit-page-menu-title" value="%menuTitle%" />
+            </div>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="edit-page-menu-show-in" checked="%menuShowIn%" />
+                <label for="edit-page-menu-show-in">Show in menu</label>
+            </div>
+        </div>-->
+        <!--<div class="edit-content" id="edit-teaser" data-content-name="teaser">
+            <div>
+                <label>Teaser image</label>
+                <div>
+                    <div id="teaser-image-container"></div>
+                    <div>
+                        <div class="button button-primary" id="edit-page-teaser-remove-button">
+                            <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/trash-icon.svg" />
+                            <div class="button-text">Remove image</div>
+                        </div>
+                        <div class="button button-primary" id="edit-page-teaser-replace-button">
+                            <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/replace-icon.svg" />
+                            <div class="button-text">Replace image</div>
+                        </div>
+                        <div class="button button-primary" id="edit-page-teaser-add-button">
+                            <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/replace-icon.svg" />
+                            <div class="button-text">Add image</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <label for="edit-page-teaser-title">Teaser title (keep empty to use the page title)</label>
+                <input type="text" id="edit-page-teaser-title" value="%teaserTitle%" />
+            </div>
+            <div>
+                <label for="edit-page-teaser-description">Teaser description</label>
+                <textarea id="edit-page-teaser-description">%teaserDescription%</textarea>
+            </div>
+        </div>-->
+        <!--<div class="edit-content list" id="edit-history" data-content-name="history"></div>-->
     </form>
+</ccm-template>
+
+<ccm-template key="editHistoryListItem">
+
 </ccm-template>

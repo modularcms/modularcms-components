@@ -46,7 +46,7 @@
                     if (detail.url.indexOf('/pages/create') == 0) {
                         if (!this.modalCreated) {
                             this.modalCreated = true;
-                            this.openCreateNewPageModal();
+                            await this.openCreateNewPageModal();
                         }
                         if (detail.url == '/pages/create/1') {
                             this.element.querySelector('#create-modal-step-2').style.display = 'none';
@@ -146,7 +146,23 @@
                 const page = await this.data_controller.getPage(websiteKey, pageKey);
 
                 if (page != null) {
-                    const content = $.html(this.html.editPage, {});
+                    let parentPageUrl = '';
+                    if (page.parentKey) {
+                        parentPageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.parentKey);
+                    }
+
+                    const content = $.html(this.html.editPage, {
+                        title: page.title,
+                        urlPart: page.urlPart,
+                        parentUrl: parentPageUrl == '/' ? '' : parentPageUrl,
+                        metaDescription: page.meta.description,
+                        metaKeywords: page.meta.keywords,
+                        metaRobots: page.meta.robots,
+                        // menuShowIn: page.menu.showIn,
+                        // menuTitle: page.menu.title,
+                        // teaserTitle: page.teaser.title,
+                        // teaserDescription: page.teaser.description
+                    });
                     $.setContent(this.element, content);
 
                     $.append(content.querySelector('#edit-content'), loader);
@@ -156,8 +172,167 @@
                         parent: this
                     });
                     $.setContent(content.querySelector('#edit-content'), pageRenderer.root);
+
+                    //handle content switcher
+                    let editMenuItems = this.element.querySelectorAll('.edit-menu .menu-item');
+                    editMenuItems.forEach(item => item.addEventListener('click', () => {
+                        editMenuItems.forEach(item => item.classList.remove('active'));
+                        item.classList.add('active');
+                        this.element.querySelectorAll('.edit-content').forEach(item => item.classList.remove('active'));
+                        this.element.querySelector('.edit-content[data-content-name="' + item.getAttribute('data-content-name') + '"]').classList.add('active');
+                    }));
+
+                    //define inputs and buttons
+                    const form = this.element.querySelector('#page-edit-form');
+                    const titleInput = this.element.querySelector('#edit-page-title');
+                    const urlPartInput = this.element.querySelector('#edit-page-url-part');
+                    const metaDescriptionInput = this.element.querySelector('#edit-page-meta-description');
+                    const metaKeywordsInput = this.element.querySelector('#edit-page-meta-keywords');
+                    const metaRobotsInput = this.element.querySelector('#edit-page-meta-robots');
+                    const layoutSelect = this.element.querySelector('#edit-page-layout-select');
+                    const saveButton = this.element.querySelector('#save-button');
+                    const publishButton = this.element.querySelector('#publish-button');
+
+                    // init layout select
+                    this.loadLayoutSelectOptions(websiteKey, layoutSelect, page.contentZones.layout[0].data.themeDefinitionKey);
+
+                    // make sure url part begins with a slash
+                    urlPartInput.addEventListener('keyup', () => {
+                        if (urlPartInput.value.indexOf('/') != 0) {
+                            urlPartInput.value = '/' + urlPartInput.value;
+                        }
+                    });
+
+                    // make sure meta description is a one liner
+                    metaDescriptionInput.addEventListener('keyup', () => {
+                        metaDescriptionInput.value = metaDescriptionInput.value.replace(/(?:\r\n|\r|\n)/g, '');
+                    });
+
+                    // handle title change
+                    titleInput.addEventListener('change', async () => {
+                        page.title = titleInput.value;
+                        Object.assign(pageRenderer.page, page);
+                        await pageRenderer.start();
+                    });
+
+                    // handle layout change
+                    layoutSelect.addEventListener('change', async () => {
+                        page.themeKey = layoutSelect.querySelector('option[value="' + layoutSelect.value + '"]').getAttribute('data-theme-key');
+                        page.contentZones.layout[0].data.themeDefinitionKey = layoutSelect.value;
+                        Object.assign(pageRenderer.page, page);
+                        await pageRenderer.start();
+                    });
+
+                    // handle buttons
+                    const onDataChange = () => {
+                        saveButton.classList.remove('button-disabled');
+                        publishButton.classList.add('button-disabled');
+                    };
+                    form.addEventListener('keyup', onDataChange);
+                    form.addEventListener('change', onDataChange);
+                    form.addEventListener('paste', onDataChange);
+                    saveButton.addEventListener('click', async () => {
+                        if (form.checkValidity()) {
+                            saveButton.classList.add('button-disabled');
+                            saveButton.querySelector('.button-text').innerHTML = 'Saving...';
+                            //TODO Save
+                            let pageSet = {};
+                            Object.assign(pageSet, page, {
+                                title: titleInput.value,
+                                // urlPart: urlPartInput.value, TODO in data_controller
+                                meta: {
+                                    description: metaDescriptionInput.value,
+                                    keywords: metaKeywordsInput.value,
+                                    robots: metaRobotsInput.checked
+                                },
+                                // contentZones
+                                // themeKey
+                            });
+                            let end = () => {
+                                saveButton.querySelector('.button-text').innerHTML = 'Save';
+                            };
+                            this.data_controller.setPageObject(websiteKey, pageKey, pageSet, 'Save page').then(() => {
+                                end();
+                                publishButton.classList.remove('button-disabled');
+                            }).catch((errorMessage) => {
+                                alert(errorMessage);
+                                end();
+                                saveButton.classList.remove('button-disabled');
+                            });
+                        } else {
+                            alert('There is an error with your entered data. Please check the tabs for errors.');
+                            form.reportValidity();
+                        }
+                    });
+                    publishButton.addEventListener('click', async () => {
+                        publishButton.classList.add('button-disabled');
+                        publishButton.querySelector('.button-text').innerHTML = 'Publishing...';
+                        let end = () => {
+                            publishButton.querySelector('.button-text').innerHTML = 'Publish';
+                        };
+                        await this.data_controller.publishPage(websiteKey, pageKey, 'Publish page').then(() => {
+                            end();
+                        }).catch((errorMessage) => {
+                            alert(errorMessage);
+                            end();
+                            publishButton.classList.remove('button-disabled');
+                        });
+                    });
                 } else {
                     this.routing.navigateTo('/pages');
+                }
+            };
+
+            /**
+             * Renders the theme Layout select input
+             * @param websiteKey
+             * @param layoutSelect
+             * @param pageLayoutKey
+             * @returns {Promise<void>}
+             */
+            this.loadLayoutSelectOptions = async (websiteKey, layoutSelect, pageLayoutKey) => {
+                const websiteThemes = await this.data_controller.getAllThemesOfWebsite(websiteKey);
+                websiteThemes.sort((a, b) => {
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    return 0;
+                });
+
+                // render theme layout select
+                let uniqueItemIndex = 0;
+                for (let theme of websiteThemes) {
+                    let optGroup = document.createElement('optgroup');
+                    optGroup.label = theme.name;
+
+                    //Load all theme definitions
+                    let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, theme.themeKey);
+                    themeDefinitions = themeDefinitions.filter(item => item.type == 'layout')
+                    themeDefinitions.sort((a, b) => {
+                        if (a.name < b.name) {
+                            return -1;
+                        }
+                        if (a.name > b.name) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                    for (let themeDefinition of themeDefinitions) {
+                        let option = document.createElement('option');
+                        option.innerText = themeDefinition.name;
+                        option.value = themeDefinition.themeDefinitionKey;
+                        option.setAttribute('data-theme-key', theme.themeKey);
+                        if (themeDefinition.themeDefinitionKey == pageLayoutKey) {
+                            option.selected = true;
+                        }
+                        optGroup.appendChild(option);
+                    }
+
+                    // Append optGroup
+                    layoutSelect.appendChild(optGroup);
                 }
             };
 
@@ -274,6 +449,8 @@
                 let selectedParentPageKey = null;
                 let selectedParentPagePath = null;
 
+                const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+
                 // Append modal html
                 $.append(this.element, $.html(this.html.newPageModal, {}));
 
@@ -291,6 +468,10 @@
                         enableSelectButton();
                     }));
                 })
+
+                // Add layout options
+                const layoutSelect = this.element.querySelector('#modal-layout-select');
+                await this.loadLayoutSelectOptions(websiteKey, layoutSelect, '');
 
                 // Add events for close
                 this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{
@@ -382,6 +563,8 @@
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const pathSplit = this.element.querySelector('#create-modal-page-url').value.split('/');
                     const urlPart = '/' + pathSplit[pathSplit.length - 1];
+                    const layoutDefinitionKey = layoutSelect.value;
+                    const themeKey = this.element.querySelector('#modal-layout-select option[value="' + layoutDefinitionKey + '"]').getAttribute('data-theme-key');
                     this.data_controller.createPage(websiteKey, {
                         parentKey: selectedParentPageKey,
                         title: titleInput.value,
@@ -391,29 +574,22 @@
                             keywords: '',
                             robots: true
                         },
-                        themeKey: null, // TODO
-                        layoutKey: null,// TODO
-                        block: [
-                            {
-                                "type": "header",
-                                "data": {
-                                    "text": "New page",
-                                    "level": 1
+                        themeKey: themeKey,
+                        contentZones: {
+                            'layout': [
+                                {
+                                    'type': 'themeDefinition',
+                                    'data': {
+                                        'themeDefinitionType': 'layout',
+                                        'themeDefinitionKey': layoutDefinitionKey
+                                    },
+                                    contentZones: {
+                                        'main': []
+                                    }
                                 }
-                            },
-                            {
-                                "type": "paragraph",
-                                "data": {
-                                    "text": "This is a new page made with <b>modularcms</b>."
-                                }
-                            }
-                        ],
-                        changeLog: [{
-                            timestamp: (new Date()).getTime(),
-                            username: username,
-                            commitMessage: 'Created page',
-                            publish: false
-                        }]
+                            ]
+                        },
+                        changeLog: []
                     }).then((pageKey) => {
                         this.routing.navigateTo('/pages/edit/' + pageKey);
                     }).catch(() => {
