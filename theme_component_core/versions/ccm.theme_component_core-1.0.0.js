@@ -178,9 +178,11 @@
                         }
 
                         // Add edit add block
-                        const addPlaceholder = $.html(this.html.addBlock, {});
-                        $.append(contentZoneElement, addPlaceholder);
-                        addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName))
+                        if (edit) {
+                            const addPlaceholder = $.html(this.html.addBlock, {});
+                            $.append(contentZoneElement, addPlaceholder);
+                            addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName))
+                        }
                     }
                 }
 
