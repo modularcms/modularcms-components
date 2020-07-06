@@ -33,10 +33,10 @@
 
 
             this.start = async () => {
-                await this.update();
+                await this.rerender();
             };
 
-            this.update = async () => {
+            this.rerender = async () => {
                 if (_theme == null || _theme.themeKey != this.page.themeKey) {
                     _theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
                 }
@@ -53,7 +53,7 @@
                     _themeComponent = await this.ccm.start(_theme.ccmComponent.url, themeConfig);
                 } else {
                     Object.assign(_themeComponent, themeConfig);
-                    _themeComponent.update();
+                    _themeComponent.rerender();
                 }
                 $.setContent(this.element, _themeComponent.root);
             }
