@@ -72,11 +72,8 @@
                         let i = 0;
 
                         if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
-                            let editorWrapper = document.createElement('div');
-                            editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
-                            contentZoneElement.appendChild(editorWrapper);
                             const editor = new EditorJS({
-                                holderId: editorWrapper.id,
+                                holder: contentZoneElement,
                                 tools: {
                                     header: Header,
                                     list: List
