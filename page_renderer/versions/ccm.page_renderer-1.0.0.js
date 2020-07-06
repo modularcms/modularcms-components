@@ -45,7 +45,7 @@
                 Object.assign(themeConfig, _theme.ccmComponent.config, this.page.themeConfig, {
                     parent: this,
                     contentZones: this.page.contentZones,
-                    zoneItem: {type: 'theme'},
+                    zoneItem: {type: 'theme', data: {}, config:{}},
                     websiteKey: this.websiteKey,
                     page: this.page,
                     edit: this.edit
