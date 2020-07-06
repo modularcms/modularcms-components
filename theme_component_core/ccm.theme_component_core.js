@@ -10,6 +10,8 @@
 
         name: 'theme_component_core',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
@@ -70,32 +72,55 @@
                     }
                     if (contentZoneElement) {
                         let i = 0;
-                        let appendElements = [];
-                        for (let contentZoneItem of contentZoneItems) {
-                            let appendElement = null;
-                            if (this.edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
-                                let editorWrapper = document.createElement('div');
-                                editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
-                                contentZoneElement.appendChild(editorWrapper);
-                                const editor = new EditorJS({
-                                    holderId: editorWrapper.id,
-                                    tools: {
-                                        header: Header,
-                                        list: List
-                                    },
-                                    data: {}
-                                });
-                            } else if (contentZoneItem.type == 'themeDefinition') {
-                                // init theme definition
-                                if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
-                                    _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
-                                }
-                                const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
-                                if (themeDefinition) {
+
+                        if (this.edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
+                            let editorWrapper = document.createElement('div');
+                            editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
+                            contentZoneElement.appendChild(editorWrapper);
+                            const editor = new EditorJS({
+                                holderId: editorWrapper.id,
+                                tools: {
+                                    header: Header,
+                                    list: List
+                                },
+                                data: {}
+                            });
+                        } else {
+                            let appendElements = [];
+                            for (let contentZoneItem of contentZoneItems) {
+                                let appendElement = null;
+                                if (contentZoneItem.type == 'themeDefinition') {
+                                    // init theme definition
+                                    if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
+                                        _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
+                                    }
+                                    const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
+                                    if (themeDefinition) {
+                                        let config = {};
+                                        Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
+                                            parent: this.parent,
+                                            zoneItem: contentZoneItem,
+                                            contentZones: contentZoneItem.contentZones,
+                                            websiteKey: websiteKey,
+                                            page: page,
+                                            edit: edit
+                                        });
+                                        if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                            // Start component
+                                            const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                                            _contentZoneComponents[contentZoneName][i] = component;
+                                        } else {
+                                            // Update existing component
+                                            Object.assign(_contentZoneComponents[contentZoneName][i], config);
+                                            _contentZoneComponents[contentZoneName][i].update();
+                                        }
+                                        appendElement = _contentZoneComponents[contentZoneName][i].root;
+                                    }
+                                } else if (contentZoneItem.type == 'ccmComponent') {
+                                    // init ccm component
                                     let config = {};
-                                    Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
+                                    Object.assign(config, contentZoneItem.data.config, {
                                         parent: this.parent,
-                                        zoneItem: contentZoneItem,
                                         contentZones: contentZoneItem.contentZones,
                                         websiteKey: websiteKey,
                                         page: page,
@@ -103,7 +128,7 @@
                                     });
                                     if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                         // Start component
-                                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
                                         _contentZoneComponents[contentZoneName][i] = component;
                                     } else {
                                         // Update existing component
@@ -111,88 +136,68 @@
                                         _contentZoneComponents[contentZoneName][i].update();
                                     }
                                     appendElement = _contentZoneComponents[contentZoneName][i].root;
-                                }
-                            } else if (contentZoneItem.type == 'ccmComponent') {
-                                // init ccm component
-                                let config = {};
-                                Object.assign(config, contentZoneItem.data.config, {
-                                    parent: this.parent,
-                                    contentZones: contentZoneItem.contentZones,
-                                    websiteKey: websiteKey,
-                                    page: page,
-                                    edit: edit
-                                });
-                                if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                                    // Start component
-                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
-                                    _contentZoneComponents[contentZoneName][i] = component;
-                                } else {
-                                    // Update existing component
-                                    Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                                    _contentZoneComponents[contentZoneName][i].update();
-                                }
-                                appendElement = _contentZoneComponents[contentZoneName][i].root;
-                            } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                                appendElement = _contentZoneElements[contentZoneName][i];
-                            } else if (contentZoneItem.type == 'header') {
-                                // init header
-                                appendElement = document.createElement('h' + contentZoneItem.data.level);
-                                appendElement.innerHTML = contentZoneItem.data.text;
-                            } else if (contentZoneItem.type == 'paragraph') {
-                                // init paragraph
-                                appendElement = document.createElement('p');
-                                appendElement.innerHTML = contentZoneItem.data.text;
-                            } else if (contentZoneItem.type == 'list') {
-                                // init list
-                                appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
-                                for (let item of contentZoneItem.data.items) {
-                                    let itemElement = document.createElement('li');
-                                    itemElement.innerHTML = item;
-                                    appendElement.appendChild(itemElement);
-                                }
-                            } else if (contentZoneItem.type == 'image') {
-                                // init image
-                                appendElement = document.createElement('div');
-                                appendElement.classList.add('image-wrapper');
+                                } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                    appendElement = _contentZoneElements[contentZoneName][i];
+                                } else if (contentZoneItem.type == 'header') {
+                                    // init header
+                                    appendElement = document.createElement('h' + contentZoneItem.data.level);
+                                    appendElement.innerHTML = contentZoneItem.data.text;
+                                } else if (contentZoneItem.type == 'paragraph') {
+                                    // init paragraph
+                                    appendElement = document.createElement('p');
+                                    appendElement.innerHTML = contentZoneItem.data.text;
+                                } else if (contentZoneItem.type == 'list') {
+                                    // init list
+                                    appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
+                                    for (let item of contentZoneItem.data.items) {
+                                        let itemElement = document.createElement('li');
+                                        itemElement.innerHTML = item;
+                                        appendElement.appendChild(itemElement);
+                                    }
+                                } else if (contentZoneItem.type == 'image') {
+                                    // init image
+                                    appendElement = document.createElement('div');
+                                    appendElement.classList.add('image-wrapper');
 
-                                let img = document.createElement('img');
-                                let caption = null;
+                                    let img = document.createElement('img');
+                                    let caption = null;
 
-                                img.src = contentZoneItem.data.file.url;
-                                img.loading = 'lazy';
-                                if (contentZoneItem.data.caption) {
+                                    img.src = contentZoneItem.data.file.url;
                                     img.loading = 'lazy';
-                                    caption = document.createElement('div');
-                                    caption.classList.add('image-caption');
-                                    caption.innerHTML = contentZoneItem.data.caption;
+                                    if (contentZoneItem.data.caption) {
+                                        img.loading = 'lazy';
+                                        caption = document.createElement('div');
+                                        caption.classList.add('image-caption');
+                                        caption.innerHTML = contentZoneItem.data.caption;
+                                    }
+
+                                    appendElement.appendChild(img);
+                                    if (caption) {
+                                        appendElement.appendChild(caption);
+                                    }
                                 }
 
-                                appendElement.appendChild(img);
-                                if (caption) {
-                                    appendElement.appendChild(caption);
+                                // Remember element
+                                _contentZoneElements[contentZoneName][i] = appendElement;
+
+                                if (appendElement != null) {
+                                    appendElements.push(appendElement);
                                 }
+                                i++;
                             }
 
-                            // Remember element
-                            _contentZoneElements[contentZoneName][i] = appendElement;
-
-                            if (appendElement != null) {
-                                appendElements.push(appendElement);
+                            // Append elements
+                            contentZoneElement.innerHTML = '';
+                            for (let appendElement of appendElements) {
+                                $.append(contentZoneElement, appendElement);
                             }
-                            i++;
-                        }
 
-                        // Append elements
-                        contentZoneElement.innerHTML = '';
-                        for (let appendElement of appendElements) {
-                            $.append(contentZoneElement, appendElement);
-                        }
-
-                        // Add edit add block
-                        if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'layout') {
-                            const addPlaceholder = $.html(this.html.addBlock, {});
-                            $.append(contentZoneElement, addPlaceholder);
-                            addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
+                            // Add edit add block
+                            if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'layout') {
+                                const addPlaceholder = $.html(this.html.addBlock, {});
+                                $.append(contentZoneElement, addPlaceholder);
+                                addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
+                            }
                         }
                     }
                 }
