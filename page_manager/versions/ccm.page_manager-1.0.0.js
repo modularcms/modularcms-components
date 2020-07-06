@@ -220,10 +220,14 @@
                         page.themeKey = layoutSelect.querySelector('option[value="' + layoutSelect.value + '"]').getAttribute('data-theme-key');
                         page.contentZones.layout[0].data.themeDefinitionKey = layoutSelect.value;
                         Object.assign(pageRenderer.page, page);
-                        await pageRenderer.start();
+                        await pageRenderer.update();
                     });
 
                     // handle buttons
+                    const publishedVersionEqual = await this.data_controller.isPagePublishedVersionEqual(websiteKey, pageKey);
+                    if (!publishedVersionEqual) {
+                        publishButton.classList.remove('button-disabled');
+                    }
                     const onDataChange = () => {
                         saveButton.classList.remove('button-disabled');
                         publishButton.classList.add('button-disabled');
@@ -393,12 +397,14 @@
                     // Closure for adding a page item
                     const getPageListItemElement = async (page, depth = 0) => {
                         let pageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.pageKey);
+                        const draft = !await this.data_controller.isPagePublishedVersionEqual(websiteKey, page.pageKey);
                         const layoutName = (themeLayoutNames[page.themeKey] != undefined && themeLayoutNames[page.themeKey][page.contentZones.layout[0].data.themeDefinitionKey] != undefined) ? themeLayoutNames[page.themeKey][page.contentZones.layout[0].data.themeDefinitionKey]: '!UNKNOWN LAYOUT!';
                         let itemWrapper = $.html(this.html.listItem, {
                             title: page.title,
                             urlName: pageUrl,
                             pageKey: page.pageKey,
-                            layoutTypeName: layoutName
+                            layoutTypeName: layoutName,
+                            draft: draft?'<span class="draft"> – Draft</span>':''
                         });
                         const item = itemWrapper.querySelector('.list-item');
                         item.style.paddingLeft = ((depth * 20) + 15) + 'px';

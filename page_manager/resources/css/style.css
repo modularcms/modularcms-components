@@ -36,3 +36,8 @@
 #edit-page-layout-select, #edit-page-theme-select {
     margin-bottom: 20px;
 }
+
+.list-item-title .draft {
+    font-style: italic;
+    opacity: 0.6;
+}

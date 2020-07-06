@@ -1402,6 +1402,35 @@
                 ]);
             }
 
+            /**
+             * Returns if an page live version is equal to the cms version
+             * @param {string}  websiteKey  The website key
+             * @param {string}  pageKey     The page key
+             * @returns {Promise<boolean>}
+             */
+            this.isPagePublishedVersionEqual = async (websiteKey, pageKey) => {
+                const page = await this.getPage(websiteKey, pageKey);
+                if (page != null) {
+                    page.changeLog !== undefined && delete page['changeLog'];
+                    page._ !== undefined && delete page['_'];
+                    page.pageKey !== undefined && delete page['pageKey'];
+                }
+                const pageHash = page == null || this.hash.md5(JSON.stringify(page));
+
+                const publishedPage = await this.getPage(websiteKey, pageKey + '_live');
+                if (publishedPage != null) {
+                    publishedPage.changeLog !== undefined && delete publishedPage['changeLog'];
+                    publishedPage._ !== undefined && delete publishedPage['_'];
+                    publishedPage.pageKey !== undefined && delete publishedPage['pageKey'];
+                    if (publishedPage.parentKey != null) {
+                        publishedPage.parentKey = publishedPage.parentKey.replace('_live', '');
+                    }
+                }
+                const publishedPageHash = publishedPage == null || this.hash.md5(JSON.stringify(publishedPage));
+
+                return pageHash == publishedPageHash;
+            };
+
 
             /**
              * -----------------------------------

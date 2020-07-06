@@ -13,6 +13,8 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
+            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/theme_component_core/resources/html/template.html"],
+            "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/theme_component_core/resources/css/style.css"],
             "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ]
@@ -172,6 +174,11 @@
                         for (let appendElement of appendElements) {
                             $.append(contentZoneElement, appendElement);
                         }
+
+                        // Add edit add block
+                        const addPlaceholder = $.html(this.html.addBlock, {});
+                        $.append(contentZoneElement, addPlaceholder);
+                        addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName))
                     }
                 }
 
@@ -203,6 +210,10 @@
                     return getZoneComponentHash(zoneComponentBefore) == getZoneComponentHash(zoneComponent);
                 }
                 return false;
+            }
+
+            this.addItem = (contentZoneName) => {
+                console.log(contentZoneName);
             }
         }
 
