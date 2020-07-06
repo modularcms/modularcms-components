@@ -35,7 +35,7 @@
 
             let currentContent = null;
 
-            let pageRenderer = null;
+            let _pageRenderer = null;
 
             /**
              * Component start closure
@@ -77,15 +77,15 @@
                                         page: page
                                     };
 
-                                    if (pageRenderer == null) {
-                                        pageRenderer = await this.ccm.start(this.pageRendererUrl, config);
+                                    if (_pageRenderer == null) {
+                                        _pageRenderer = await this.ccm.start(this.pageRendererUrl, config);
                                     } else {
-                                        Object.assign(pageRenderer, config);
-                                        await pageRenderer.update();
+                                        Object.assign(_pageRenderer, config);
+                                        await _pageRenderer.update();
                                     }
 
                                     $.setContent(this.element, $.html(this.html.main, {}));
-                                    $.setContent(this.element.querySelector('#page-renderer-container'), pageRenderer.root);
+                                    $.setContent(this.element.querySelector('#page-renderer-container'), _pageRenderer.root);
                                 }
                             } else {
                                 // render 404
