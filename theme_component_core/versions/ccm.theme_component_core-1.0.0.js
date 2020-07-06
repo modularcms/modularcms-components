@@ -40,6 +40,13 @@
 
             let _themeDefinitions = {};
 
+            const themeDefinitionsTypeNames = {
+                'theme': 'Theme',
+                'layout': 'Layout',
+                'block': 'Block',
+                'contentComponent': 'Content component'
+            }
+
             /**
              *
              * @param html              The input html
@@ -51,6 +58,7 @@
                 const element = this.parent.element;
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
+                const zoneItem = this.parent.zoneItem;
                 const contentZones = this.parent.contentZones || {};
                 const edit = this.parent.edit;
 
@@ -85,6 +93,7 @@
                                     let config = {};
                                     Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
                                         parent: this.parent,
+                                        zoneItem: contentZoneItem,
                                         contentZones: contentZoneItem.contentZones,
                                         websiteKey: websiteKey,
                                         page: page,
@@ -178,10 +187,10 @@
                         }
 
                         // Add edit add block
-                        if (edit) {
-                            const addPlaceholder = $.html(this.html.addBlock, {});
+                        if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType != 'layout') {
+                            const addPlaceholder = $.html(this.html.addBlock, {type: themeDefinitionsTypeNames[zoneItem.data.themeDefinitionType]});
                             $.append(contentZoneElement, addPlaceholder);
-                            addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName))
+                            addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
                         }
                     }
                 }
