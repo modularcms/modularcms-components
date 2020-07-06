@@ -1,6 +1,36 @@
 <ccm-template key="addBlock">
-    <div class="add-new block">
-        <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
+    <style>
+        .add-block {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border: 2px dashed #d0d0d0;
+            background-color: #fff;
+            color: #000;
+        }
+
+        .add-block img {
+            margin-right: 10px; height: 32px;
+        }
+
+        .add-block:hover {
+            color: #333;
+        }
+
+        .add-block:hover img {
+            opacity: 0.75;
+        }
+
+        .add-block:hover {
+            color: #aaa;
+        }
+
+        .add-block:hover img {
+            opacity: 0.4;
+        }
+    </style>
+    <div class="add-block">
+        <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
         <div>Add new block</div>
     </div>
 </ccm-template>
