@@ -264,6 +264,7 @@
                             robots: true
                         },
                         themeKey: themeKey,
+                        themeConfig: {},
                         contentZones: {
                             'layout': [
                                 {

@@ -24,7 +24,9 @@
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
             "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
-            "pageRendererUrl": "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js"
+            "pageRendererUrl": "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js",
+            "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
+            "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ]
         },
 
         Instance: function () {
@@ -194,9 +196,6 @@
                     const saveButton = this.element.querySelector('#save-button');
                     const publishButton = this.element.querySelector('#publish-button');
 
-                    // init layout select
-                    this.loadLayoutSelectOptions(websiteKey, layoutSelect, page.contentZones.layout[0].data.themeDefinitionKey);
-
                     // make sure url part begins with a slash
                     urlPartInput.addEventListener('keyup', () => {
                         if (urlPartInput.value.indexOf('/') != 0) {
@@ -233,7 +232,7 @@
                     form.addEventListener('change', onDataChange);
                     form.addEventListener('paste', onDataChange);
                     saveButton.addEventListener('click', async () => {
-                        if (form.checkValidity()) {
+                        if (form.checkValidity() && this.theme_json_builder.isValid() && this.layout_json_builder.isValid()) {
                             saveButton.classList.add('button-disabled');
                             saveButton.querySelector('.button-text').innerHTML = 'Saving...';
                             //TODO Save
@@ -246,9 +245,11 @@
                                     keywords: metaKeywordsInput.value,
                                     robots: metaRobotsInput.checked
                                 },
+                                themeConfig: this.theme_json_builder.getValue().json,
                                 // contentZones
                                 // themeKey
                             });
+                            pageSet.contentZones.layout[0].data.config = this.layout_json_builder.getValue().json;
                             let end = () => {
                                 saveButton.querySelector('.button-text').innerHTML = 'Saved';
                                 saveButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg';
@@ -289,6 +290,21 @@
                             publishButton.classList.remove('button-disabled');
                         });
                     });
+
+                    // init layout select
+                    await this.loadLayoutSelectOptions(websiteKey, layoutSelect, page.contentZones.layout[0].data.themeDefinitionKey);
+
+                    // init layout config json_build
+                    this.layout_json_builder.data = {json: page.contentZones.layout[0].data.config};
+                    this.layout_json_builder.onchange = () => {onDataChange()};
+                    await this.layout_json_builder.start();
+                    $.setContent(this.element.querySelector('#edit-page-layout-config'), this.layout_json_builder.root);
+
+                    // init layout config json_build
+                    this.theme_json_builder.data = {json: page.themeConfig};
+                    this.theme_json_builder.onchange = () => {onDataChange()};
+                    await this.theme_json_builder.start();
+                    $.setContent(this.element.querySelector('#edit-page-theme-config'), this.theme_json_builder.root);
                 } else {
                     this.routing.navigateTo('/pages');
                 }
@@ -601,6 +617,7 @@
                             robots: true
                         },
                         themeKey: themeKey,
+                        themeConfig: {},
                         contentZones: {
                             'layout': [
                                 {

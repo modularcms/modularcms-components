@@ -81,7 +81,7 @@
                                 const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
                                 if (themeDefinition) {
                                     let config = {};
-                                    Object.assign(config, themeDefinition.ccmComponent.config, {
+                                    Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
                                         parent: this.parent,
                                         contentZones: contentZoneItem.contentZones,
                                         websiteKey: websiteKey,

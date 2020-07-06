@@ -38,7 +38,7 @@
                 }
 
                 const themeConfig = {};
-                Object.assign(themeConfig, _theme.ccmComponent.config, {
+                Object.assign(themeConfig, _theme.ccmComponent.config, this.page.themeConfig, {
                     parent: this,
                     contentZones: this.page.contentZones,
                     websiteKey: this.websiteKey,

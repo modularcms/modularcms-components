@@ -21,6 +21,7 @@ ccm.files[ 'resources.js' ] = {
     },
 
     "json_builder": {
-        "nosubmit": true
+        "nosubmit": true,
+        "autofocus": false
     }
 };
