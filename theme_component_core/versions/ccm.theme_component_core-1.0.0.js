@@ -73,6 +73,7 @@
                     if (contentZoneElement) {
                         let i = 0;
 
+                        console.log(this.edit, zoneItem.type, zoneItem.data.themeDefinitionType);
                         if (this.edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
                             let editorWrapper = document.createElement('div');
                             editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;

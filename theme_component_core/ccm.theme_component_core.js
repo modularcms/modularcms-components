@@ -10,8 +10,6 @@
 
         name: 'theme_component_core',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
@@ -73,6 +71,7 @@
                     if (contentZoneElement) {
                         let i = 0;
 
+                        console.log(this.edit, zoneItem.type, zoneItem.data.themeDefinitionType);
                         if (this.edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
                             let editorWrapper = document.createElement('div');
                             editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
