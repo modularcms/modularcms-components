@@ -100,6 +100,18 @@
                                     }
                                     appendElement = _contentZoneComponents[contentZoneName][i].root;
                                 }
+                            } else if (this.edit) {
+                                let editorWrapper = document.createElement('div');
+                                editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
+                                contentZoneElement.appendChild(editorWrapper);
+                                const editor = new EditorJS({
+                                    holderId: editorWrapper.id,
+                                    tools: {
+                                        header: Header,
+                                        list: List
+                                    },
+                                    data: {}
+                                });
                             } else if (contentZoneItem.type == 'ccmComponent') {
                                 // init ccm component
                                 let config = {};

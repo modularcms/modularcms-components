@@ -68,9 +68,7 @@
         if ( this.website_manager ) { $.append( this.element.querySelector('#website-manager-wrapper'), this.website_manager.root ); this.website_manager.start(); }
 
         // load editor.js
-        let editorJsScriptElement = document.createElement('script');
-        editorJsScriptElement.src = 'https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest';
-        document.head.appendChild(editorJsScriptElement);
+        this.loadEditorJs();
 
         // select content area
         content = this.element.querySelector('#content');
@@ -240,6 +238,23 @@
             elem.classList.add('active')
           }
         });
+      }
+
+      this.loadEditorJs = () => {
+        let loadJs = (url) => {
+          let jsScriptElement = document.createElement('script');
+          jsScriptElement.src = url;
+          document.head.appendChild(jsScriptElement);
+        }
+        let loadPackage = (packageName) => {
+          loadJs('https://cdn.jsdelivr.net/npm/' + packageName + '@latest');
+        }
+        [
+          '@editorjs/editorjs',
+          '@editorjs/header',
+          '@editorjs/list',
+
+        ].forEach(item => loadPackage(item));
       }
     }
   };

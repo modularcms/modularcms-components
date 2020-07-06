@@ -190,3 +190,27 @@
 <ccm-template key="editHistoryListItem">
 
 </ccm-template>
+
+<ccm-template key="addComponentModal">
+    <div id="add-component-modal" class="modal">
+        <div class="modal-bg"></div>
+        <div class="modal-inner" id="add-component-modal-step-1">
+            <div class="modal-head">
+                <h2>Add %typeName%</h2>
+                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
+            </div>
+            <label for="add-component-modal-list-search">Please select a %typeName% component to use</label>
+            <div class="search">
+                <input type="text" id="add-component-modal-list-search" />
+                <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
+            </div>
+            <div id="add-component-grid-modal"></div>
+            <div class="modal-footer">
+                <div id="add-component-modal-select-button" class="button button-primary button-disabled">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
+                    <div class="button-text">Select %typeName%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ccm-template>

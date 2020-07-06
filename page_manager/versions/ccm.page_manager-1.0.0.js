@@ -172,9 +172,21 @@
                     const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
                         websiteKey: websiteKey,
                         page: page,
-                        parent: this
+                        parent: this,
+                        edit: true
                     });
                     $.setContent(content.querySelector('#edit-content'), pageRenderer.root);
+
+                    // handle add block event
+                    if (window.pageManagerAddBlockEventHandler) {
+                        window.removeEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler)
+                    }
+                    window.pageManagerAddBlockEventHandler = () => {
+                        const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
+                        $.append(this.element, modal);
+                        modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
+                    };
+                    window.addEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler);
 
                     //handle content switcher
                     let editMenuItems = this.element.querySelectorAll('.edit-menu .menu-item');
