@@ -73,7 +73,19 @@
                         let appendElements = [];
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
-                            if (contentZoneItem.type == 'themeDefinition') {
+                            if (this.edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
+                                let editorWrapper = document.createElement('div');
+                                editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
+                                contentZoneElement.appendChild(editorWrapper);
+                                const editor = new EditorJS({
+                                    holderId: editorWrapper.id,
+                                    tools: {
+                                        header: Header,
+                                        list: List
+                                    },
+                                    data: {}
+                                });
+                            } else if (contentZoneItem.type == 'themeDefinition') {
                                 // init theme definition
                                 if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
                                     _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
@@ -100,18 +112,6 @@
                                     }
                                     appendElement = _contentZoneComponents[contentZoneName][i].root;
                                 }
-                            } else if (this.edit) {
-                                let editorWrapper = document.createElement('div');
-                                editorWrapper.id = 'editorjs-' + this.index + '-' + contentZoneName;
-                                contentZoneElement.appendChild(editorWrapper);
-                                const editor = new EditorJS({
-                                    holderId: editorWrapper.id,
-                                    tools: {
-                                        header: Header,
-                                        list: List
-                                    },
-                                    data: {}
-                                });
                             } else if (contentZoneItem.type == 'ccmComponent') {
                                 // init ccm component
                                 let config = {};
