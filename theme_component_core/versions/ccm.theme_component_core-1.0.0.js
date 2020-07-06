@@ -40,13 +40,6 @@
 
             let _themeDefinitions = {};
 
-            const themeDefinitionsTypeNames = {
-                'theme': 'Theme',
-                'layout': 'Layout',
-                'block': 'Block',
-                'contentComponent': 'Content component'
-            }
-
             /**
              *
              * @param html              The input html
@@ -187,8 +180,8 @@
                         }
 
                         // Add edit add block
-                        if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType != 'layout') {
-                            const addPlaceholder = $.html(this.html.addBlock, {type: themeDefinitionsTypeNames[zoneItem.data.themeDefinitionType]});
+                        if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'layout') {
+                            const addPlaceholder = $.html(this.html.addBlock, {});
                             $.append(contentZoneElement, addPlaceholder);
                             addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
                         }
