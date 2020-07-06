@@ -79,7 +79,7 @@
                                         pageRenderer = await this.ccm.start(this.pageRendererUrl, config);
                                     } else {
                                         Object.assign(pageRenderer, config);
-                                        await pageRenderer.start();
+                                        await pageRenderer.update();
                                     }
 
                                     $.setContent(this.element, $.html(this.html.main, {}));
