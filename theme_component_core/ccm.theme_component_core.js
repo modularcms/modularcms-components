@@ -95,7 +95,7 @@
                                     } else {
                                         // Update existing component
                                         Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                                        _contentZoneComponents[contentZoneName][i].rerender();
+                                        _contentZoneComponents[contentZoneName][i].update();
                                     }
                                     appendElement = _contentZoneComponents[contentZoneName][i].root;
                                 }
@@ -116,7 +116,7 @@
                                 } else {
                                     // Update existing component
                                     Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                                    _contentZoneComponents[contentZoneName][i].rerender();
+                                    _contentZoneComponents[contentZoneName][i].update();
                                 }
                                 appendElement = _contentZoneComponents[contentZoneName][i].root;
                             } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
