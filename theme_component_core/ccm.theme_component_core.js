@@ -83,7 +83,7 @@
                             await editor.isReady;
                             let style = document.createElement('style');
                             style.innerText = window.editorJsCSS;
-                            this.element.appendChild(style);
+                            contentZoneElement.appendChild(style);
                         } else {
                             let appendElements = [];
                             for (let contentZoneItem of contentZoneItems) {
