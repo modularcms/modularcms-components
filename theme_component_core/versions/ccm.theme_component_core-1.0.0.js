@@ -80,13 +80,12 @@
                                     header: Header,
                                     list: List
                                 },
-                                data: {},
-                                onReady: () => {
-                                    let style = document.createElement('style');
-                                    style.innerText = window.editorJsCSS;
-                                    this.element.appendChild(style);
-                                }
+                                data: {}
                             });
+                            await editor.isReady;
+                            let style = document.createElement('style');
+                            style.innerText = window.editorJsCSS;
+                            this.element.appendChild(style);
                         } else {
                             let appendElements = [];
                             for (let contentZoneItem of contentZoneItems) {
