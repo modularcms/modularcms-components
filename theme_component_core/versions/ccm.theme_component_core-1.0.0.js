@@ -99,9 +99,7 @@
                             _contentZoneElements[contentZoneName][i] = appendElement;
 
                             if (appendElement != null) {
-                                appendElement.setAttribute('data-type', contentZoneItem.type);
                                 appendElements.push(appendElement);
-
                             }
                             i++;
                         }
@@ -349,21 +347,68 @@
             this.getAddContentBlockTypeElement = (element) => {
                 const definer = $.html(this.html.defineBlockType, {});
 
-                element.addEventListener('focus', (e) => {
+                let focused = false;
+                element.addEventListener('focus', () => {
+                    focused = true;
                     element.classList.add('focus');
                 });
 
-                // paragraph button
-                const paragraphButton = definer.querySelector('img[data-type="paragraph"]');
-                paragraphButton.addEventListener('click', () => {
-                    console.log(element);
+                // Handle focus rendering
+                let mouseDown = false
+                definer.addEventListener('mousedown', () => {
+                    mouseDown = true;
+                });
+                definer.addEventListener('mouseup', () => {
+                    mouseDown = false;
+                    if (!focused) {
+                        element.classList.remove('focus');
+                    }
+                });
+                definer.addEventListener('click', () => {
                     element.focus();
+                });
+                element.addEventListener('focusout', () => {
+                    focused = false;
+                    if (!mouseDown) {
+                        element.classList.remove('focus');
+                    }
+                });
+
+                let replaceWith = (newElement) => {
+                    let parentNode = element.parentNode;
+                    let newNextSibling = element.nextSibling.nextSibling;
+                    $.remove(element.nextSibling);
+                    $.remove(element);
+                    parentNode.insertBefore(newElement, newNextSibling);
+                    parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
+                }
+
+                // header button
+                const headerButton = definer.querySelector('img[data-type="header"]');
+                headerButton.addEventListener('click', () => {
+                    let newElement = this.getHeaderElement();
+                    replaceWith(newElement);
+                    newElement.focus();
                 });
 
                 // list button
                 const listButton = definer.querySelector('img[data-type="list"]');
                 listButton.addEventListener('click', () => {
-                    element.focus();
+                    let newElement = this.getListElement();
+                    replaceWith(newElement);
+                    newElement.querySelector('ul li:first-child, ol li:first-child').focus();
+                });
+
+                // image button
+                const imageButton = definer.querySelector('img[data-type="image"]');
+                imageButton.addEventListener('click', () => {
+                     // TODO
+                });
+
+                // component button
+                const componentButton = definer.querySelector('img[data-type="component"]');
+                componentButton.addEventListener('click', () => {
+                    // TODO
                 });
 
                 return definer;
@@ -380,8 +425,8 @@
                 const edit = this.parent.edit;
 
                 // init list
-                let element = document.createElement(block.data.style == 'ordered'?'ol':'ul');
-                element.setAttribute('data-list-style', block.data.style);
+                let element = document.createElement(contentZoneItem.data.style == 'ordered'?'ol':'ul');
+                element.setAttribute('data-list-style', contentZoneItem.data.style);
                 for (let item of contentZoneItem.data.items) {
                     let createElement = (item) => {
                         let itemElement = document.createElement('li');
@@ -393,15 +438,33 @@
                                 if (e.key === 'Enter') {
                                     e.preventDefault();
                                     $.remove(itemElement.querySelector('div:last-child'));
-                                    let newElement = createElement('');
-                                    itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
-                                    newElement.focus();
-                                    newElement.addEventListener('keydown', (e) => {
-                                        if (e.key === "Backspace" && newElement.innerHTML == '') {
-                                            e.preventDefault();
-                                            $.remove(newElement);
+
+                                    if (itemElement.innerHTML != '') {
+                                        let newElement = createElement('');
+                                        itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
+                                        newElement.focus();
+                                    } else {
+                                        let newElement = this.getParagraphElement();
+                                        element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
+                                        element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
+                                        newElement.focus();
+                                        $.remove(itemElement);
+                                        // TODO Add paragraph
+                                    }
+                                }
+                            });
+                            itemElement.addEventListener('keydown', (e) => {
+                                if (e.key === "Backspace" && itemElement.innerHTML == '') {
+                                    e.preventDefault();
+                                    let parentNode = itemElement.parentNode;
+                                    $.remove(itemElement);
+                                    if (parentNode.childElementCount == 0) {
+                                        if (element.previousSibling && element.previousSibling.previousSibling) {
+                                            this.placeCaretAtEnd(element.previousSibling.previousSibling);
                                         }
-                                    });
+                                        $.remove(element.nextSibling);
+                                        $.remove(element);
+                                    }
                                 }
                             });
                         }
