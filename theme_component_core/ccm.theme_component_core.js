@@ -157,6 +157,11 @@
                                                     let newElement = createElement('');
                                                     itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
                                                     newElement.focus();
+                                                    newElement.addEventListener('keyup', (e) => {
+                                                        if (e.key === "Backspace" && newElement.innerHTML == '') {
+                                                            $.remove(newElement);
+                                                        }
+                                                    });
                                                 }
                                             });
                                         }
@@ -203,7 +208,10 @@
                                                 let newElement = appendNewItem();
                                                 element.parentNode.insertBefore(newElement, element.nextSibling);
                                                 newElement.focus();
-                                            } else if (key === "Backspace") {
+                                            }
+                                        });
+                                        element.addEventListener('keyup', (e) => {
+                                            if (e.key === "Backspace" && element.innerHTML == '') {
                                                 $.remove(element);
                                             }
                                         });
