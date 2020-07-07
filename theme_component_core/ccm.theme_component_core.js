@@ -219,7 +219,9 @@
                         Object.assign(_contentZoneComponents[contentZoneName][i], config);
                         _contentZoneComponents[contentZoneName][i].update();
                     }
-                    return _contentZoneComponents[contentZoneName][i].root;
+                    let element = _contentZoneComponents[contentZoneName][i].root;
+                    element.setAttribute('data-type', contentZoneItem.type);
+                    return element;
                 }
 
                 return null;
@@ -248,7 +250,9 @@
                     Object.assign(_contentZoneComponents[contentZoneName][i], config);
                     _contentZoneComponents[contentZoneName][i].update();
                 }
-                return _contentZoneComponents[contentZoneName][i].root;
+                let element = _contentZoneComponents[contentZoneName][i].root;
+                element.setAttribute('data-type', contentZoneItem.type);
+                return element;
             }
 
             this.getHeaderElement = (contentZoneItem= {
@@ -269,6 +273,8 @@
                 if (edit) {
                     element.contentEditable = "true";
                 }
+
+                element.setAttribute('data-type', contentZoneItem.type);
 
                 return element;
             }
@@ -292,6 +298,8 @@
                     this.addParagraphContentEditing(element);
                 }
 
+                element.setAttribute('data-type', contentZoneItem.type);
+
                 return element;
             }
 
@@ -306,8 +314,8 @@
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
                         let newElement = this.getParagraphElement();
-                        element.parentNode.insertBefore(newElement, element.nextSibling);
-                        element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), element.nextSibling.nextSibling);
+                        element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
+                        element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
                         newElement.focus();
                     }
                 });
@@ -322,15 +330,15 @@
                     if (e.key === "Backspace" && element.innerHTML == '') {
                         if (element.previousSibling && element.previousSibling.previousSibling && element.previousSibling.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.previousSibling.getAttribute('data-type') != 'ccmComponent') {
                             e.preventDefault();
-                            self.placeCaretAtEnd(element.previousSibling.previousSibling);
+                            this.placeCaretAtEnd(element.previousSibling.previousSibling);
                         } else {
                             let newElement = this.getParagraphElement();
                             element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
-                            element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), element.nextSibling.nextSibling.nextSibling);
+                            element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
                             newElement.focus();
                         }
 
-                        $.remove(element.previousSibling);
+                        $.remove(element.nextSibling);
                         $.remove(element);
                     }
                 });
@@ -339,9 +347,14 @@
             this.getAddContentBlockTypeElement = (element) => {
                 const definer = $.html(this.html.defineBlockType, {});
 
+                element.addEventListener('focus', (e) => {
+                    element.classList.add('focus');
+                });
+
                 // paragraph button
                 const paragraphButton = definer.querySelector('img[data-type="paragraph"]');
                 paragraphButton.addEventListener('click', () => {
+                    console.log(element);
                     element.focus();
                 });
 
@@ -350,6 +363,8 @@
                 listButton.addEventListener('click', () => {
                     element.focus();
                 });
+
+                return definer;
             }
 
             this.getListElement = (contentZoneItem = {
@@ -393,6 +408,8 @@
                     element.appendChild(createElement(item));
                 }
 
+                element.setAttribute('data-type', contentZoneItem.type);
+
                 return element;
             }
 
@@ -428,6 +445,8 @@
                 if (caption) {
                     element.appendChild(caption);
                 }
+
+                element.setAttribute('data-type', contentZoneItem.type);
 
                 return element;
             }
