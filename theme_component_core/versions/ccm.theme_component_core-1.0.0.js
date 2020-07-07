@@ -240,6 +240,12 @@
                 }
 
                 _contentZonesBefore = contentZones;
+
+                // handle element click
+                if (zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block')
+                this.element.addEventListener('click', () => {
+                    this.element.style.border = '1px solid #1592e6';
+                });
             };
 
             /**
