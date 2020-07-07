@@ -151,7 +151,7 @@
                                         if (edit) {
                                             itemElement.contentEditable = "true";
                                             itemElement.addEventListener('keypress', (e) => {
-                                                if (e.keyCode === 13) {
+                                                if (e.key === 'Enter') {
                                                     e.preventDefault();
                                                     $.remove(itemElement.querySelector('div:last-child'));
                                                     let newElement = createElement('');
@@ -195,6 +195,19 @@
                                 appendElements.push(appendElement);
 
                                 if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
+                                    let addEvents = (element) => {
+                                        element.addEventListener('keypress', (e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                $.remove(element.querySelector('div:last-child'));
+                                                let newElement = appendNewItem();
+                                                element.parentNode.insertBefore(newElement, element.nextSibling);
+                                                newElement.focus();
+                                            } else if (key === "Backspace") {
+                                                $.remove(element);
+                                            }
+                                        });
+                                    }
                                     let appendNewItem = () => {
                                         // init paragraph
                                         let appendNewElement = document.createElement('p');
@@ -202,28 +215,12 @@
 
                                         if (edit) {
                                             appendNewElement.contentEditable = "true";
-                                            appendNewElement.addEventListener('keypress', (e) => {
-                                                if (e.keyCode === 13) {
-                                                    e.preventDefault();
-                                                    $.remove(appendNewElement.querySelector('div:last-child'));
-                                                    let newElement = appendNewItem();
-                                                    appendNewElement.parentNode.insertBefore(newElement, appendNewElement.nextSibling);
-                                                    newElement.focus();
-                                                }
-                                            });
+                                            addEvents(appendNewElement);
                                         }
                                         return appendNewElement;
                                     }
                                     if (edit) {
-                                        appendElement.addEventListener('keypress', (e) => {
-                                            if (e.keyCode === 13) {
-                                                e.preventDefault();
-                                                $.remove(appendElement.querySelector('div:last-child'));
-                                                let newElement = appendNewItem();
-                                                appendElement.parentNode.insertBefore(newElement, appendElement.nextSibling);
-                                                newElement.focus();
-                                            }
-                                        });
+                                        addEvents(appendElement);
                                     }
                                 }
                             }
