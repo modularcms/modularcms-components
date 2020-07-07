@@ -388,10 +388,28 @@
                         hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
                         $.append(this.parent.element, hint);
 
-                        setTimeout(() =>window.addEventListener('click', () => {
-                            $.remove(hint);
-                            this.parent.element.classList.remove('disable-content-editable');
-                        }), 100);
+                        hint.querySelector('img[data-action="bold"]').addEventListener('click', () => {
+                            document.execCommand('bold');
+                        })
+                        hint.querySelector('img[data-action="italic"]').addEventListener('click', () => {
+                            document.execCommand('italic');
+                        })
+                        hint.querySelector('img[data-action="underline"]').addEventListener('click', () => {
+                            document.execCommand('underline');
+                        })
+
+                        let handler = () => {
+                            window.removeEventListener('mousedown', handler);
+
+                            let handler2 = () => {
+                                window.removeEventListener('mouseup', handler2);
+
+                                $.remove(hint);
+                                this.parent.element.classList.remove('disable-content-editable');
+                            }
+                            window.addEventListener('mouseup', handler2);
+                        }
+                        window.addEventListener('mousedown', handler);
                     }
                 };
                 element.addEventListener('selectstart', () => {

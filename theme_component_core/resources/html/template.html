@@ -14,9 +14,9 @@
 <ccm-template key="editInlineTool">
     <div class="edit-inline-text-tool-wrapper">
         <div class="edit-inline-text-tool">
-            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/bold-icon.svg" />
-            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/italic-icon.svg" />
-            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/underline-icon.svg" />
+            <img data-action="bold" src="https://modularcms.github.io/modularcms-components/cms/resources/img/bold-icon.svg" />
+            <img data-action="italic" src="https://modularcms.github.io/modularcms-components/cms/resources/img/italic-icon.svg" />
+            <img data-action="underline" src="https://modularcms.github.io/modularcms-components/cms/resources/img/underline-icon.svg" />
         </div>
     </div>
 </ccm-template>
@@ -42,7 +42,7 @@
             display: none;
         }
 
-        .disable-content-editable *[contenteditable="true"] {
+        .disable-content-editable *[contenteditable="true"], .disable-content-editable *[contenteditable="true"] * {
             pointer-events: none;
         }
 
