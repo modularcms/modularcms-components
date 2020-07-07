@@ -48,8 +48,6 @@
              */
             this.initContent = async (html = this.parent.html.main, htmlOptions = {}, htmlPlaceholders = {}) => {
                 const element = this.parent.element;
-                const websiteKey = this.parent.websiteKey;
-                const page = this.parent.page;
                 const zoneItem = this.parent.zoneItem;
                 const contentZones = this.parent.contentZones || {};
                 const edit = this.parent.edit;
@@ -82,121 +80,19 @@
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
-                                // init theme definition
-                                if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
-                                    _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
-                                }
-                                const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
-                                if (themeDefinition) {
-                                    let config = {};
-                                    Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
-                                        parent: this.parent,
-                                        zoneItem: contentZoneItem,
-                                        contentZones: contentZoneItem.contentZones,
-                                        websiteKey: websiteKey,
-                                        page: page,
-                                        edit: edit
-                                    });
-                                    if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                                        // Start component
-                                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
-                                        _contentZoneComponents[contentZoneName][i] = component;
-                                    } else {
-                                        // Update existing component
-                                        Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                                        _contentZoneComponents[contentZoneName][i].update();
-                                    }
-                                    appendElement = _contentZoneComponents[contentZoneName][i].root;
-                                }
+                                appendElement = await this.getThemeDefinitionElement(contentZoneItem, contentZoneName, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
-                                // init ccm component
-                                let config = {};
-                                Object.assign(config, contentZoneItem.data.config, {
-                                    parent: this.parent,
-                                    contentZones: contentZoneItem.contentZones,
-                                    websiteKey: websiteKey,
-                                    page: page,
-                                    edit: edit
-                                });
-                                if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                                    // Start component
-                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
-                                    _contentZoneComponents[contentZoneName][i] = component;
-                                } else {
-                                    // Update existing component
-                                    Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                                    _contentZoneComponents[contentZoneName][i].update();
-                                }
-                                appendElement = _contentZoneComponents[contentZoneName][i].root;
+                                appendElement = await this.getCcmComponentElement(contentZoneItem, contentZoneName, i);
                             } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
-                                // init header
-                                appendElement = document.createElement('h' + contentZoneItem.data.level);
-                                appendElement.innerHTML = contentZoneItem.data.text;
-                                appendElement.contentEditable = "true";
-                                appendElement.setAttribute('data-header-level', contentZoneItem.data.level);
+                                appendElement = this.getHeaderElement(contentZoneItem);
                             } else if (contentZoneItem.type == 'paragraph') {
-                                // init paragraph
-                                appendElement = document.createElement('p');
-                                appendElement.innerHTML = contentZoneItem.data.text;
-
-                                if (edit) {
-                                    $.append(appendElement, $.html(this.html.defineBlockType, {}));
-                                    appendElement.contentEditable = "true";
-                                }
+                                appendElement = this.getParagraphElement(contentZoneItem);
                             } else if (contentZoneItem.type == 'list') {
-                                // init list
-                                appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
-                                appendElement.setAttribute('data-list-style', block.data.style);
-                                for (let item of contentZoneItem.data.items) {
-                                    let createElement = (item) => {
-                                        let itemElement = document.createElement('li');
-                                        itemElement.innerHTML = item;
-
-                                        if (edit) {
-                                            itemElement.contentEditable = "true";
-                                            itemElement.addEventListener('keypress', (e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                    $.remove(itemElement.querySelector('div:last-child'));
-                                                    let newElement = createElement('');
-                                                    itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
-                                                    newElement.focus();
-                                                    newElement.addEventListener('keydown', (e) => {
-                                                        if (e.key === "Backspace" && newElement.innerHTML == '') {
-                                                            e.preventDefault();
-                                                            $.remove(newElement);
-                                                        }
-                                                    });
-                                                }
-                                            });
-                                        }
-                                        return itemElement;
-                                    }
-                                    appendElement.appendChild(createElement(item));
-                                }
+                                appendElement = this.getListElement(contentZoneItem);
                             } else if (contentZoneItem.type == 'image') {
-                                // init image
-                                appendElement = document.createElement('div');
-                                appendElement.classList.add('image-wrapper');
-
-                                let img = document.createElement('img');
-                                let caption = null;
-
-                                img.src = contentZoneItem.data.file.url;
-                                img.loading = 'lazy';
-                                if (contentZoneItem.data.caption) {
-                                    img.loading = 'lazy';
-                                    caption = document.createElement('div');
-                                    caption.classList.add('image-caption');
-                                    caption.innerHTML = contentZoneItem.data.caption;
-                                }
-
-                                appendElement.appendChild(img);
-                                if (caption) {
-                                    appendElement.appendChild(caption);
-                                }
+                                appendElement = this.getImageElement(contentZoneItem);
                             }
 
                             // Remember element
@@ -206,60 +102,6 @@
                                 appendElement.setAttribute('data-type', contentZoneItem.type);
                                 appendElements.push(appendElement);
 
-                                if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
-                                    let self = this;
-                                    let addEvents = (element) => {
-                                        if (element.innerHTML == '') {
-                                            element.classList.remove('has-content');
-                                        } else {
-                                            element.classList.add('has-content');
-                                        }
-                                        element.addEventListener('keypress', (e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-                                                let newElement = appendNewItem();
-                                                element.parentNode.insertBefore(newElement, element.nextSibling);
-                                                newElement.focus();
-                                            }
-                                        });
-                                        element.addEventListener('keyup', (e) => {
-                                            if (element.innerHTML == '') {
-                                                element.classList.remove('has-content');
-                                            } else {
-                                                element.classList.add('has-content');
-                                            }
-                                        });
-                                        element.addEventListener('keydown', (e) => {
-                                            if (e.key === "Backspace" && element.innerHTML == '') {
-                                                if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
-                                                    e.preventDefault();
-                                                    self.placeCaretAtEnd(element.previousSibling);
-                                                } else {
-                                                    let newElement = appendNewItem();
-                                                    element.parentNode.insertBefore(newElement, element.nextSibling);
-                                                    newElement.focus();
-                                                }
-
-                                                $.remove(element);
-                                            }
-                                        });
-                                    }
-                                    let appendNewItem = () => {
-                                        // init paragraph
-                                        let appendNewElement = document.createElement('p');
-                                        appendNewElement.setAttribute('data-type', 'paragraph');
-
-                                        if (edit) {
-                                            appendNewElement.contentEditable = "true";
-                                            addEvents(appendNewElement);
-                                        }
-                                        return appendNewElement;
-                                    }
-                                    if (edit) {
-                                        addEvents(appendElement);
-                                    }
-                                }
                             }
                             i++;
                         }
@@ -268,7 +110,10 @@
                         contentZoneElement.innerHTML = '';
                         for (let appendElement of appendElements) {
                             $.append(contentZoneElement, appendElement);
-                            appendElement.parentNode.insertBefore($.html(this.html.defineBlockType, {}), appendElement.nextSibling);
+
+                            if (edit) {
+                                appendElement.parentNode.insertBefore(this.getAddContentBlockTypeElement(appendElement), appendElement.nextSibling);
+                            }
                         }
 
                         // Add edit add block
@@ -345,6 +190,248 @@
                     textRange.collapse(false);
                     textRange.select();
                 }
+            };
+
+            this.getThemeDefinitionElement = async (contentZoneItem, contentZoneName, i) => {
+                const websiteKey = this.parent.websiteKey;
+                const page = this.parent.page;
+                const edit = this.parent.edit;
+
+                // init theme definition
+                if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
+                    _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
+                }
+                const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
+                if (themeDefinition) {
+                    let config = {};
+                    Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
+                        parent: this.parent,
+                        zoneItem: contentZoneItem,
+                        contentZones: contentZoneItem.contentZones,
+                        websiteKey: websiteKey,
+                        page: page,
+                        edit: edit
+                    });
+                    if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                        // Start component
+                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                        _contentZoneComponents[contentZoneName][i] = component;
+                    } else {
+                        // Update existing component
+                        Object.assign(_contentZoneComponents[contentZoneName][i], config);
+                        _contentZoneComponents[contentZoneName][i].update();
+                    }
+                    return _contentZoneComponents[contentZoneName][i].root;
+                }
+
+                return null;
+            }
+
+            this.getCcmComponentElement = async (contentZoneItem, contentZoneName, i) => {
+                const websiteKey = this.parent.websiteKey;
+                const page = this.parent.page;
+                const edit = this.parent.edit;
+
+                // init ccm component
+                let config = {};
+                Object.assign(config, contentZoneItem.data.config, {
+                    parent: this.parent,
+                    contentZones: contentZoneItem.contentZones,
+                    websiteKey: websiteKey,
+                    page: page,
+                    edit: edit
+                });
+                if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                    // Start component
+                    const component = await this.ccm.start(contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
+                    _contentZoneComponents[contentZoneName][i] = component;
+                } else {
+                    // Update existing component
+                    Object.assign(_contentZoneComponents[contentZoneName][i], config);
+                    _contentZoneComponents[contentZoneName][i].update();
+                }
+                return _contentZoneComponents[contentZoneName][i].root;
+            }
+
+            this.getHeaderElement = (contentZoneItem= {
+                'type': 'header',
+                'data': {
+                    'text': '',
+                    'level': 2
+                },
+                contentZones: {}
+            }) => {
+                const edit = this.parent.edit;
+
+                // init header
+                let element = document.createElement('h' + contentZoneItem.data.level);
+                element.innerHTML = contentZoneItem.data.text;
+                element.setAttribute('data-header-level', contentZoneItem.data.level);
+
+                if (edit) {
+                    element.contentEditable = "true";
+                }
+
+                return element;
+            }
+
+            this.getParagraphElement = (contentZoneItem = {
+                'type': 'paragraph',
+                'data': {
+                    'text': ''
+                },
+                contentZones: {}
+            }) => {
+                const edit = this.parent.edit;
+
+                // init paragraph
+                let element = document.createElement('p');
+                element.contentZoneItem = contentZoneItem;
+                element.innerHTML = contentZoneItem.data.text;
+
+                if (edit) {
+                    element.contentEditable = "true";
+                    this.addParagraphContentEditing(element);
+                }
+
+                return element;
+            }
+
+            this.addParagraphContentEditing = (element) => {
+                if (element.innerHTML == '') {
+                    element.classList.remove('has-content');
+                } else {
+                    element.classList.add('has-content');
+                }
+                element.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
+                        let newElement = this.getParagraphElement();
+                        element.parentNode.insertBefore(newElement, element.nextSibling);
+                        element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), element.nextSibling.nextSibling);
+                        newElement.focus();
+                    }
+                });
+                element.addEventListener('keyup', (e) => {
+                    if (element.innerHTML == '') {
+                        element.classList.remove('has-content');
+                    } else {
+                        element.classList.add('has-content');
+                    }
+                });
+                element.addEventListener('keydown', (e) => {
+                    if (e.key === "Backspace" && element.innerHTML == '') {
+                        if (element.previousSibling && element.previousSibling.previousSibling && element.previousSibling.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.previousSibling.getAttribute('data-type') != 'ccmComponent') {
+                            e.preventDefault();
+                            self.placeCaretAtEnd(element.previousSibling.previousSibling);
+                        } else {
+                            let newElement = this.getParagraphElement();
+                            element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
+                            element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), element.nextSibling.nextSibling.nextSibling);
+                            newElement.focus();
+                        }
+
+                        $.remove(element.previousSibling);
+                        $.remove(element);
+                    }
+                });
+            }
+
+            this.getAddContentBlockTypeElement = (element) => {
+                const definer = $.html(this.html.defineBlockType, {});
+
+                // paragraph button
+                const paragraphButton = definer.querySelector('img[data-type="paragraph"]');
+                paragraphButton.addEventListener('click', () => {
+                    element.focus();
+                });
+
+                // list button
+                const listButton = definer.querySelector('img[data-type="list"]');
+                listButton.addEventListener('click', () => {
+                    element.focus();
+                });
+            }
+
+            this.getListElement = (contentZoneItem = {
+                'type': 'list',
+                'data': {
+                    'style': 'unordered',
+                    'items': ['']
+                },
+                contentZones: {}
+            }) => {
+                const edit = this.parent.edit;
+
+                // init list
+                let element = document.createElement(block.data.style == 'ordered'?'ol':'ul');
+                element.setAttribute('data-list-style', block.data.style);
+                for (let item of contentZoneItem.data.items) {
+                    let createElement = (item) => {
+                        let itemElement = document.createElement('li');
+                        itemElement.innerHTML = item;
+
+                        if (edit) {
+                            itemElement.contentEditable = "true";
+                            itemElement.addEventListener('keypress', (e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    $.remove(itemElement.querySelector('div:last-child'));
+                                    let newElement = createElement('');
+                                    itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
+                                    newElement.focus();
+                                    newElement.addEventListener('keydown', (e) => {
+                                        if (e.key === "Backspace" && newElement.innerHTML == '') {
+                                            e.preventDefault();
+                                            $.remove(newElement);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                        return itemElement;
+                    }
+                    element.appendChild(createElement(item));
+                }
+
+                return element;
+            }
+
+            this.getImageElement = (contentZoneItem = {
+                'type': 'list',
+                'data': {
+                    'file': {
+                        'url': 'Placeholder' //TODO
+                    },
+                    'caption': null
+                },
+                contentZones: {}
+            }) => {
+                const edit = this.parent.edit;
+
+                // init image
+                let element = document.createElement('div');
+                element.classList.add('image-wrapper');
+
+                let img = document.createElement('img');
+                let caption = null;
+
+                img.src = contentZoneItem.data.file.url;
+                img.loading = 'lazy';
+                if (contentZoneItem.data.caption) {
+                    img.loading = 'lazy';
+                    caption = document.createElement('div');
+                    caption.classList.add('image-caption');
+                    caption.innerHTML = contentZoneItem.data.caption;
+                }
+
+                element.appendChild(img);
+                if (caption) {
+                    element.appendChild(caption);
+                }
+
+                return element;
             }
         }
 
