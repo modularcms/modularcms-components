@@ -247,13 +247,12 @@
           document.head.appendChild(jsScriptElement);
         }
         let loadPackage = (packageName) => {
-          loadJs('https://cdn.jsdelivr.net/npm/' + packageName + '@latest');
+          loadJs('https://cdn.jsdelivr.net/npm/' + packageName);
         }
+        loadJs('https://raw.githubusercontent.com/felixbroehl/editor.js/release/2.18/dist/editor.js');
         [
-          '@editorjs/editorjs',
-          '@editorjs/header',
-          '@editorjs/list',
-
+          '@editorjs/header@2.5.0',
+          '@editorjs/list@1.5.0',
         ].forEach(item => loadPackage(item));
       }
     }

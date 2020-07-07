@@ -82,6 +82,11 @@
                                 },
                                 data: {}
                             });
+                            editor.isReady().then(() => {
+                                let style = document.createElement('style');
+                                style.innerText = window.editorJsCss;
+                                this.element.appendChild(style);
+                            })
                         } else {
                             let appendElements = [];
                             for (let contentZoneItem of contentZoneItems) {
