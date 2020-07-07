@@ -403,14 +403,16 @@
                             document.execCommand('underline');
                         })
 
+                        let remove = () => {
+                            $.remove(hint);
+                            this.parent.element.classList.remove('disable-content-editable');
+                        };
+
                         let handler = () => {
                             window.removeEventListener('mousedown', handler);
-
                             let handler2 = () => {
                                 window.removeEventListener('mouseup', handler2);
-
-                                $.remove(hint);
-                                this.parent.element.classList.remove('disable-content-editable');
+                                remove();
                             }
                             window.addEventListener('mouseup', handler2);
                         }
