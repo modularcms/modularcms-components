@@ -10,6 +10,8 @@
 
         name: 'theme_component_core',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
@@ -382,28 +384,26 @@
                     };
 
                     if (!range.collapsed) {
-                        this.parent.element.classList.add('disable-content-editable');
                         let hint = $.html(this.html.editInlineTool, {});
                         hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width + 'px';
                         hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
                         $.append(this.parent.element, hint);
 
-                        hint.querySelector('img[data-action="bold"]').addEventListener('click', () => {
+                        hint.querySelector('img[data-action="bold"]').addEventListener('mouseup', () => {
                             selection.addRange(range);
                             document.execCommand('bold');
                         })
-                        hint.querySelector('img[data-action="italic"]').addEventListener('click', () => {
+                        hint.querySelector('img[data-action="italic"]').addEventListener('mouseup', () => {
                             selection.addRange(range);
                             document.execCommand('italic');
                         })
-                        hint.querySelector('img[data-action="underline"]').addEventListener('click', () => {
+                        hint.querySelector('img[data-action="underline"]').addEventListener('mouseup', () => {
                             selection.addRange(range);
                             document.execCommand('underline');
-                        })
+                        });
 
                         let remove = () => {
                             $.remove(hint);
-                            this.parent.element.classList.remove('disable-content-editable');
                         };
 
                         let handler = () => {

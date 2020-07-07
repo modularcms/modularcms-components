@@ -136,15 +136,29 @@
 
         .edit-inline-text-tool {
             z-index: 2001;
-            padding: 8px;
+            padding: 4px;
             border-radius: 5px;
             border: 1px solid #ccc;
             background-color: #fff;
             position: absolute;
+            display: flex;
         }
 
         .edit-inline-text-tool img {
-            height: 25px;
+            height: 30px;
+            padding: 4px;
+            width: 30px;
+            border-radius: 5px;
+            background-color: #fff;
+            transition: background-color .3s ease-in-out;
+        }
+
+        .edit-inline-text-tool img:hover {
+            background-color: #eaf6ff;
+        }
+
+        .edit-inline-text-tool img:active {
+            background-color: #d3edff;
         }
     </style>
 </ccm-template>
