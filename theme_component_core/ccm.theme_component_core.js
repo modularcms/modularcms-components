@@ -74,10 +74,6 @@
                     if (contentZoneElement) {
                         let i = 0;
 
-                        if (edit) {
-                            contentZoneElement.contentEditable = "true";
-                        }
-
                         let appendElements = [];
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
