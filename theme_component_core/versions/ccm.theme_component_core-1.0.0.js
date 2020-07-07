@@ -145,8 +145,7 @@
                                         itemElement.contentEditable = "true";
                                         itemElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
-                                                e.preventDefault();
-                                                e.stopPropagation();
+                                                $.remove(itemElement.querySelector('> div:last-child'));
                                                 itemElement.parentNode.insertBefore(createElement(''), itemElement.nextSibling);
                                             }
                                         })
@@ -198,8 +197,7 @@
                                     }
                                     appendElement.addEventListener('keyup', (e) => {
                                         if (e.keyCode === 13) {
-                                            e.preventDefault();
-                                            e.stopPropagation();
+                                            $.remove(itemElement.querySelector('> div:last-child'));
                                             appendElement.parentNode.insertBefore(appendNewItem(), appendElement.nextSibling);
                                         }
                                     });
