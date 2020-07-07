@@ -67,9 +67,6 @@
         // init website manager
         if ( this.website_manager ) { $.append( this.element.querySelector('#website-manager-wrapper'), this.website_manager.root ); this.website_manager.start(); }
 
-        // load editor.js
-        this.loadEditorJs();
-
         // select content area
         content = this.element.querySelector('#content');
         const menu = this.element.querySelector('#menu');
@@ -238,22 +235,6 @@
             elem.classList.add('active')
           }
         });
-      }
-
-      this.loadEditorJs = () => {
-        let loadJs = (url) => {
-          let jsScriptElement = document.createElement('script');
-          jsScriptElement.src = url;
-          document.head.appendChild(jsScriptElement);
-        }
-        let loadPackage = (packageName) => {
-          loadJs('https://cdn.jsdelivr.net/npm/' + packageName);
-        }
-        loadJs('https://raw.githubusercontent.com/felixbroehl/editor.js/release/2.18/dist/editor.js');
-        [
-          '@editorjs/header@2.5.0',
-          '@editorjs/list@1.5.0',
-        ].forEach(item => loadPackage(item));
       }
     }
   };
