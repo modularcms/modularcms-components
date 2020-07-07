@@ -221,12 +221,14 @@
                                                 newElement.focus();
                                             }
                                         });
-                                        element.addEventListener('keydown', (e) => {
+                                        element.addEventListener('keyup', (e) => {
                                             if (element.innerHTML == '') {
                                                 element.classList.remove('has-content');
                                             } else {
                                                 element.classList.add('has-content');
                                             }
+                                        });
+                                        element.addEventListener('keydown', (e) => {
                                             if (e.key === "Backspace" && element.innerHTML == '') {
                                                 if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
                                                     e.preventDefault();

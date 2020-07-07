@@ -27,10 +27,21 @@
 
         .define-content-block-type {
             display: none;
+            align-items: center;
+        }
+
+        .define-content-block-type img {
+            height: 35px;
+            margin-right: 8px;
+        }
+
+        .define-content-block-type img:first-child {
+            height: 20px;
+            opacity: 0.5;
         }
 
         *[contenteditable="true"][data-type="paragraph"]:focus:not(.has-content) + .define-content-block-type {
-            display: inline-block;
+            display: inline-flex;
         }
 
         * {
