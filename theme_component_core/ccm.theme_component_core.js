@@ -143,8 +143,10 @@
                                         itemElement.contentEditable = "true";
                                         itemElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
-                                                $.remove(itemElement.querySelector('> div:last-child'));
-                                                itemElement.parentNode.insertBefore(createElement(''), itemElement.nextSibling);
+                                                $.remove(itemElement.querySelector('div:last-child'));
+                                                let newElement = createElement('');
+                                                itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
+                                                newElement.focus();
                                             }
                                         })
                                         return itemElement;
@@ -185,18 +187,23 @@
                                         // init paragraph
                                         let appendNewElement = document.createElement('p');
                                         appendNewElement.contentEditable = "true";
+                                        appendNewElement.setAttribute('data-type', 'paragraph');
 
                                         appendNewElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
-                                                appendNewElement.parentNode.insertBefore(appendNewItem(), appendNewElement.nextSibling);
+                                                let newElement = appendNewItem();
+                                                appendNewElement.parentNode.insertBefore(newElement, appendNewElement.nextSibling);
+                                                newElement.focus();
                                             }
                                         });
                                         return appendNewElement;
                                     }
                                     appendElement.addEventListener('keyup', (e) => {
                                         if (e.keyCode === 13) {
-                                            $.remove(appendElement.querySelector('> div:last-child'));
-                                            appendElement.parentNode.insertBefore(appendNewItem(), appendElement.nextSibling);
+                                            $.remove(appendElement.querySelector('div:last-child'));
+                                            let newElement = appendNewItem();
+                                            appendElement.parentNode.insertBefore(newElement, appendElement.nextSibling);
+                                            newElement.focus();
                                         }
                                     });
                                 }
