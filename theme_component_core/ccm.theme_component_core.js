@@ -71,55 +71,20 @@
                     if (contentZoneElement) {
                         let i = 0;
 
-                        if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data && zoneItem.data.themeDefinitionType == 'block') {
-                            const editor = new EditorJS({
-                                holder: contentZoneElement,
-                                tools: {
-                                    header: Header,
-                                    list: List
-                                },
-                                data: {}
-                            });
-                            await editor.isReady;
-                            let style = document.createElement('style');
-                            style.innerText = window.editorJsCSS;
-                            contentZoneElement.appendChild(style);
-                        } else {
-                            let appendElements = [];
-                            for (let contentZoneItem of contentZoneItems) {
-                                let appendElement = null;
-                                if (contentZoneItem.type == 'themeDefinition') {
-                                    // init theme definition
-                                    if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
-                                        _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
-                                    }
-                                    const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
-                                    if (themeDefinition) {
-                                        let config = {};
-                                        Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
-                                            parent: this.parent,
-                                            zoneItem: contentZoneItem,
-                                            contentZones: contentZoneItem.contentZones,
-                                            websiteKey: websiteKey,
-                                            page: page,
-                                            edit: edit
-                                        });
-                                        if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                                            // Start component
-                                            const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
-                                            _contentZoneComponents[contentZoneName][i] = component;
-                                        } else {
-                                            // Update existing component
-                                            Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                                            _contentZoneComponents[contentZoneName][i].update();
-                                        }
-                                        appendElement = _contentZoneComponents[contentZoneName][i].root;
-                                    }
-                                } else if (contentZoneItem.type == 'ccmComponent') {
-                                    // init ccm component
+                        let appendElements = [];
+                        for (let contentZoneItem of contentZoneItems) {
+                            let appendElement = null;
+                            if (contentZoneItem.type == 'themeDefinition') {
+                                // init theme definition
+                                if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
+                                    _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
+                                }
+                                const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
+                                if (themeDefinition) {
                                     let config = {};
-                                    Object.assign(config, contentZoneItem.data.config, {
+                                    Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
                                         parent: this.parent,
+                                        zoneItem: contentZoneItem,
                                         contentZones: contentZoneItem.contentZones,
                                         websiteKey: websiteKey,
                                         page: page,
@@ -127,7 +92,7 @@
                                     });
                                     if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                         // Start component
-                                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
+                                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
                                         _contentZoneComponents[contentZoneName][i] = component;
                                     } else {
                                         // Update existing component
@@ -135,68 +100,99 @@
                                         _contentZoneComponents[contentZoneName][i].update();
                                     }
                                     appendElement = _contentZoneComponents[contentZoneName][i].root;
-                                } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                                    appendElement = _contentZoneElements[contentZoneName][i];
-                                } else if (contentZoneItem.type == 'header') {
-                                    // init header
-                                    appendElement = document.createElement('h' + contentZoneItem.data.level);
-                                    appendElement.innerHTML = contentZoneItem.data.text;
-                                } else if (contentZoneItem.type == 'paragraph') {
-                                    // init paragraph
-                                    appendElement = document.createElement('p');
-                                    appendElement.innerHTML = contentZoneItem.data.text;
-                                } else if (contentZoneItem.type == 'list') {
-                                    // init list
-                                    appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
-                                    for (let item of contentZoneItem.data.items) {
+                                }
+                            } else if (contentZoneItem.type == 'ccmComponent') {
+                                // init ccm component
+                                let config = {};
+                                Object.assign(config, contentZoneItem.data.config, {
+                                    parent: this.parent,
+                                    contentZones: contentZoneItem.contentZones,
+                                    websiteKey: websiteKey,
+                                    page: page,
+                                    edit: edit
+                                });
+                                if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                    // Start component
+                                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, contentZoneItem.data.config);
+                                    _contentZoneComponents[contentZoneName][i] = component;
+                                } else {
+                                    // Update existing component
+                                    Object.assign(_contentZoneComponents[contentZoneName][i], config);
+                                    _contentZoneComponents[contentZoneName][i].update();
+                                }
+                                appendElement = _contentZoneComponents[contentZoneName][i].root;
+                            } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                                appendElement = _contentZoneElements[contentZoneName][i];
+                            } else if (contentZoneItem.type == 'header') {
+                                // init header
+                                appendElement = document.createElement('h' + contentZoneItem.data.level);
+                                appendElement.innerHTML = contentZoneItem.data.text;
+                                appendElement.contentEditable = "true";
+                            } else if (contentZoneItem.type == 'paragraph') {
+                                // init paragraph
+                                appendElement = document.createElement('p');
+                                appendElement.innerHTML = contentZoneItem.data.text;
+                                appendElement.contentEditable = "true";
+                            } else if (contentZoneItem.type == 'list') {
+                                // init list
+                                appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
+                                for (let item of contentZoneItem.data.items) {
+                                    let createElement = (item) => {
                                         let itemElement = document.createElement('li');
                                         itemElement.innerHTML = item;
+                                        itemElement.contentEditable = "true";
                                         appendElement.appendChild(itemElement);
+                                        itemElement.addEventListener('keyup', (e) => {
+                                            if (e.keyCode === 13) {
+                                                createElement('');
+                                            }
+                                        })
                                     }
-                                } else if (contentZoneItem.type == 'image') {
-                                    // init image
-                                    appendElement = document.createElement('div');
-                                    appendElement.classList.add('image-wrapper');
+                                    createElement(item);
+                                }
+                            } else if (contentZoneItem.type == 'image') {
+                                // init image
+                                appendElement = document.createElement('div');
+                                appendElement.classList.add('image-wrapper');
 
-                                    let img = document.createElement('img');
-                                    let caption = null;
+                                let img = document.createElement('img');
+                                let caption = null;
 
-                                    img.src = contentZoneItem.data.file.url;
+                                img.src = contentZoneItem.data.file.url;
+                                img.loading = 'lazy';
+                                if (contentZoneItem.data.caption) {
                                     img.loading = 'lazy';
-                                    if (contentZoneItem.data.caption) {
-                                        img.loading = 'lazy';
-                                        caption = document.createElement('div');
-                                        caption.classList.add('image-caption');
-                                        caption.innerHTML = contentZoneItem.data.caption;
-                                    }
-
-                                    appendElement.appendChild(img);
-                                    if (caption) {
-                                        appendElement.appendChild(caption);
-                                    }
+                                    caption = document.createElement('div');
+                                    caption.classList.add('image-caption');
+                                    caption.innerHTML = contentZoneItem.data.caption;
                                 }
 
-                                // Remember element
-                                _contentZoneElements[contentZoneName][i] = appendElement;
-
-                                if (appendElement != null) {
-                                    appendElements.push(appendElement);
+                                appendElement.appendChild(img);
+                                if (caption) {
+                                    appendElement.appendChild(caption);
                                 }
-                                i++;
                             }
 
-                            // Append elements
-                            contentZoneElement.innerHTML = '';
-                            for (let appendElement of appendElements) {
-                                $.append(contentZoneElement, appendElement);
-                            }
+                            // Remember element
+                            _contentZoneElements[contentZoneName][i] = appendElement;
 
-                            // Add edit add block
-                            if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'layout') {
-                                const addPlaceholder = $.html(this.html.addBlock, {});
-                                $.append(contentZoneElement, addPlaceholder);
-                                addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
+                            if (appendElement != null) {
+                                appendElements.push(appendElement);
                             }
+                            i++;
+                        }
+
+                        // Append elements
+                        contentZoneElement.innerHTML = '';
+                        for (let appendElement of appendElements) {
+                            $.append(contentZoneElement, appendElement);
+                        }
+
+                        // Add edit add block
+                        if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'layout') {
+                            const addPlaceholder = $.html(this.html.addBlock, {});
+                            $.append(contentZoneElement, addPlaceholder);
+                            addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
                         }
                     }
                 }
