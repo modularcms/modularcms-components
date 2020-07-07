@@ -140,6 +140,7 @@
                                 // init paragraph
                                 appendElement = document.createElement('p');
                                 appendElement.innerHTML = contentZoneItem.data.text;
+                                $.append(appendElement, $.html(this.html.defineBlockType, {}));
                                 appendElement.contentEditable = "true";
                             } else if (contentZoneItem.type == 'list') {
                                 // init list
@@ -228,6 +229,7 @@
                                         // init paragraph
                                         let appendNewElement = document.createElement('p');
                                         appendNewElement.setAttribute('data-type', 'paragraph');
+                                        $.append(appendElement, $.html(this.html.defineBlockType, {}));
 
                                         if (edit) {
                                             appendNewElement.contentEditable = "true";
