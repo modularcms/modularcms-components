@@ -385,22 +385,17 @@
 
                     if (!range.collapsed) {
                         let hint = $.html(this.html.editInlineTool, {});
-                        hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width / 2 + 'px';
-                        hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) + 'px';
+                        hint.style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width / 2 + 'px';
+                        hint.style.top = rect.top - getOffsetTop(this.parent.element) + 'px';
                         $.append(this.parent.element, hint);
 
-                        hint.querySelector('img[data-action="bold"]').addEventListener('mouseup', () => {
-                            selection.addRange(range);
-                            document.execCommand('bold');
-                        })
-                        hint.querySelector('img[data-action="italic"]').addEventListener('mouseup', () => {
-                            selection.addRange(range);
-                            document.execCommand('italic');
-                        })
-                        hint.querySelector('img[data-action="underline"]').addEventListener('mouseup', () => {
-                            selection.addRange(range);
-                            document.execCommand('underline');
+                        ['bold', 'italic', 'underline', 'strikeTrough', 'removeFormat'].forEach(item => {
+                            hint.querySelector('img[data-action="' + item + '"]').addEventListener('mouseup', () => {
+                                selection.addRange(range);
+                                document.execCommand(item);
+                            });
                         });
+
 
                         let remove = () => {
                             $.remove(hint);
@@ -410,11 +405,24 @@
                             window.removeEventListener('mousedown', handler);
                             let handler2 = () => {
                                 window.removeEventListener('mouseup', handler2);
-                                remove();
+                                const selection = this.parent.element.parentNode.getSelection();
+                                console.log(selection, range, range.collapsed)
+                                if (!(selection.rangeCount == 1 && !selection.getRangeAt(0).collapsed)) {
+                                    remove();
+                                } else {
+                                    window.addEventListener('mousedown', handler);
+                                    element.addEventListener('mouseup', mouseUpHandler);
+                                }
                             }
                             window.addEventListener('mouseup', handler2);
                         }
                         window.addEventListener('mousedown', handler);
+
+                        let handler3 = () => {
+                            element.removeEventListener('selectstart', handler3);
+                            remove();
+                        };
+                        element.addEventListener('selectstart', handler3);
                     }
                 };
                 element.addEventListener('selectstart', () => {

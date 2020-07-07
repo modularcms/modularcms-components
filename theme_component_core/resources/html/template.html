@@ -12,12 +12,12 @@
 </ccm-template>
 
 <ccm-template key="editInlineTool">
-    <div class="edit-inline-text-tool-wrapper">
-        <div class="edit-inline-text-tool">
-            <img data-action="bold" src="https://modularcms.github.io/modularcms-components/cms/resources/img/bold-icon.svg" />
-            <img data-action="italic" src="https://modularcms.github.io/modularcms-components/cms/resources/img/italic-icon.svg" />
-            <img data-action="underline" src="https://modularcms.github.io/modularcms-components/cms/resources/img/underline-icon.svg" />
-        </div>
+    <div class="edit-inline-text-tool">
+        <img data-action="bold" src="https://modularcms.github.io/modularcms-components/cms/resources/img/bold-icon.svg" />
+        <img data-action="italic" src="https://modularcms.github.io/modularcms-components/cms/resources/img/italic-icon.svg" />
+        <img data-action="underline" src="https://modularcms.github.io/modularcms-components/cms/resources/img/underline-icon.svg" />
+        <img data-action="strikeThrough" src="https://modularcms.github.io/modularcms-components/cms/resources/img/strikethrough-icon.svg" />
+        <img data-action="removeFormat" src="https://modularcms.github.io/modularcms-components/cms/resources/img/clear-formatting-icon.svg" />
     </div>
 </ccm-template>
 
@@ -122,15 +122,7 @@
             position: relative;
         }
 
-        .edit-inline-text-tool-wrapper {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-        }
-
-        .edit-inline-text-tool-wrapper, .edit-inline-text-tool-wrapper * {
+        .edit-inline-text-tool, .edit-inline-text-tool * {
             pointer-events: all;
         }
 
