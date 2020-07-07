@@ -193,6 +193,7 @@
 
                                         appendNewElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
+                                                $.remove(appendNewElement.querySelector('div:last-child'));
                                                 let newElement = appendNewItem();
                                                 appendNewElement.parentNode.insertBefore(newElement, appendNewElement.nextSibling);
                                                 newElement.focus();
