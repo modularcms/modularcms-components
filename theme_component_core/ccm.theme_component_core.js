@@ -157,7 +157,7 @@
                                                     let newElement = createElement('');
                                                     itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
                                                     newElement.focus();
-                                                    newElement.addEventListener('keyup', (e) => {
+                                                    newElement.addEventListener('keydown', (e) => {
                                                         if (e.key === "Backspace" && newElement.innerHTML == '') {
                                                             $.remove(newElement);
                                                         }
@@ -210,11 +210,12 @@
                                                 newElement.focus();
                                             }
                                         });
-                                        element.addEventListener('keyup', (e) => {
+                                        element.addEventListener('keydown', (e) => {
                                             if (e.key === "Backspace" && element.innerHTML == '') {
                                                 if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
-                                                    element.previousSibling.focus();
+                                                    this.placeCaretAtEnd(element.previousSibling);
                                                 }
+
                                                 $.remove(element);
                                             }
                                         });
@@ -297,6 +298,25 @@
                     }
                 });
                 window.dispatchEvent(event);
+            }
+
+            // Copied from https://stackoverflow.com/a/4238971
+            this.placeCaretAtEnd = (el) => {
+                el.focus();
+                if (typeof window.getSelection != "undefined"
+                    && typeof document.createRange != "undefined") {
+                    var range = document.createRange();
+                    range.selectNodeContents(el);
+                    range.collapse(false);
+                    var sel = window.getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                } else if (typeof document.body.createTextRange != "undefined") {
+                    var textRange = document.body.createTextRange();
+                    textRange.moveToElementText(el);
+                    textRange.collapse(false);
+                    textRange.select();
+                }
             }
         }
 
