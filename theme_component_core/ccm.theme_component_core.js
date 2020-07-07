@@ -141,14 +141,14 @@
                                         let itemElement = document.createElement('li');
                                         itemElement.innerHTML = item;
                                         itemElement.contentEditable = "true";
-                                        appendElement.appendChild(itemElement);
                                         itemElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
-                                                createElement('');
+                                                itemElement.parentNode.insertBefore(createElement(''), itemElement.nextSibling);
                                             }
                                         })
+                                        return itemElement
                                     }
-                                    createElement(item);
+                                    appendElement.appendChild(createElement(item));
                                 }
                             } else if (contentZoneItem.type == 'image') {
                                 // init image
@@ -186,6 +186,23 @@
                         contentZoneElement.innerHTML = '';
                         for (let appendElement of appendElements) {
                             $.append(contentZoneElement, appendElement);
+
+                            let appendNewItem = () => {
+                                // init paragraph
+                                let appendNewElement = document.createElement('p');
+                                appendNewElement.contentEditable = "true";
+
+                                appendNewElement.addEventListener('keyup', (e) => {
+                                    if (e.keyCode === 13) {
+                                        appendNewElement.parentNode.insertBefore(appendNewItem(), appendNewElement.nextSibling);
+                                    }
+                                });
+                            }
+                            appendElement.addEventListener('keyup', (e) => {
+                                if (e.keyCode === 13) {
+                                    appendElement.parentNode.insertBefore(appendNewItem(), appendElement.nextSibling);
+                                }
+                            });
                         }
 
                         // Add edit add block
