@@ -69,6 +69,7 @@
                 for (let contentZoneName in contentZones) {
                     const contentZoneItems = contentZones[contentZoneName];
                     const contentZoneElement = element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]');
+
                     if (_contentZoneElements[contentZoneName] === undefined) {
                         _contentZoneComponents[contentZoneName] = [];
                         _contentZoneElements[contentZoneName] = [];
@@ -76,23 +77,29 @@
                     if (contentZoneElement) {
                         let i = 0;
 
+                        // disable drag and drop for contentEditable
+                        if (edit) {
+                            contentZoneElement.addEventListener('drop', e => e.preventDefault());
+                        }
+
+                        // init items
                         let appendElements = [];
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
-                                appendElement = await this.getThemeDefinitionElement(contentZoneItem, contentZoneName, i);
+                                appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
-                                appendElement = await this.getCcmComponentElement(contentZoneItem, contentZoneName, i);
+                                appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
                             } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
-                                appendElement = this.getHeaderElement(contentZoneItem);
+                                appendElement = this.getHeaderElement(contentZoneName, contentZoneItem);
                             } else if (contentZoneItem.type == 'paragraph') {
-                                appendElement = this.getParagraphElement(contentZoneItem);
+                                appendElement = this.getParagraphElement(contentZoneName, contentZoneItem);
                             } else if (contentZoneItem.type == 'list') {
-                                appendElement = this.getListElement(contentZoneItem);
+                                appendElement = this.getListElement(contentZoneName, contentZoneItem);
                             } else if (contentZoneItem.type == 'image') {
-                                appendElement = this.getImageElement(contentZoneItem);
+                                appendElement = this.getImageElement(contentZoneName, contentZoneItem);
                             }
 
                             // Remember element
@@ -110,7 +117,7 @@
                             $.append(contentZoneElement, appendElement);
 
                             if (edit) {
-                                appendElement.parentNode.insertBefore(this.getAddContentBlockTypeElement(appendElement), appendElement.nextSibling);
+                                appendElement.parentNode.insertBefore(this.getAddContentBlockTypeElement(appendElement), appendElement.nextSibling, contentZoneName);
                             }
                         }
 
@@ -197,7 +204,7 @@
                 }
             };
 
-            this.getThemeDefinitionElement = async (contentZoneItem, contentZoneName, i) => {
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
@@ -235,7 +242,7 @@
                 return null;
             }
 
-            this.getCcmComponentElement = async (contentZoneItem, contentZoneName, i) => {
+            this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
@@ -264,7 +271,7 @@
                 return element;
             }
 
-            this.getHeaderElement = (contentZoneItem= {
+            this.getHeaderElement = (contentZoneName, contentZoneItem= {
                 'type': 'header',
                 'data': {
                     'text': '',
@@ -282,15 +289,23 @@
 
                 if (edit) {
                     element.contentEditable = "true";
-                    this.addContentEditing(element);
+                    this.addContentEditing(element, contentZoneName);
                 }
+
+                // define content get method
+                element.getDataContent = () => {
+                    return {
+                        text: element.innerHTML,
+                        level: element.tagName.substring(1)
+                    };
+                };
 
                 element.setAttribute('data-type', contentZoneItem.type);
 
                 return element;
             }
 
-            this.getParagraphElement = (contentZoneItem = {
+            this.getParagraphElement = (contentZoneName, contentZoneItem = {
                 'type': 'paragraph',
                 'data': {
                     'text': ''
@@ -306,22 +321,55 @@
 
                 if (edit) {
                     element.contentEditable = "true";
-                    this.addContentEditing(element);
+                    this.addContentEditing(element, contentZoneName);
                 }
+
+                // define content get method
+                element.getDataContent = () => {
+                    return {
+                        text: element.innerHTML
+                    };
+                };
 
                 element.setAttribute('data-type', contentZoneItem.type);
 
                 return element;
             }
 
-            this.addParagraphAfter = (element) => {
-                let newElement = this.getParagraphElement();
-                element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
-                element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.nextSibling);
+            this.addParagraphAfter = (element, contentZoneName) => {
+                let newElement = this.getParagraphElement(contentZoneName);
+                this.addContentZoneItemAfter(element, newElement, contentZoneName)
                 newElement.focus();
             };
 
-            this.addContentEditing = (element) => {
+            this.addContentZoneItemAfter = (element, newElement, contentZoneName, component = null) => {
+                let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
+                if (elementIndex >= 0) {
+                    _contentZoneElements[contentZoneName].splice(elementIndex + 1, 0, newElement);
+                    _contentZoneComponents[contentZoneName].splice(elementIndex + 1, 0, component);
+                } else {
+                    _contentZoneElements[contentZoneName][0] = newElement;
+                    _contentZoneComponents[contentZoneName][0] = component;
+                }
+
+                element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
+                element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
+            }
+
+            this.removeZoneItem = (element, contentZoneName) => {
+                let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
+                if (elementIndex >= 0) {
+                    _contentZoneElements[contentZoneName].splice(elementIndex, 1);
+                    _contentZoneComponents[contentZoneName].splice(elementIndex, 1);
+                } else {
+                    console.warn('Check zone management implementation!');
+                }
+
+                $.remove(element.nextSibling);
+                $.remove(element);
+            }
+
+            this.addContentEditing = (element, contentZoneName) => {
                 if (element.innerHTML == '') {
                     element.classList.remove('has-content');
                 } else {
@@ -331,7 +379,7 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-                        this.addParagraphAfter(element);
+                        this.addParagraphAfter(element, contentZoneName);
                     }
                 });
                 element.addEventListener('keyup', (e) => {
@@ -349,15 +397,18 @@
                                 this.placeCaretAtEnd(element.previousSibling.previousSibling);
                             }
                         } else {
-                            this.addParagraphAfter(element);
+                            this.addParagraphAfter(element, contentZoneName);
                         }
 
-                        $.remove(element.nextSibling);
-                        $.remove(element);
+                        this.removeZoneItem(element, contentZoneName);
                     }
                 });
 
-                // handle text select
+                // handle text selection
+                this.addContentEditingFormat(element, contentZoneName);
+            }
+
+            this.addContentEditingFormat = (element) => {
                 let mouseUpHandler = () => {
                     element.removeEventListener('mouseup', mouseUpHandler);
                     const selection = this.parent.element.parentNode.getSelection();
@@ -427,9 +478,9 @@
                 element.addEventListener('selectstart', () => {
                     element.addEventListener('mouseup', mouseUpHandler);
                 });
-            }
+            };
 
-            this.getAddContentBlockTypeElement = (element) => {
+            this.getAddContentBlockTypeElement = (element, contentZoneName) => {
                 const definer = $.html(this.html.defineBlockType, {});
 
                 let focused = false;
@@ -458,17 +509,14 @@
 
                 let replaceWith = (newElement) => {
                     let parentNode = element.parentNode;
-                    let newNextSibling = element.nextSibling.nextSibling;
-                    $.remove(element.nextSibling);
-                    $.remove(element);
-                    parentNode.insertBefore(newElement, newNextSibling);
-                    parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.nextSibling);
+                    this.addContentZoneItemAfter(element, newElement, contentZoneName);
+                    this.removeZoneItem(element, contentZoneName);
                 }
 
                 // header button
                 const headerButton = definer.querySelector('img[data-type="header"]');
                 headerButton.addEventListener('click', () => {
-                    let newElement = this.getHeaderElement();
+                    let newElement = this.getHeaderElement(contentZoneName);
                     replaceWith(newElement);
                     newElement.focus();
                 });
@@ -476,9 +524,9 @@
                 // list button
                 const listButton = definer.querySelector('img[data-type="list"]');
                 listButton.addEventListener('click', () => {
-                    let newElement = this.getListElement();
+                    let newElement = this.getListElement(contentZoneName);
                     replaceWith(newElement);
-                    newElement.querySelector('ul li:first-child, ol li:first-child').focus();
+                    newElement.focus();
                 });
 
                 // image button
@@ -496,7 +544,7 @@
                 return definer;
             }
 
-            this.getListElement = (contentZoneItem = {
+            this.getListElement = (contentZoneName, contentZoneItem = {
                 'type': 'list',
                 'data': {
                     'style': 'unordered',
@@ -523,10 +571,9 @@
                             if (element.querySelector('li:last-child') == target && target.innerHTML == '') {
                                 e.preventDefault();
                                 $.remove(target);
-                                this.addParagraphAfter(element);
+                                this.addParagraphAfter(element, contentZoneName);
                                 if (element.childElementCount == 0) {
-                                    $.remove(element.nextSibling);
-                                    $.remove(element);
+                                    this.removeZoneItem(element, contentZoneName);
                                 }
                             }
                         }
@@ -553,8 +600,7 @@
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
                                     this.placeCaretAtEnd(element.previousSibling.previousSibling);
                                 }
-                                $.remove(element.nextSibling);
-                                $.remove(element);
+                                this.removeZoneItem(element, contentZoneName);
                             }
                         }
                     });
@@ -572,6 +618,20 @@
 
                 element.setAttribute('data-type', contentZoneItem.type);
                 element.contentZoneItem = contentZoneItem;
+
+                if (edit) {
+                    // handle text selection
+                    this.addContentEditingFormat(element);
+                }
+
+                // define content get method
+                element.getDataContent = () => {
+                    element.querySelectorAll('br').forEach(item => $.remove(item));
+                    return {
+                        style: element.tagName == 'ol'?'ordered':'unordered',
+                        items: element.querySelectorAll('li').map(item => item.innerHTML)
+                    };
+                };
 
                 return element;
             }
@@ -598,7 +658,6 @@
                 img.src = contentZoneItem.data.file.url;
                 img.loading = 'lazy';
                 if (contentZoneItem.data.caption) {
-                    img.loading = 'lazy';
                     caption = document.createElement('div');
                     caption.classList.add('image-caption');
                     caption.innerHTML = contentZoneItem.data.caption;
@@ -608,6 +667,16 @@
                 if (caption) {
                     element.appendChild(caption);
                 }
+
+                // define content get method
+                element.getDataContent = () => {
+                    return {
+                        file: {
+                            url: img.src
+                        },
+                        caption: caption?caption.innerHTML:null
+                    };
+                };
 
                 element.setAttribute('data-type', contentZoneItem.type);
                 element.contentZoneItem = contentZoneItem;
