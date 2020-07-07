@@ -386,15 +386,14 @@
                     if (!range.collapsed) {
                         this.parent.element.classList.add('disable-content-editable');
                         let hint = $.html(this.html.editInlineTool, {});
-                        hint.style.position = 'relative';
-                        hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + 'px';
+                        hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width + 'px';
                         hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
                         $.append(this.parent.element, hint);
 
-                        hint.querySelector('.edit-inline-text-tool-bg').addEventListener('click', () => {
+                        setTimeout(() =>window.addEventListener('click', () => {
                             $.remove(hint);
                             this.parent.element.classList.remove('disable-content-editable');
-                        });
+                        }), 100);
                     }
                 };
                 element.addEventListener('selectstart', () => {
