@@ -145,10 +145,12 @@
                                         itemElement.contentEditable = "true";
                                         itemElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
                                                 itemElement.parentNode.insertBefore(createElement(''), itemElement.nextSibling);
                                             }
                                         })
-                                        return itemElement
+                                        return itemElement;
                                     }
                                     appendElement.appendChild(createElement(item));
                                 }
@@ -180,6 +182,28 @@
 
                             if (appendElement != null) {
                                 appendElements.push(appendElement);
+
+                                if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
+                                    let appendNewItem = () => {
+                                        // init paragraph
+                                        let appendNewElement = document.createElement('p');
+                                        appendNewElement.contentEditable = "true";
+
+                                        appendNewElement.addEventListener('keyup', (e) => {
+                                            if (e.keyCode === 13) {
+                                                appendNewElement.parentNode.insertBefore(appendNewItem(), appendNewElement.nextSibling);
+                                            }
+                                        });
+                                        return appendNewElement;
+                                    }
+                                    appendElement.addEventListener('keyup', (e) => {
+                                        if (e.keyCode === 13) {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            appendElement.parentNode.insertBefore(appendNewItem(), appendElement.nextSibling);
+                                        }
+                                    });
+                                }
                             }
                             i++;
                         }
@@ -188,23 +212,6 @@
                         contentZoneElement.innerHTML = '';
                         for (let appendElement of appendElements) {
                             $.append(contentZoneElement, appendElement);
-
-                            let appendNewItem = () => {
-                                // init paragraph
-                                let appendNewElement = document.createElement('p');
-                                appendNewElement.contentEditable = "true";
-
-                                appendNewElement.addEventListener('keyup', (e) => {
-                                    if (e.keyCode === 13) {
-                                        appendNewElement.parentNode.insertBefore(appendNewItem(), appendNewElement.nextSibling);
-                                    }
-                                });
-                            }
-                            appendElement.addEventListener('keyup', (e) => {
-                                if (e.keyCode === 13) {
-                                    appendElement.parentNode.insertBefore(appendNewItem(), appendElement.nextSibling);
-                                }
-                            });
                         }
 
                         // Add edit add block
