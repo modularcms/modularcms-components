@@ -382,14 +382,16 @@
                     };
 
                     if (!range.collapsed) {
+                        this.parent.element.classList.add('disable-content-editable');
                         let hint = $.html(this.html.editInlineTool, {});
-                        hint.classList.add('inline-text-tool');
-                        hint.style.left = rect.left - getOffsetLeft(this.parent.element) + 'px';
-                        hint.style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
+                        hint.style.position = 'relative';
+                        hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + 'px';
+                        hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
                         $.append(this.parent.element, hint);
 
                         hint.querySelector('.edit-inline-text-tool-bg').addEventListener('click', () => {
                             $.remove(hint);
+                            this.parent.element.classList.remove('disable-content-editable');
                         });
                     }
                 };
