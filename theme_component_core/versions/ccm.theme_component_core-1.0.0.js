@@ -406,7 +406,6 @@
                             let handler2 = () => {
                                 window.removeEventListener('mouseup', handler2);
                                 const selection = this.parent.element.parentNode.getSelection();
-                                console.log(selection, range, range.collapsed)
                                 if (!(selection.rangeCount == 1 && !selection.getRangeAt(0).collapsed)) {
                                     remove();
                                 } else {

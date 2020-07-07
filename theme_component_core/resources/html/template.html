@@ -7,7 +7,8 @@
 
 <ccm-template key="editThemeDefinition">
     <div class="edit-theme-definition">
-        <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/settings-icon.svg" />
+        <img data-action="config" src="https://modularcms.github.io/modularcms-components/cms/resources/img/settings-icon.svg" />
+        <img data-action="remove" src="https://modularcms.github.io/modularcms-components/cms/resources/img/trash-icon.svg" />
     </div>
 </ccm-template>
 
@@ -116,6 +117,18 @@
 
         .edit-theme-definition {
             position: absolute;
+            top: 0;
+            right: 0;
+            background-color: #1592e6;
+            display: flex;
+            padding: 4px;
+            height: 30px;
+        }
+
+        .edit-theme-definition img {
+            height: 100%;
+            margin: 0px 8px;
+            filter: invert(1);
         }
 
         .content-zone {
