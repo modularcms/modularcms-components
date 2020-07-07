@@ -233,6 +233,10 @@
                                                 if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
                                                     e.preventDefault();
                                                     self.placeCaretAtEnd(element.previousSibling);
+                                                } else {
+                                                    let newElement = appendNewItem();
+                                                    element.parentNode.insertBefore(newElement, element.nextSibling);
+                                                    newElement.focus();
                                                 }
 
                                                 $.remove(element);
