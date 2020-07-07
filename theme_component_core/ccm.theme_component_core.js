@@ -80,13 +80,13 @@
                                     header: Header,
                                     list: List
                                 },
-                                data: {}
+                                data: {},
+                                onReady: () => {
+                                    let style = document.createElement('style');
+                                    style.innerText = window.editorJsCss;
+                                    this.element.appendChild(style);
+                                }
                             });
-                            editor.isReady().then(() => {
-                                let style = document.createElement('style');
-                                style.innerText = window.editorJsCss;
-                                this.element.appendChild(style);
-                            })
                         } else {
                             let appendElements = [];
                             for (let contentZoneItem of contentZoneItems) {
