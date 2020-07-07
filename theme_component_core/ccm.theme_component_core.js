@@ -207,10 +207,15 @@
                                 if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
                                     let self = this;
                                     let addEvents = (element) => {
+                                        if (element.innerHTML == '') {
+                                            element.classList.remove('has-content');
+                                        } else {
+                                            element.classList.add('has-content');
+                                        }
                                         element.addEventListener('keypress', (e) => {
                                             if (e.key === 'Enter') {
                                                 e.preventDefault();
-                                                $.remove(element.querySelector('div:last-child'));
+                                                $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
                                                 let newElement = appendNewItem();
                                                 element.parentNode.insertBefore(newElement, element.nextSibling);
                                                 newElement.focus();
@@ -218,9 +223,9 @@
                                         });
                                         element.addEventListener('keydown', (e) => {
                                             if (element.innerHTML == '') {
-                                                element.classList.add('has-content');
-                                            } else {
                                                 element.classList.remove('has-content');
+                                            } else {
+                                                element.classList.add('has-content');
                                             }
                                             if (e.key === "Backspace" && element.innerHTML == '') {
                                                 if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
@@ -238,7 +243,6 @@
                                         appendNewElement.setAttribute('data-type', 'paragraph');
 
                                         if (edit) {
-                                            $.append(appendNewElement, $.html(self.html.defineBlockType, {}));
                                             appendNewElement.contentEditable = "true";
                                             addEvents(appendNewElement);
                                         }
@@ -256,13 +260,16 @@
                         contentZoneElement.innerHTML = '';
                         for (let appendElement of appendElements) {
                             $.append(contentZoneElement, appendElement);
+                            appendElement.parentNode.insertBefore($.html(this.html.defineBlockType, {}), appendElement.nextSibling);
                         }
 
                         // Add edit add block
                         if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'layout') {
                             const addPlaceholder = $.html(this.html.addBlock, {});
                             $.append(contentZoneElement, addPlaceholder);
-                            addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
+                            if (edit) {
+                                addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
+                            }
                         }
                     }
                 }

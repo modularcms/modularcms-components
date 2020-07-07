@@ -29,7 +29,7 @@
             display: none;
         }
 
-        *[contenteditable="true"]:focus:not(.has-content) .define-content-block-type {
+        *[contenteditable="true"][data-type="paragraph"]:focus:not(.has-content) + .define-content-block-type {
             display: inline-block;
         }
 
