@@ -26,11 +26,11 @@
         }
 
         .define-content-block-type {
-            display: inline-block;
+            display: none;
         }
 
-        *[contenteditable="true"].has-content .define-content-block-type {
-            display: none;
+        *[contenteditable="true"]:focus:not(.has-content) .define-content-block-type {
+            display: inline-block;
         }
 
         * {
