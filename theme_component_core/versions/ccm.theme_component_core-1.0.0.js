@@ -83,7 +83,7 @@
                                 data: {},
                                 onReady: () => {
                                     let style = document.createElement('style');
-                                    style.innerText = window.editorJsCss;
+                                    style.innerText = window.editorJsCSS;
                                     this.element.appendChild(style);
                                 }
                             });
