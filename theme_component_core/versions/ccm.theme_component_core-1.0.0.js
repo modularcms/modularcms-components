@@ -389,7 +389,7 @@
                         hint.style.top = rect.top - getOffsetTop(this.parent.element) + 'px';
                         $.append(this.parent.element, hint);
 
-                        ['bold', 'italic', 'underline', 'strikeTrough', 'removeFormat'].forEach(item => {
+                        ['bold', 'italic', 'underline', 'strikeThrough', 'removeFormat'].forEach(item => {
                             hint.querySelector('img[data-action="' + item + '"]').addEventListener('mouseup', () => {
                                 selection.addRange(range);
                                 document.execCommand(item);
