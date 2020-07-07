@@ -391,12 +391,15 @@
                         $.append(this.parent.element, hint);
 
                         hint.querySelector('img[data-action="bold"]').addEventListener('click', () => {
+                            selection.addRange(range);
                             document.execCommand('bold');
                         })
                         hint.querySelector('img[data-action="italic"]').addEventListener('click', () => {
+                            selection.addRange(range);
                             document.execCommand('italic');
                         })
                         hint.querySelector('img[data-action="underline"]').addEventListener('click', () => {
+                            selection.addRange(range);
                             document.execCommand('underline');
                         })
 
