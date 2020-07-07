@@ -381,11 +381,17 @@
                         return getOffsetLeft(element.offsetParent);
                     };
 
-                    let hint = $.html(this.html.editInlineTool, {});
-                    hint.classList.add('inline-text-tool');
-                    hint.style.left = rect.left - getOffsetLeft(this.parent.element) + 'px';
-                    hint.style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
-                    $.append(this.parent.element, hint);
+                    if (!range.collapsed) {
+                        let hint = $.html(this.html.editInlineTool, {});
+                        hint.classList.add('inline-text-tool');
+                        hint.style.left = rect.left - getOffsetLeft(this.parent.element) + 'px';
+                        hint.style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
+                        $.append(this.parent.element, hint);
+
+                        hint.querySelector('.edit-inline-text-tool-bg').addEventListener('click', () => {
+                            $.remove(hint);
+                        });
+                    }
                 };
                 element.addEventListener('selectstart', () => {
                     element.addEventListener('mouseup', mouseUpHandler);
