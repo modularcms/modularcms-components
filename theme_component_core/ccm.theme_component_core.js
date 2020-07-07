@@ -125,11 +125,18 @@
 
                 _contentZonesBefore = contentZones;
 
-                // handle element click
-                if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block')
+                // handle block config
+                if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block') {
+                    this.parent.parent.element.addEventListener('click', (e) => {
+                        if (e.target != this.parent.root && element) {
+                            element.classList.remove('edit-focus');
+                        }
+                    });
                     element.addEventListener('click', () => {
                         element.classList.add('edit-focus');
                     });
+                    $.append(element, $.html(this.html.editThemeDefinition, {}));
+                }
             };
 
             /**
@@ -346,6 +353,42 @@
                         $.remove(element.nextSibling);
                         $.remove(element);
                     }
+                });
+
+                // handle text select
+                let mouseUpHandler = () => {
+                    element.removeEventListener('mouseup', mouseUpHandler);
+                    const selection = this.parent.element.parentNode.getSelection();
+                    const range = selection.getRangeAt(0);
+                    const rect = range.getBoundingClientRect();
+
+                    let getOffsetTop = (element) => {
+                        if (element == null){
+                            return 0;
+                        }
+                        if (element.nodeType == 1) {
+                            return element.offsetTop + getOffsetTop(element.offsetParent);
+                        }
+                        return getOffsetTop(element.offsetParent);
+                    };
+                    let getOffsetLeft = (element) => {
+                        if (element == null){
+                            return 0;
+                        }
+                        if (element.nodeType == 1) {
+                            return element.offsetLeft + getOffsetLeft(element.offsetParent);
+                        }
+                        return getOffsetLeft(element.offsetParent);
+                    };
+
+                    let hint = $.html(this.html.editInlineTool, {});
+                    hint.classList.add('inline-text-tool');
+                    hint.style.left = rect.left - getOffsetLeft(this.parent.element) + 'px';
+                    hint.style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
+                    $.append(this.parent.element, hint);
+                };
+                element.addEventListener('selectstart', () => {
+                    element.addEventListener('mouseup', mouseUpHandler);
                 });
             }
 
