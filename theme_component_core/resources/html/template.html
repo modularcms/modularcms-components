@@ -1,5 +1,20 @@
 <ccm-template key="addBlock">
+    <div class="add-block">
+        <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
+        <div>Add new block</div>
+    </div>
+</ccm-template>
+
+<ccm-template key="editStyle">
     <style>
+        *[contenteditabel="true"] {
+            outline: 0;
+        }
+
+        #element.edit-focus {
+            border: 1px solid #1592e6;
+        }
+
         .add-block {
             display: flex;
             align-items: center;
@@ -34,8 +49,4 @@
             opacity: 0.3;
         }
     </style>
-    <div class="add-block">
-        <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
-        <div>Add new block</div>
-    </div>
 </ccm-template>

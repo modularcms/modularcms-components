@@ -54,10 +54,13 @@
                 const contentZones = this.parent.contentZones || {};
                 const edit = this.parent.edit;
 
-                element.style.outline = 0;
-
                 // Set content
                 $.setContent(element, $.html(html, htmlOptions));
+
+                // Add edit style
+                if (edit) {
+                    $.append(element, $.html(this.html.editStyle, {}));
+                }
 
                 // init placeholders
                 for (let elementId in htmlPlaceholders) {
@@ -246,7 +249,7 @@
                 // handle element click
                 if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block')
                 element.addEventListener('click', () => {
-                    element.style.border = '1px solid #1592e6';
+                    element.classList.add('edit-focus');
                 });
             };
 
