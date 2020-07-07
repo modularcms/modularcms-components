@@ -152,8 +152,9 @@
 
                                         if (edit) {
                                             itemElement.contentEditable = "true";
-                                            itemElement.addEventListener('keyup', (e) => {
+                                            itemElement.addEventListener('keypress', (e) => {
                                                 if (e.keyCode === 13) {
+                                                    e.preventDefault();
                                                     $.remove(itemElement.querySelector('div:last-child'));
                                                     let newElement = createElement('');
                                                     itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
@@ -203,8 +204,9 @@
 
                                         if (edit) {
                                             appendNewElement.contentEditable = "true";
-                                            appendNewElement.addEventListener('keyup', (e) => {
+                                            appendNewElement.addEventListener('keypress', (e) => {
                                                 if (e.keyCode === 13) {
+                                                    e.preventDefault();
                                                     $.remove(appendNewElement.querySelector('div:last-child'));
                                                     let newElement = appendNewItem();
                                                     appendNewElement.parentNode.insertBefore(newElement, appendNewElement.nextSibling);
@@ -215,8 +217,9 @@
                                         return appendNewElement;
                                     }
                                     if (edit) {
-                                        appendElement.addEventListener('keyup', (e) => {
+                                        appendElement.addEventListener('keypress', (e) => {
                                             if (e.keyCode === 13) {
+                                                e.preventDefault();
                                                 $.remove(appendElement.querySelector('div:last-child'));
                                                 let newElement = appendNewItem();
                                                 appendElement.parentNode.insertBefore(newElement, appendElement.nextSibling);
