@@ -144,11 +144,6 @@
                                 if (edit) {
                                     $.append(appendElement, $.html(this.html.defineBlockType, {}));
                                     appendElement.contentEditable = "true";
-                                    if (appendElement.innerHTML != '') {
-                                        appendElement.classList.add('has-content');
-                                    } else {
-                                        appendElement.classList.remove('has-content');
-                                    }
                                 }
                             } else if (contentZoneItem.type == 'list') {
                                 // init list
@@ -212,13 +207,9 @@
                                 appendElements.push(appendElement);
 
                                 if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
+                                    let self = this;
                                     let addEvents = (element) => {
                                         element.addEventListener('keypress', (e) => {
-                                            if (element.innerHTML != '') {
-                                                element.classList.add('has-content');
-                                            } else {
-                                                element.classList.remove('has-content');
-                                            }
                                             if (e.key === 'Enter') {
                                                 e.preventDefault();
                                                 $.remove(element.querySelector('div:last-child'));
@@ -231,7 +222,7 @@
                                             if (e.key === "Backspace" && element.innerHTML == '') {
                                                 if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
                                                     e.preventDefault();
-                                                    this.placeCaretAtEnd(element.previousSibling);
+                                                    self.placeCaretAtEnd(element.previousSibling);
                                                 }
 
                                                 $.remove(element);
@@ -242,9 +233,9 @@
                                         // init paragraph
                                         let appendNewElement = document.createElement('p');
                                         appendNewElement.setAttribute('data-type', 'paragraph');
-                                        $.append(appendElement, $.html(this.html.defineBlockType, {}));
 
                                         if (edit) {
+                                            $.append(appendNewElement, $.html(self.html.defineBlockType, {}));
                                             appendNewElement.contentEditable = "true";
                                             addEvents(appendNewElement);
                                         }

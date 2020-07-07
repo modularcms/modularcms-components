@@ -21,7 +21,7 @@
             outline: 0;
         }
 
-        *[contenteditable="true"] div:last-child:not(.define-block-type) {
+        *[contenteditable="true"] div:last-child:not(.define-content-block-type) {
             display: none;
         }
 
@@ -29,7 +29,7 @@
             visibility: hidden;
         }
 
-        *[contenteditable="true"]:focus:not(.has-content) .define-content-block-type {
+        *[contenteditable="true"]:focus .define-content-block-type {
             visibility: visible;
         }
 
