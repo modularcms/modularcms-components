@@ -385,8 +385,8 @@
 
                     if (!range.collapsed) {
                         let hint = $.html(this.html.editInlineTool, {});
-                        hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width + 'px';
-                        hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) - 25 + 'px';
+                        hint.querySelector('.edit-inline-text-tool').style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width / 2 + 'px';
+                        hint.querySelector('.edit-inline-text-tool').style.top = rect.top - getOffsetTop(this.parent.element) + 'px';
                         $.append(this.parent.element, hint);
 
                         hint.querySelector('img[data-action="bold"]').addEventListener('mouseup', () => {
