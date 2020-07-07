@@ -76,6 +76,10 @@
                     if (contentZoneElement) {
                         let i = 0;
 
+                        if (edit) {
+                            contentZoneElement.contentEditable = "true";
+                        }
+
                         let appendElements = [];
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
@@ -220,6 +224,7 @@
                         _contentZoneComponents[contentZoneName][i].update();
                     }
                     let element = _contentZoneComponents[contentZoneName][i].root;
+                    element.contentZoneItem = contentZoneItem;
                     element.setAttribute('data-type', contentZoneItem.type);
                     return element;
                 }
@@ -251,6 +256,7 @@
                     _contentZoneComponents[contentZoneName][i].update();
                 }
                 let element = _contentZoneComponents[contentZoneName][i].root;
+                element.contentZoneItem = contentZoneItem;
                 element.setAttribute('data-type', contentZoneItem.type);
                 return element;
             }
@@ -268,10 +274,12 @@
                 // init header
                 let element = document.createElement('h' + contentZoneItem.data.level);
                 element.innerHTML = contentZoneItem.data.text;
+                element.contentZoneItem = contentZoneItem;
                 element.setAttribute('data-header-level', contentZoneItem.data.level);
 
                 if (edit) {
                     element.contentEditable = "true";
+                    this.addContentEditing(element);
                 }
 
                 element.setAttribute('data-type', contentZoneItem.type);
@@ -295,7 +303,7 @@
 
                 if (edit) {
                     element.contentEditable = "true";
-                    this.addParagraphContentEditing(element);
+                    this.addContentEditing(element);
                 }
 
                 element.setAttribute('data-type', contentZoneItem.type);
@@ -303,7 +311,14 @@
                 return element;
             }
 
-            this.addParagraphContentEditing = (element) => {
+            this.addParagraphAfter = (element) => {
+                let newElement = this.getParagraphElement();
+                element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
+                element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.nextSibling);
+                newElement.focus();
+            };
+
+            this.addContentEditing = (element) => {
                 if (element.innerHTML == '') {
                     element.classList.remove('has-content');
                 } else {
@@ -313,10 +328,7 @@
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-                        let newElement = this.getParagraphElement();
-                        element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
-                        element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
-                        newElement.focus();
+                        this.addParagraphAfter(element);
                     }
                 });
                 element.addEventListener('keyup', (e) => {
@@ -328,14 +340,13 @@
                 });
                 element.addEventListener('keydown', (e) => {
                     if (e.key === "Backspace" && element.innerHTML == '') {
-                        if (element.previousSibling && element.previousSibling.previousSibling && element.previousSibling.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.previousSibling.getAttribute('data-type') != 'ccmComponent') {
+                        if (element.previousSibling && element.previousSibling.previousSibling) {
                             e.preventDefault();
-                            this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                            if (element.previousSibling.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.previousSibling.getAttribute('data-type') != 'ccmComponent') {
+                                this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                            }
                         } else {
-                            let newElement = this.getParagraphElement();
-                            element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
-                            element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
-                            newElement.focus();
+                            this.addParagraphAfter(element);
                         }
 
                         $.remove(element.nextSibling);
@@ -360,9 +371,6 @@
                 });
                 definer.addEventListener('mouseup', () => {
                     mouseDown = false;
-                    if (!focused) {
-                        element.classList.remove('focus');
-                    }
                 });
                 definer.addEventListener('click', () => {
                     element.focus();
@@ -370,7 +378,7 @@
                 element.addEventListener('focusout', () => {
                     focused = false;
                     if (!mouseDown) {
-                        element.classList.remove('focus');
+                        setTimeout(() => element.classList.remove('focus'), 100);
                     }
                 });
 
@@ -380,7 +388,7 @@
                     $.remove(element.nextSibling);
                     $.remove(element);
                     parentNode.insertBefore(newElement, newNextSibling);
-                    parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
+                    parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.nextSibling);
                 }
 
                 // header button
@@ -426,54 +434,70 @@
 
                 // init list
                 let element = document.createElement(contentZoneItem.data.style == 'ordered'?'ol':'ul');
+
+                if (edit) {
+                    element.contentEditable = "true";
+
+                    element.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const selection = this.parent.element.parentNode.getSelection();
+                            const range = selection.getRangeAt(0);
+                            let target = range.startContainer;
+                            if (target.nodeType == 3) {
+                                target = target.parentNode;
+                            }
+                            if (element.querySelector('li:last-child') == target && target.innerHTML == '') {
+                                e.preventDefault();
+                                $.remove(target);
+                                this.addParagraphAfter(element);
+                                if (element.childElementCount == 0) {
+                                    $.remove(element.nextSibling);
+                                    $.remove(element);
+                                }
+                            }
+                        }
+                    });
+                    element.addEventListener('change', (e) => {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        let target = range.startContainer;
+                        if (target.nodeType == 3) {
+                            target = target.parentNode;
+                        }
+                        target.querySelectorAll('br').forEach(item => $.remove(item));
+                    });
+                    element.addEventListener('keyup', (e) => {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        let target = range.startContainer;
+                        if (target.nodeType == 3) {
+                            target = target.parentNode;
+                        }
+                        target.querySelectorAll('br').forEach(item => $.remove(item));
+                        if (e.key === "Backspace" && (target.innerHTML == '' || target.innerHTML == '')) {
+                            if (element.childElementCount == 0) {
+                                if (element.previousSibling && element.previousSibling.previousSibling) {
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                }
+                                $.remove(element.nextSibling);
+                                $.remove(element);
+                            }
+                        }
+                    });
+                }
+
                 element.setAttribute('data-list-style', contentZoneItem.data.style);
                 for (let item of contentZoneItem.data.items) {
                     let createElement = (item) => {
                         let itemElement = document.createElement('li');
                         itemElement.innerHTML = item;
-
-                        if (edit) {
-                            itemElement.contentEditable = "true";
-                            itemElement.addEventListener('keypress', (e) => {
-                                if (e.key === 'Enter') {
-                                    e.preventDefault();
-                                    $.remove(itemElement.querySelector('div:last-child'));
-
-                                    if (itemElement.innerHTML != '') {
-                                        let newElement = createElement('');
-                                        itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
-                                        newElement.focus();
-                                    } else {
-                                        let newElement = this.getParagraphElement();
-                                        element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
-                                        element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement), newElement.parentNode.nextSibling);
-                                        newElement.focus();
-                                        $.remove(itemElement);
-                                        // TODO Add paragraph
-                                    }
-                                }
-                            });
-                            itemElement.addEventListener('keydown', (e) => {
-                                if (e.key === "Backspace" && itemElement.innerHTML == '') {
-                                    e.preventDefault();
-                                    let parentNode = itemElement.parentNode;
-                                    $.remove(itemElement);
-                                    if (parentNode.childElementCount == 0) {
-                                        if (element.previousSibling && element.previousSibling.previousSibling) {
-                                            this.placeCaretAtEnd(element.previousSibling.previousSibling);
-                                        }
-                                        $.remove(element.nextSibling);
-                                        $.remove(element);
-                                    }
-                                }
-                            });
-                        }
                         return itemElement;
                     }
                     element.appendChild(createElement(item));
                 }
 
                 element.setAttribute('data-type', contentZoneItem.type);
+                element.contentZoneItem = contentZoneItem;
 
                 return element;
             }
@@ -512,6 +536,7 @@
                 }
 
                 element.setAttribute('data-type', contentZoneItem.type);
+                element.contentZoneItem = contentZoneItem;
 
                 return element;
             }
