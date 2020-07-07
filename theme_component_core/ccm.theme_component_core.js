@@ -128,6 +128,7 @@
                                 appendElement = document.createElement('h' + contentZoneItem.data.level);
                                 appendElement.innerHTML = contentZoneItem.data.text;
                                 appendElement.contentEditable = "true";
+                                appendElement.setAttribute('data-header-level', contentZoneItem.data.level);
                             } else if (contentZoneItem.type == 'paragraph') {
                                 // init paragraph
                                 appendElement = document.createElement('p');
@@ -136,19 +137,23 @@
                             } else if (contentZoneItem.type == 'list') {
                                 // init list
                                 appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
+                                appendElement.setAttribute('data-list-style', block.data.style);
                                 for (let item of contentZoneItem.data.items) {
                                     let createElement = (item) => {
                                         let itemElement = document.createElement('li');
                                         itemElement.innerHTML = item;
-                                        itemElement.contentEditable = "true";
-                                        itemElement.addEventListener('keyup', (e) => {
-                                            if (e.keyCode === 13) {
-                                                $.remove(itemElement.querySelector('div:last-child'));
-                                                let newElement = createElement('');
-                                                itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
-                                                newElement.focus();
-                                            }
-                                        })
+
+                                        if (edit) {
+                                            itemElement.contentEditable = "true";
+                                            itemElement.addEventListener('keyup', (e) => {
+                                                if (e.keyCode === 13) {
+                                                    $.remove(itemElement.querySelector('div:last-child'));
+                                                    let newElement = createElement('');
+                                                    itemElement.parentNode.insertBefore(newElement, itemElement.nextSibling);
+                                                    newElement.focus();
+                                                }
+                                            });
+                                        }
                                         return itemElement;
                                     }
                                     appendElement.appendChild(createElement(item));
@@ -180,33 +185,38 @@
                             _contentZoneElements[contentZoneName][i] = appendElement;
 
                             if (appendElement != null) {
+                                appendElement.setAttribute('data-type', contentZoneItem.type);
                                 appendElements.push(appendElement);
 
                                 if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
                                     let appendNewItem = () => {
                                         // init paragraph
                                         let appendNewElement = document.createElement('p');
-                                        appendNewElement.contentEditable = "true";
                                         appendNewElement.setAttribute('data-type', 'paragraph');
 
-                                        appendNewElement.addEventListener('keyup', (e) => {
+                                        if (edit) {
+                                            appendNewElement.contentEditable = "true";
+                                            appendNewElement.addEventListener('keyup', (e) => {
+                                                if (e.keyCode === 13) {
+                                                    $.remove(appendNewElement.querySelector('div:last-child'));
+                                                    let newElement = appendNewItem();
+                                                    appendNewElement.parentNode.insertBefore(newElement, appendNewElement.nextSibling);
+                                                    newElement.focus();
+                                                }
+                                            });
+                                        }
+                                        return appendNewElement;
+                                    }
+                                    if (edit) {
+                                        appendElement.addEventListener('keyup', (e) => {
                                             if (e.keyCode === 13) {
-                                                $.remove(appendNewElement.querySelector('div:last-child'));
+                                                $.remove(appendElement.querySelector('div:last-child'));
                                                 let newElement = appendNewItem();
-                                                appendNewElement.parentNode.insertBefore(newElement, appendNewElement.nextSibling);
+                                                appendElement.parentNode.insertBefore(newElement, appendElement.nextSibling);
                                                 newElement.focus();
                                             }
                                         });
-                                        return appendNewElement;
                                     }
-                                    appendElement.addEventListener('keyup', (e) => {
-                                        if (e.keyCode === 13) {
-                                            $.remove(appendElement.querySelector('div:last-child'));
-                                            let newElement = appendNewItem();
-                                            appendElement.parentNode.insertBefore(newElement, appendElement.nextSibling);
-                                            newElement.focus();
-                                        }
-                                    });
                                 }
                             }
                             i++;
