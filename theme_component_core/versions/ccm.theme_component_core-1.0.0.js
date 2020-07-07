@@ -214,6 +214,10 @@
                                         });
                                         element.addEventListener('keyup', (e) => {
                                             if (e.key === "Backspace" && element.innerHTML == '') {
+                                                if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
+                                                    element.previousSibling.focus();
+                                                }
+
                                                 $.remove(element);
                                             }
                                         });
