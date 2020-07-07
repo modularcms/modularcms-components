@@ -195,7 +195,7 @@
                                     }
                                     appendElement.addEventListener('keyup', (e) => {
                                         if (e.keyCode === 13) {
-                                            $.remove(itemElement.querySelector('> div:last-child'));
+                                            $.remove(appendElement.querySelector('> div:last-child'));
                                             appendElement.parentNode.insertBefore(appendNewItem(), appendElement.nextSibling);
                                         }
                                     });
