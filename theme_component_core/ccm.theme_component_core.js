@@ -138,8 +138,16 @@
                                 // init paragraph
                                 appendElement = document.createElement('p');
                                 appendElement.innerHTML = contentZoneItem.data.text;
-                                $.append(appendElement, $.html(this.html.defineBlockType, {}));
-                                appendElement.contentEditable = "true";
+
+                                if (edit) {
+                                    $.append(appendElement, $.html(this.html.defineBlockType, {}));
+                                    appendElement.contentEditable = "true";
+                                    if (appendElement.innerHTML != '') {
+                                        appendElement.classList.add('has-content');
+                                    } else {
+                                        appendElement.classList.remove('has-content');
+                                    }
+                                }
                             } else if (contentZoneItem.type == 'list') {
                                 // init list
                                 appendElement = document.createElement(block.data.style == 'ordered'?'ol':'ul');
@@ -204,6 +212,11 @@
                                 if (contentZoneItem.type != 'themeDefinition' && contentZoneItem.type != 'ccmComponent') {
                                     let addEvents = (element) => {
                                         element.addEventListener('keypress', (e) => {
+                                            if (element.innerHTML != '') {
+                                                element.classList.add('has-content');
+                                            } else {
+                                                element.classList.remove('has-content');
+                                            }
                                             if (e.key === 'Enter') {
                                                 e.preventDefault();
                                                 $.remove(element.querySelector('div:last-child'));

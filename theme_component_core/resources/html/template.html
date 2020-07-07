@@ -6,7 +6,7 @@
 </ccm-template>
 
 <ccm-template key="defineBlockType">
-    <div class="define-block-type">
+    <div class="define-content-block-type">
         <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/add-icon.svg" />
         <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/text-icon.svg" />
         <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/bulleted-list-icon.svg" />
@@ -29,7 +29,7 @@
             visibility: hidden;
         }
 
-        *[contenteditable="true"]:focus .define-content-block-type {
+        *[contenteditable="true"]:focus:not(.has-content) .define-content-block-type {
             visibility: visible;
         }
 
