@@ -54,6 +54,8 @@
                 const contentZones = this.parent.contentZones || {};
                 const edit = this.parent.edit;
 
+                element.style.outline = 0;
+
                 // Set content
                 $.setContent(element, $.html(html, htmlOptions));
 
@@ -242,9 +244,9 @@
                 _contentZonesBefore = contentZones;
 
                 // handle element click
-                if (zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block')
-                this.element.addEventListener('click', () => {
-                    this.element.style.border = '1px solid #1592e6';
+                if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block')
+                element.addEventListener('click', () => {
+                    element.style.border = '1px solid #1592e6';
                 });
             };
 
