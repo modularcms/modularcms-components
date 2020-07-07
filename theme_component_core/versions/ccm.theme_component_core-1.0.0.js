@@ -161,6 +161,7 @@
                                                     newElement.focus();
                                                     newElement.addEventListener('keydown', (e) => {
                                                         if (e.key === "Backspace" && newElement.innerHTML == '') {
+                                                            e.preventDefault();
                                                             $.remove(newElement);
                                                         }
                                                     });
@@ -215,6 +216,7 @@
                                         element.addEventListener('keydown', (e) => {
                                             if (e.key === "Backspace" && element.innerHTML == '') {
                                                 if (element.previousSibling && element.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.getAttribute('data-type') != 'ccmComponent') {
+                                                    e.preventDefault();
                                                     this.placeCaretAtEnd(element.previousSibling);
                                                 }
 
