@@ -10,12 +10,12 @@
     margin-right: 10px;
 }
 
-#create-new-page-modal #create-modal-step-1 {
+#create-new-page-modal #create-modal-step-1, #add-component-modal #add-component-modal-step-1 {
     height: 500px;
     max-height: calc(100% - 25px);
 }
 
-#list-modal {
+#list-modal, #add-component-grid-modal {
     margin-bottom: 10px;
 }
 

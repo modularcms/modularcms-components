@@ -56,6 +56,7 @@
                 $.setContent(element, $.html(html, htmlOptions));
 
                 // Add edit style
+                $.append(element, $.html(this.html.style, {}));
                 if (edit) {
                     $.append(element, $.html(this.html.editStyle, {}));
                 }
@@ -126,7 +127,7 @@
                             const addPlaceholder = $.html(this.html.addBlock, {});
                             $.append(contentZoneElement, addPlaceholder);
                             if (edit) {
-                                addPlaceholder.addEventListener('click', () => this.addItem(contentZoneName));
+                                addPlaceholder.addEventListener('click', () => {this.addItem(contentZoneName)});
                             }
                         }
                     }
@@ -136,17 +137,21 @@
 
                 // handle block config
                 if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block') {
-                    this.parent.parent.element.addEventListener('click', (e) => {
-                        if (e.target != this.parent.root && element) {
-                            element.classList.remove('edit-focus');
-                        }
-                    });
-                    element.addEventListener('click', () => {
-                        element.classList.add('edit-focus');
-                    });
-                    $.append(element, $.html(this.html.editThemeDefinition, {}));
+                    this.addEditFocusHandling(element);
                 }
             };
+
+            this.addEditFocusHandling = (element) => {
+                this.parent.parent.element.addEventListener('click', (e) => {
+                    if (e.target != this.parent.root && element) {
+                        element.classList.remove('edit-focus');
+                    }
+                });
+                element.addEventListener('click', () => {
+                    element.classList.add('edit-focus');
+                });
+                $.append(element, $.html(this.html.editThemeDefinition, {}));
+            }
 
             /**
              * Checks if an zone component has changed
@@ -179,7 +184,9 @@
                 //dispatch add block event
                 const event = new CustomEvent("pageRendererAddBlock", {
                     detail: {
-                        contentZoneName: contentZoneName
+                        contentZoneName: contentZoneName,
+                        parentComponent: this.parent,
+                        parentNode: this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]')
                     }
                 });
                 window.dispatchEvent(event);
@@ -204,7 +211,24 @@
                 }
             };
 
-            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
+            this.getNewThemeDefinitionElement = async (contentZoneName, themeDefinitionKey) => {
+                const websiteKey = this.parent.websiteKey;
+                const page = this.parent.page;
+
+                if (_themeDefinitions[themeDefinitionKey] === undefined) {
+                    _themeDefinitions[themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, themeDefinitionKey);
+                }
+                return await this.getThemeDefinitionElement(contentZoneName, {
+                    type: 'themeDefinition',
+                    data: {
+                        themeDefinitionKey: themeDefinitionKey,
+                        themeDefinitionType: _themeDefinitions[themeDefinitionKey].type
+                    },
+                    config: {}
+                })
+            };
+
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
@@ -224,7 +248,7 @@
                         page: page,
                         edit: edit
                     });
-                    if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                    /*if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                         // Start component
                         const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
                         _contentZoneComponents[contentZoneName][i] = component;
@@ -232,9 +256,13 @@
                         // Update existing component
                         Object.assign(_contentZoneComponents[contentZoneName][i], config);
                         _contentZoneComponents[contentZoneName][i].update();
-                    }
-                    let element = _contentZoneComponents[contentZoneName][i].root;
+                    }*/
+                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                    //let element = _contentZoneComponents[contentZoneName][i].root;
+                    let element = component.root;
                     element.contentZoneItem = contentZoneItem;
+                    element.ccmInstance = component;
+                    element.themeDefinitionType = themeDefinition.type;
                     element.setAttribute('data-type', contentZoneItem.type);
                     return element;
                 }
@@ -336,14 +364,36 @@
                 return element;
             }
 
-            this.addParagraphAfter = (element, contentZoneName) => {
-                let newElement = this.getParagraphElement(contentZoneName);
-                this.addContentZoneItemAfter(element, newElement, contentZoneName)
+            this.addParagraphAfter = (parentNode, element, contentZoneName, content='') => {
+                let newElement = this.getParagraphElement(contentZoneName, {contentZones:{}, type: 'paragraph', data: {text: content}});
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
                 newElement.focus();
             };
 
-            this.addContentZoneItemAfter = (element, newElement, contentZoneName, component = null) => {
-                let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
+            this.addThemeDefinitionAfter = async (parentNode, element, contentZoneName, themeDefinitionKey) => {
+                let newElement = await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey);
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                if (newElement.themeDefinitionType == 'block') {
+                    newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
+                        newElement.ccmInstance.core.addParagraphAfter(item, null, item.getAttribute('data-content-type-name'));
+                    });
+                    newElement.classList.add('edit-focus');
+                }
+                newElement.focus();
+            };
+
+            this.createBlock = async (parentNode, contentZoneName, themeDefinitionKey) => {
+                let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
+                await this.addThemeDefinitionAfter(parentNode, null, contentZoneName, themeDefinitionKey);
+                parentNode.insertBefore(addBlock, null);
+            }
+
+            this.addContentZoneItemAfter = (parentNode, element, newElement, contentZoneName, component = null) => {
+                if (_contentZoneElements[contentZoneName] === undefined) {
+                    _contentZoneElements[contentZoneName] = [];
+                    _contentZoneComponents[contentZoneName] = [];
+                }
+                let elementIndex = element == null ? -1 : _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex + 1, 0, newElement);
                     _contentZoneComponents[contentZoneName].splice(elementIndex + 1, 0, component);
@@ -351,9 +401,10 @@
                     _contentZoneElements[contentZoneName][0] = newElement;
                     _contentZoneComponents[contentZoneName][0] = component;
                 }
+                console.log(parentNode, element, newElement, contentZoneName, component);
 
-                element.parentNode.insertBefore(newElement, element.nextSibling.nextSibling);
-                element.parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
+                console.log(parentNode.insertBefore(newElement, element == null ? null : element.nextSibling.nextSibling));
+                console.log(parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling));
             }
 
             this.removeZoneItem = (element, contentZoneName) => {
@@ -376,10 +427,18 @@
                     element.classList.add('has-content');
                 }
                 element.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
+                    const selection = this.parent.element.parentNode.getSelection();
+                    const range = selection.getRangeAt(0);
+                    if (e.key === 'Enter' && range.collapsed) {
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-                        this.addParagraphAfter(element, contentZoneName);
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const ranges = this.splitNode(selection, element);
+                        const fragment = ranges.next.extractContents();
+                        const translateDiv = document.createElement('div');
+                        translateDiv.appendChild(fragment);
+
+                        this.addParagraphAfter(element.parentNode, element, contentZoneName, translateDiv.innerHTML);
                     }
                 });
                 element.addEventListener('keyup', (e) => {
@@ -390,22 +449,46 @@
                     }
                 });
                 element.addEventListener('keydown', (e) => {
-                    if (e.key === "Backspace" && element.innerHTML == '') {
+                    const selection = this.parent.element.parentNode.getSelection();
+                    const range = selection.getRangeAt(0);
+                    if (e.key === "Backspace" && ((range.collapsed && range.startOffset == 0) || (!range.collapsed && range.start == 0 && range.endOffset == range.text.length))) {
                         if (element.previousSibling && element.previousSibling.previousSibling) {
                             e.preventDefault();
                             if (element.previousSibling.previousSibling.getAttribute('data-type') != 'themeDefinition' && element.previousSibling.previousSibling.getAttribute('data-type') != 'ccmComponent') {
                                 this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                while (element.childNodes.length > 0) {
+                                    element.previousSibling.previousSibling.appendChild(element.childNodes[0]);
+                                }
+                                this.removeZoneItem(element, contentZoneName);
                             }
-                        } else {
-                            this.addParagraphAfter(element, contentZoneName);
+                        } else if (element.innerHTML == '') {
+                            this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                            this.removeZoneItem(element.parentNode, element, contentZoneName);
                         }
-
-                        this.removeZoneItem(element, contentZoneName);
                     }
                 });
 
                 // handle text selection
                 this.addContentEditingFormat(element, contentZoneName);
+            }
+
+            // copied from https://dev.to/itsarnavb/how-do-you-split-contenteditable-text-preserving-html-formatting-g9d
+            this.splitNode = (selection, root) => {
+                let range = selection.getRangeAt(0);
+                let {firstChild, lastChild} = root;
+
+                let previousRange = document.createRange();
+                previousRange.setStart(firstChild, 0);
+                previousRange.setEnd(range.startContainer, range.startOffset);
+
+                let nextRange = document.createRange();
+                nextRange.setStart(range.endContainer, range.endOffset);
+                nextRange.setEnd(lastChild, lastChild.length);
+                return {
+                    previous: previousRange,
+                    current: range,
+                    next: nextRange,
+                };
             }
 
             this.addContentEditingFormat = (element) => {
@@ -509,7 +592,7 @@
 
                 let replaceWith = (newElement) => {
                     let parentNode = element.parentNode;
-                    this.addContentZoneItemAfter(element, newElement, contentZoneName);
+                    this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
                     this.removeZoneItem(element, contentZoneName);
                 }
 
@@ -571,7 +654,7 @@
                             if (element.querySelector('li:last-child') == target && target.innerHTML == '') {
                                 e.preventDefault();
                                 $.remove(target);
-                                this.addParagraphAfter(element, contentZoneName);
+                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
                                 if (element.childElementCount == 0) {
                                     this.removeZoneItem(element, contentZoneName);
                                 }
