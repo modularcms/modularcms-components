@@ -51,6 +51,7 @@
                 const zoneItem = this.parent.zoneItem;
                 const contentZones = this.parent.contentZones || {};
                 const edit = this.parent.edit;
+                const parentZoneName = this.parent.parentZoneName;
 
                 // Set content
                 $.setContent(element, $.html(html, htmlOptions));
@@ -137,11 +138,11 @@
 
                 // handle block config
                 if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block') {
-                    this.addEditFocusHandling(element);
+                    this.addEditFocusHandling(element, parentZoneName);
                 }
             };
 
-            this.addEditFocusHandling = (element) => {
+            this.addEditFocusHandling = (element, contentZoneName) => {
                 this.parent.parent.element.addEventListener('click', (e) => {
                     if (e.target != this.parent.root && element) {
                         element.classList.remove('edit-focus');
@@ -150,7 +151,14 @@
                 element.addEventListener('click', () => {
                     element.classList.add('edit-focus');
                 });
-                $.append(element, $.html(this.html.editThemeDefinition, {}));
+                let editThemeDefinition = $.html(this.html.editThemeDefinition, {});
+                $.append(element, editThemeDefinition);
+                // handle remove button
+                editThemeDefinition.querySelector('img[data-action="remove"').addEventListener('click', () => {
+                    if (confirm('Do you really want to delete this block?')) {
+                        this.parent.parent.removeZoneItem(element, contentZoneName);
+                    }
+                });
             }
 
             /**
@@ -246,7 +254,8 @@
                         contentZones: contentZoneItem.contentZones,
                         websiteKey: websiteKey,
                         page: page,
-                        edit: edit
+                        edit: edit,
+                        parentZoneName: contentZoneName
                     });
                     /*if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                         // Start component
@@ -401,10 +410,9 @@
                     _contentZoneElements[contentZoneName][0] = newElement;
                     _contentZoneComponents[contentZoneName][0] = component;
                 }
-                console.log(parentNode, element, newElement, contentZoneName, component);
 
-                console.log(parentNode.insertBefore(newElement, element == null ? null : element.nextSibling.nextSibling));
-                console.log(parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling));
+                parentNode.insertBefore(newElement, element == null ? null : element.nextSibling.nextSibling);
+                parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
             }
 
             this.removeZoneItem = (element, contentZoneName) => {

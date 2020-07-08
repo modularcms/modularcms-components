@@ -51,6 +51,10 @@
             display: none;
         }
 
+        .edit-focus .content-zone:focus {
+            border: 1px solid #ff6b00;
+        }
+
         .disable-content-editable *[contenteditable="true"], .disable-content-editable *[contenteditable="true"] * {
             pointer-events: none;
         }
@@ -131,6 +135,10 @@
             display: none;
             height: 30px;
             background-color: #1592e6;
+        }
+
+        .edit-theme-definition, .edit-theme-definition * {
+            pointer-events: all;
         }
 
         .edit-focus .edit-theme-definition {

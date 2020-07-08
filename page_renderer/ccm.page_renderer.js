@@ -46,7 +46,8 @@
                     zoneItem: {type: 'theme', data: {}, config:{}},
                     websiteKey: this.websiteKey,
                     page: this.page,
-                    edit: this.edit
+                    edit: this.edit,
+                    parentZoneName: null
                 });
                 if (_themeComponent == null || _themeComponentUrl != _theme.ccmComponent.url) {
                     _themeComponent = await this.ccm.start(_theme.ccmComponent.url, themeConfig);
