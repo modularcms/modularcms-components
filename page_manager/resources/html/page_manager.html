@@ -190,7 +190,15 @@
 <ccm-template key="editHistoryListItem">
 
 </ccm-template>
-
+<ccm-template key="themeDefinitionListItem">
+    <div class="list-item-wrapper">
+        <div class="list-item list-item-with-more-button" data-type="%themeDefinitionType%" data-theme-key="%themeKey%" data-theme-definition-key="%themeDefinitionKey%" data-theme-definition-type-name="%themeDefinitionTypeName%" data-theme-definition-name="%themeDefinitionName%">
+            <div class="list-item-title">%themeDefinitionName%</div>
+            <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
+        </div>
+        <div class="list-item-children"></div>
+    </div>
+</ccm-template>
 <ccm-template key="addComponentModal">
     <div id="add-component-modal" class="modal">
         <div class="modal-bg"></div>

@@ -181,9 +181,10 @@
                     if (window.pageManagerAddBlockEventHandler) {
                         window.removeEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler)
                     }
-                    window.pageManagerAddBlockEventHandler = () => {
+                    window.pageManagerAddBlockEventHandler = async () => {
                         const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
                         $.append(this.element, modal);
+                        await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
                         modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
                     };
                     window.addEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler);
@@ -325,6 +326,57 @@
                     this.routing.navigateTo('/pages');
                 }
             };
+
+            /**
+             * Loads all themes
+             * @param {string}  target                  Target element
+             * @param {boolean} showThemeDefinitions    Should the layouts be loaded? defaults to true
+             * @returns {Promise<void>}
+             */
+            this.loadAllThemeBlockDefinitions = async (target, themeKey) => {
+                const list = this.element.querySelector(target);
+                list.classList.add('loading');
+                $.append(list, $.html(this.html.loader, {}));
+
+                const websiteKey = await this.data_controller.getSelectedWebsiteKey();
+
+                if (websiteKey != null) {
+                    // Get users
+                    const elementRoot = document.createElement('div');
+
+                    //Load all theme definitions
+                    let uniqueItemIndex = 0;
+
+                    let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, themeKey);
+                    themeDefinitions = themeDefinitions.filter(item => item.type == 'block');
+                    themeDefinitions.sort((a, b) => {
+                        if (themeDefinitionsTypeNames[a.type] < themeDefinitionsTypeNames[b.type] && a.name < b.name) {
+                            return -1;
+                        }
+                        if (themeDefinitionsTypeNames[a.type] > themeDefinitionsTypeNames[b.type] && a.name > b.name) {
+                            return 1;
+                        }
+                        return 0;
+                    });
+                    for (let themeDefinition of themeDefinitions) {
+                        let itemWrapperLayout = $.html(this.html.themeDefinitionListItem, {
+                            themeDefinitionType: themeDefinition.type,
+                            themeDefinitionKey: themeDefinition.themeDefinitionKey,
+                            themeDefinitionName: themeDefinition.name,
+                            themeKey: themeKey
+                        });
+                        const item = itemWrapperLayout.querySelector('.list-item');
+                        item.classList.add((uniqueItemIndex++ % 2 == 0)?'even':'odd');
+                        $.append(elementRoot, itemWrapperLayout);
+                    }
+
+                    $.setContent(list, elementRoot);
+                } else {
+                    list.innerHTML = '';
+                }
+
+                list.classList.remove('loading');
+            }
 
             /**
              * Renders the theme Layout select input
