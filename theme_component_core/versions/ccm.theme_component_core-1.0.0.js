@@ -444,8 +444,8 @@
                     _contentZoneElements[contentZoneName].splice(elementIndex + 1, 0, newElement);
                     _contentZoneComponents[contentZoneName].splice(elementIndex + 1, 0, component);
                 } else {
-                    _contentZoneElements[contentZoneName][0] = newElement;
-                    _contentZoneComponents[contentZoneName][0] = component;
+                    _contentZoneElements[contentZoneName].push(newElement);
+                    _contentZoneComponents[contentZoneName].push(component);
                 }
 
                 parentNode.insertBefore(newElement, element == null ? null : element.nextSibling.nextSibling);
@@ -462,8 +462,8 @@
                     _contentZoneElements[contentZoneName].splice(elementIndex, 0, newElement);
                     _contentZoneComponents[contentZoneName].splice(elementIndex, 0, component);
                 } else {
-                    _contentZoneElements[contentZoneName][0] = newElement;
-                    _contentZoneComponents[contentZoneName][0] = component;
+                    _contentZoneElements[contentZoneName].splice(0, 0, newElement);
+                    _contentZoneComponents[contentZoneName].splice(0, 0, component);
                 }
 
                 parentNode.insertBefore(newElement, element == null ? null : element);
@@ -701,7 +701,7 @@
                                 const imgData = result.info;
                                 let newElement = this.getNewImageElement(contentZoneName, imgData.secure_url);
                                 replaceWith(newElement);
-                                newElement.focus();
+                                this.placeCaretAtEnd(newElement);
                             }
                         }
                     );
@@ -800,9 +800,11 @@
                 // define content get method
                 element.getDataContent = () => {
                     element.querySelectorAll('br').forEach(item => $.remove(item));
+                    let items = [];
+                    element.querySelectorAll('li').forEach(item => items.push(item.innerHTML));
                     return {
                         style: element.tagName == 'ol'?'ordered':'unordered',
-                        items: element.querySelectorAll('li').map(item => item.innerHTML)
+                        items: items
                     };
                 };
 
@@ -811,7 +813,7 @@
 
             this.getNewImageElement = (contentZoneName, imageUrl) => {
                 return this.getImageElement(contentZoneName, {
-                    'type': 'list',
+                    'type': 'image',
                     'data': {
                         'file': {
                             'url': imageUrl
@@ -823,7 +825,7 @@
             }
 
             this.getImageElement = (contentZoneName, contentZoneItem = {
-                'type': 'list',
+                'type': 'image',
                 'data': {
                     'file': {
                         'url': null
@@ -930,7 +932,6 @@
 
             this.getContentZones = () => {
                 let re = {};
-                console.log(_contentZoneElements)
                 for (let contentZoneName in _contentZoneElements) {
                     re[contentZoneName] = this.getContentZone(contentZoneName);
                 }
