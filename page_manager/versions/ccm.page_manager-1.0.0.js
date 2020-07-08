@@ -291,6 +291,7 @@
                     // handle layout change
                     layoutSelect.addEventListener('change', async () => {
                         page.themeKey = layoutSelect.querySelector('option[value="' + layoutSelect.value + '"]').getAttribute('data-theme-key');
+                        page.contentZones = pageRenderer.getContentZones();
                         page.contentZones.layout[0].data.themeDefinitionKey = layoutSelect.value;
                         Object.assign(pageRenderer.page, page);
                         await pageRenderer.update();
@@ -312,7 +313,7 @@
                         if (form.checkValidity() && this.theme_json_builder.isValid() && this.layout_json_builder.isValid()) {
                             saveButton.classList.add('button-disabled');
                             saveButton.querySelector('.button-text').innerHTML = 'Saving...';
-                            //TODO Save
+                            page.contentZones = pageRenderer.getContentZones();
                             let pageSet = {};
                             Object.assign(pageSet, page, {
                                 title: titleInput.value,

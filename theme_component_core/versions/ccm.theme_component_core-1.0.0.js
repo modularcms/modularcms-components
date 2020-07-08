@@ -420,7 +420,7 @@
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
-                        newElement.ccmInstance.core.addParagraphAfter(item, null, item.getAttribute('data-content-type-name'));
+                        newElement.ccmInstance.core.addParagraphAfter(item, null, item.getAttribute('data-content-zone-name'));
                     });
                 }
                 newElement.focus();
@@ -930,6 +930,7 @@
 
             this.getContentZones = () => {
                 let re = {};
+                console.log(_contentZoneElements)
                 for (let contentZoneName in _contentZoneElements) {
                     re[contentZoneName] = this.getContentZone(contentZoneName);
                 }

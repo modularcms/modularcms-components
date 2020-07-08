@@ -59,6 +59,13 @@
                 }
                 $.setContent(this.element, _themeComponent.root);
             }
+
+            this.getContentZones = () => {
+                if (_themeComponent != null) {
+                    return _themeComponent.core.getContentZones();
+                }
+                return {};
+            }
         }
 
     };
