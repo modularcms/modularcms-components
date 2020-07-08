@@ -210,9 +210,44 @@
                                 $.remove(modal);
                             });
                         }
-                    }
-                    ;
+                    };
                     window.addEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler);
+
+                    // handle edit block config event
+                    if (window.pageManagerEditBlockConfigEventHandler) {
+                        window.removeEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler)
+                    }
+                    window.pageManagerEditBlockConfigEventHandler = async (e) => {
+                        const parentComponent = e.detail.parentComponent;
+                        const parentNode = e.detail.parentNode;
+                        const contentZoneName = e.detail.contentZoneName
+                        const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
+                        $.append(this.element, modal);
+                        await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
+                        modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
+
+                        //Add events for page theme definition list select
+                        let selectedThemeDefinitionKey = null;
+                        this.element.querySelectorAll('#add-component-grid-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
+                            let previousSelectedElement = this.element.querySelector('#list-modal .list-item.selected');
+                            previousSelectedElement && previousSelectedElement.classList.remove('selected');
+                            elem.classList.add('selected');
+                            selectedThemeDefinitionKey = elem.getAttribute('data-theme-definition-key');
+
+                            // Enable button
+                            enableSelectButton();
+                        }));
+
+                        let enableSelectButton = () => {
+                            const selectButton = this.element.querySelector('#add-component-modal-select-button');
+                            selectButton.classList.remove('button-disabled')
+                            selectButton.addEventListener('click', () => {
+                                parentComponent.core.createBlock(parentNode, contentZoneName, selectedThemeDefinitionKey);
+                                $.remove(modal);
+                            });
+                        }
+                    };
+                    window.addEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler);
 
                     //handle content switcher
                     let editMenuItems = this.element.querySelectorAll('.edit-menu .menu-item');

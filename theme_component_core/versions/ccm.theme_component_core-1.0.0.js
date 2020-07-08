@@ -143,6 +143,7 @@
             };
 
             this.addEditFocusHandling = (element, contentZoneName) => {
+                // handle focusing
                 this.parent.parent.element.addEventListener('click', (e) => {
                     if (e.target != this.parent.root && element) {
                         element.classList.remove('edit-focus');
@@ -153,12 +154,31 @@
                 });
                 let editThemeDefinition = $.html(this.html.editThemeDefinition, {});
                 $.append(element, editThemeDefinition);
+
                 // handle remove button
-                editThemeDefinition.querySelector('img[data-action="remove"').addEventListener('click', () => {
-                    if (confirm('Do you really want to delete this block?')) {
-                        this.parent.parent.removeZoneItem(element, contentZoneName);
+                const removeButton = editThemeDefinition.querySelector('img[data-action="remove"');
+                removeButton.addEventListener('click', () => {
+                    if (confirm('Do you really want to remove this block?')) {
+                        this.parent.parent.core.removeZoneItem(element, contentZoneName);
                     }
                 });
+
+                // handle remove button
+                const configButton = editThemeDefinition.querySelector('img[data-action="config"');
+                configButton.addEventListener('click', () => {
+                    const event = new CustomEvent("pageRendererEditBlockConfig", {
+                        detail: {
+                            contentZoneName: contentZoneName,
+                            parentComponent: this.parent,
+                            parentNode: this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]')
+                        }
+                    });
+                    window.dispatchEvent(event);
+                });
+            }
+
+            this.changeThemeDefinitionConfig = (element, config) => {
+                // TODO
             }
 
             /**
@@ -386,14 +406,15 @@
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
                         newElement.ccmInstance.core.addParagraphAfter(item, null, item.getAttribute('data-content-type-name'));
                     });
-                    newElement.classList.add('edit-focus');
                 }
                 newElement.focus();
+                return newElement;
             };
 
             this.createBlock = async (parentNode, contentZoneName, themeDefinitionKey) => {
                 let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
-                await this.addThemeDefinitionAfter(parentNode, null, contentZoneName, themeDefinitionKey);
+                let newElement = await this.addThemeDefinitionAfter(parentNode, null, contentZoneName, themeDefinitionKey);
+                newElement.ccmInstance.element.classList.add('edit-focus');
                 parentNode.insertBefore(addBlock, null);
             }
 
@@ -440,13 +461,18 @@
                     if (e.key === 'Enter' && range.collapsed) {
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const ranges = this.splitNode(selection, element);
-                        const fragment = ranges.next.extractContents();
-                        const translateDiv = document.createElement('div');
-                        translateDiv.appendChild(fragment);
 
-                        this.addParagraphAfter(element.parentNode, element, contentZoneName, translateDiv.innerHTML);
+                        if (element.innerHTML != '') {
+                            const selection = this.parent.element.parentNode.getSelection();
+                            const ranges = this.splitNode(selection, element);
+                            const fragment = ranges.next.extractContents();
+                            const translateDiv = document.createElement('div');
+                            translateDiv.appendChild(fragment);
+
+                            this.addParagraphAfter(element.parentNode, element, contentZoneName, translateDiv.innerHTML);
+                        } else {
+                            this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                        }
                     }
                 });
                 element.addEventListener('keyup', (e) => {
@@ -623,7 +649,29 @@
                 // image button
                 const imageButton = definer.querySelector('img[data-type="image"]');
                 imageButton.addEventListener('click', () => {
-                     // TODO
+                    // Create cloudinary widget
+                    const cloudinaryWidget = cloudinary.createUploadWidget(
+                        {
+                            cloudName: 'dyhjqgkca',
+                            uploadPreset: 'y6tm2ylf',
+                            sources: ['local'],
+                            googleApiKey: 'AIrFcR8hKiRo',
+                            multiple: false,
+                            resourceType: 'image',
+                            palette: {
+                                windowBorder: '#000000'
+                            }
+                        },
+                        (error, result) => {
+                            if (!error && result && result.event === "success") {
+                                const imgData = result.info;
+                                let newElement = this.getNewImageElement(contentZoneName, imgData.secure_url);
+                                replaceWith(newElement);
+                                newElement.focus();
+                            }
+                        }
+                    );
+                    cloudinaryWidget.open();
                 });
 
                 // component button
@@ -727,11 +775,24 @@
                 return element;
             }
 
-            this.getImageElement = (contentZoneItem = {
+            this.getNewImageElement = (contentZoneName, imageUrl) => {
+                return this.getImageElement(contentZoneName, {
+                    'type': 'list',
+                    'data': {
+                        'file': {
+                            'url': imageUrl
+                        },
+                        'caption': null
+                    },
+                    contentZones: {}
+                })
+            }
+
+            this.getImageElement = (contentZoneName, contentZoneItem = {
                 'type': 'list',
                 'data': {
                     'file': {
-                        'url': 'Placeholder' //TODO
+                        'url': null
                     },
                     'caption': null
                 },
@@ -742,6 +803,17 @@
                 // init image
                 let element = document.createElement('div');
                 element.classList.add('image-wrapper');
+
+                if (edit) {
+                    element.contentEditable = "true";
+                }
+
+                element.addEventListener('keydown', (e) => {
+                    if (e.key == 'Backspace') {
+                        e.preventDefault();
+                        this.removeZoneItem(element, contentZoneName);
+                    }
+                });
 
                 let img = document.createElement('img');
                 let caption = null;
