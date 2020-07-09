@@ -158,6 +158,10 @@
                 // handle remove button
                 const removeButton = editThemeDefinition.querySelector('img[data-action="remove"');
                 removeButton.addEventListener('click', () => {
+                    const event = new CustomEvent("pageRendererRemoveBLock", {
+                        detail: {}
+                    });
+                    window.dispatchEvent(event);
                     if (confirm('Do you really want to remove this block?')) {
                         this.parent.parent.core.removeZoneItem(element, contentZoneName);
                     }
@@ -177,10 +181,6 @@
                     });
                     window.dispatchEvent(event);
                 });
-            }
-
-            this.changeThemeDefinitionConfig = (element, config) => {
-                // TODO
             }
 
             /**
