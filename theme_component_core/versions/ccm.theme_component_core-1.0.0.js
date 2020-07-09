@@ -864,7 +864,7 @@
                                 }
                             } else {
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
-                                    element.previousSibling.previousSibling.focus();
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
                                 }
                                 this.removeZoneItem(element, contentZoneName);
                             }

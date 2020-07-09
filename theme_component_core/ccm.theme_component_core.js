@@ -161,11 +161,13 @@
                     }
                 });
 
-                // handle remove button
+                // handle edit button
                 const configButton = editThemeDefinition.querySelector('img[data-action="config"');
                 configButton.addEventListener('click', () => {
                     const event = new CustomEvent("pageRendererEditBlockConfig", {
                         detail: {
+                            component: this.parent,
+                            zoneItem: this.parent.zoneItem,
                             contentZoneName: contentZoneName,
                             parentComponent: this.parent,
                             parentNode: this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]')
@@ -860,7 +862,7 @@
                                 }
                             } else {
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
-                                    element.previousSibling.previousSibling.focus();
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
                                 }
                                 this.removeZoneItem(element, contentZoneName);
                             }
