@@ -156,7 +156,7 @@
                 // handle remove button
                 const removeButton = editThemeDefinition.querySelector('img[data-action="remove"');
                 removeButton.addEventListener('click', () => {
-                    const event = new CustomEvent("pageRendererRemoveBLock", {
+                    const event = new CustomEvent("pageRendererRemoveBlock", {
                         detail: {}
                     });
                     window.dispatchEvent(event);
