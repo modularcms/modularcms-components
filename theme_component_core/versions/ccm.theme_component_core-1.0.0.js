@@ -539,7 +539,7 @@
                 });
 
                 // handle text selection
-                this.addContentEditingFormat(element, contentZoneName);
+                this.addContentEditingFormat(element);
             }
 
             // copied from https://dev.to/itsarnavb/how-do-you-split-contenteditable-text-preserving-html-formatting-g9d
@@ -587,7 +587,7 @@
                         return getOffsetLeft(element.offsetParent);
                     };
 
-                    if (!range.collapsed) {
+                    if (!range.collapsed || element.contentZoneItem.type == 'header') {
                         let hint = $.html(this.html.editInlineTool, {});
                         let left = (rect.left - getOffsetLeft(this.parent.element) + rect.width / 2);
                         if (left < 0) {
@@ -602,10 +602,23 @@
                             hint.style.left = '0';
                         }
 
-                        ['bold', 'italic', 'underline', 'strikeThrough', 'removeFormat'].forEach(item => {
-                            hint.querySelector('img[data-action="' + item + '"]').addEventListener('mouseup', () => {
-                                selection.addRange(range);
-                                document.execCommand(item);
+                        ['bold', 'italic', 'underline', 'strikeThrough', 'removeFormat', 'header'].forEach(item => {
+                            hint.querySelectorAll('img[data-action="' + item + '"]').forEach(button => {
+                                if (
+                                    (range.collapsed && button.getAttribute('data-only-with-range'))
+                                    || (button.getAttribute('data-type') && button.getAttribute('data-type') != element.contentZoneItem.type)
+                                    || (button.getAttribute('data-type-not') && button.getAttribute('data-type-not') == element.contentZoneItem.type)
+                                ) {
+                                    button.style.display = 'none';
+                                }
+                                if (item == 'header') {
+                                    element.tagName = 'h' + item.getAttribute('data-header-level');
+                                } else {
+                                    button.addEventListener('mouseup', () => {
+                                        selection.addRange(range);
+                                        document.execCommand(item);
+                                    });
+                                }
                             });
                         });
 
