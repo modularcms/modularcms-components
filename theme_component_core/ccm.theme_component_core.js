@@ -569,7 +569,7 @@
                             return 0;
                         }
                         if (element.nodeType == 1) {
-                            return element.offsetTop + getOffsetTop(element.offsetParent);
+                            return element.offsetTop + getOffsetTop(element.offsetParent) - element.scrollTop;
                         }
                         return getOffsetTop(element.offsetParent);
                     };
@@ -578,16 +578,25 @@
                             return 0;
                         }
                         if (element.nodeType == 1) {
-                            return element.offsetLeft + getOffsetLeft(element.offsetParent);
+                            return element.offsetLeft + getOffsetLeft(element.offsetParent) - element.scrollLeft;
                         }
                         return getOffsetLeft(element.offsetParent);
                     };
 
                     if (!range.collapsed) {
                         let hint = $.html(this.html.editInlineTool, {});
-                        hint.style.left = rect.left - getOffsetLeft(this.parent.element) + rect.width / 2 + 'px';
-                        hint.style.top = rect.top - getOffsetTop(this.parent.element) + 'px';
+                        let left = (rect.left - getOffsetLeft(this.parent.element) + rect.width / 2);
+                        if (left < 0) {
+                            left = 0;
+                        }
+                        hint.style.left = left + 'px';
+                        hint.style.top = (rect.top - getOffsetTop(this.parent.element)) + 'px';
                         $.append(this.parent.element, hint);
+
+                        if (left < hint.getBoundingClientRect().width / 2) {
+                            hint.style.transform = 'translate(0, calc(-100% - 4px))';
+                            hint.style.left = '0';
+                        }
 
                         ['bold', 'italic', 'underline', 'strikeThrough', 'removeFormat'].forEach(item => {
                             hint.querySelector('img[data-action="' + item + '"]').addEventListener('mouseup', () => {
@@ -595,7 +604,6 @@
                                 document.execCommand(item);
                             });
                         });
-
 
                         let remove = () => {
                             $.remove(hint);
@@ -605,12 +613,10 @@
                             window.removeEventListener('mousedown', handler);
                             let handler2 = () => {
                                 window.removeEventListener('mouseup', handler2);
+                                remove();
                                 const selection = this.parent.element.parentNode.getSelection();
-                                if (!(selection.rangeCount == 1 && !selection.getRangeAt(0).collapsed)) {
-                                    remove();
-                                } else {
-                                    window.addEventListener('mousedown', handler);
-                                    element.addEventListener('mouseup', mouseUpHandler);
+                                if (selection.rangeCount == 1 && range.collapsed) {
+                                    mouseUpHandler();
                                 }
                             }
                             window.addEventListener('mouseup', handler2);
@@ -618,10 +624,10 @@
                         window.addEventListener('mousedown', handler);
 
                         let handler3 = () => {
-                            element.removeEventListener('selectstart', handler3);
+                            window.removeEventListener('selectstart', handler3);
                             remove();
                         };
-                        element.addEventListener('selectstart', handler3);
+                        window.addEventListener('selectstart', handler3);
                     }
                 };
                 element.addEventListener('selectstart', () => {
