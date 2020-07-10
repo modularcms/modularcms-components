@@ -989,6 +989,12 @@
                     caption.innerHTML = contentZoneItem.data.caption;
                 }
 
+                if (edit) {
+                    img.addEventListener('click', () => {
+                        this.placeCaretAtEnd(element);
+                    });
+                }
+
                 element.appendChild(img);
                 if (caption) {
                     element.appendChild(caption);
