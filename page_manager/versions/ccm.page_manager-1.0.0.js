@@ -209,27 +209,24 @@
                         window.removeEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler)
                     }
                     window.pageManagerEditBlockConfigEventHandler = async (e) => {
-                        const parentComponent = e.detail.parentComponent;
-                        const component = e.detail.component;
                         const zoneItem = e.detail.zoneItem;
-                        const parentNode = e.detail.parentNode;
-                        const contentZoneName = e.detail.contentZoneName
+                        const updateConfig = e.detail.updateConfig;
                         const builder = $.html(this.html.editComponentBuilder, {typeName: 'block'});
 
                         $.setContent(this.element.querySelector('#builder'), builder);
                         builder.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
 
+                        //Handle config change
                         this.component_json_builder.data.json = zoneItem.data.config;
-                        let currentConfigHash = this.hash.md5(zoneItem.data.config);
+                        let currentConfigHash = this.hash.md5(JSON.stringify(zoneItem.data.config));
                         this.component_json_builder.onchange = (event) => {
                             // handle json change
                             let value = event.instance.getValue();
                             if (value.valid) {
                                 let configHash = this.hash.md5(JSON.stringify(value.json));
-                                console.log(currentConfigHash, configHash);
                                 if (configHash != currentConfigHash) {
                                     currentConfigHash = configHash;
-                                    parentComponent.core.updateThemeDefinitionElementConfig(parentNode, component.root, zoneItem, contentZoneName, component, value.json);
+                                    updateConfig(value.json);
                                 }
                             }
                         }

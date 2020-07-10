@@ -142,7 +142,7 @@
                 }
             };
 
-            this.addEditFocusHandling = (element, contentZoneName) => {
+            this.addEditFocusHandling = (element, parentZoneName) => {
                 // handle focusing
                 this.parent.parent.element.addEventListener('click', (e) => {
                     if (e.target != this.parent.root && element) {
@@ -163,7 +163,7 @@
                             detail: {}
                         });
                         window.dispatchEvent(event);
-                        this.parent.parent.core.removeZoneItem(element, contentZoneName);
+                        this.parent.parent.core.removeZoneItem(element, parentZoneName);
                     }
                 });
 
@@ -172,11 +172,17 @@
                 configButton.addEventListener('click', () => {
                     const event = new CustomEvent("pageRendererEditBlockConfig", {
                         detail: {
-                            component: this.parent,
                             zoneItem: this.parent.zoneItem,
-                            contentZoneName: contentZoneName,
-                            parentComponent: this.parent,
-                            parentNode: this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]')
+                            updateConfig: (config) => {
+                                this.parent.parent.core.updateThemeDefinitionElementConfig(
+                                    this.parent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
+                                    this.parent.root,
+                                    this.parent.zoneItem,
+                                    parentZoneName,
+                                    this.parent,
+                                    config
+                                );
+                            }
                         }
                     });
                     window.dispatchEvent(event);
@@ -496,7 +502,7 @@
                     _contentZoneComponents[contentZoneName].push(component);
                 }
 
-                parentNode.insertBefore(newElement, element == null ? null : element.nextSibling.nextSibling);
+                parentNode.insertBefore(newElement, element == null ? null : (element.nextSibling?element.nextSibling.nextSibling:null));
                 parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
             }
 
@@ -1001,10 +1007,10 @@
                 return element;
             }
 
-            this.updateThemeDefinitionElementConfig = (parentNode, element, zoneItem, contentZoneName, component, config) => {
+            this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, component, config) => {
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
-                let newElement = this.getThemeDefinitionElement(contentZoneName, zoneItem);
+                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem);
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
                 this.removeZoneItem(element, contentZoneName);
             }
