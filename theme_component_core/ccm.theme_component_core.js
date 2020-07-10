@@ -156,11 +156,11 @@
                 // handle remove button
                 const removeButton = editThemeDefinition.querySelector('img[data-action="remove"');
                 removeButton.addEventListener('click', () => {
-                    const event = new CustomEvent("pageRendererRemoveBlock", {
-                        detail: {}
-                    });
-                    window.dispatchEvent(event);
                     if (confirm('Do you really want to remove this block?')) {
+                        const event = new CustomEvent("pageRendererRemoveBlock", {
+                            detail: {}
+                        });
+                        window.dispatchEvent(event);
                         this.parent.parent.core.removeZoneItem(element, contentZoneName);
                     }
                 });
@@ -851,6 +851,8 @@
                             if (element.childElementCount == 0) {
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
                                     this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
                                 }
                                 this.removeZoneItem(element, contentZoneName);
                             }
@@ -938,6 +940,8 @@
                             } else {
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
                                     this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
                                 }
                                 this.removeZoneItem(element, contentZoneName);
                             }

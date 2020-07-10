@@ -853,6 +853,8 @@
                             if (element.childElementCount == 0) {
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
                                     this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
                                 }
                                 this.removeZoneItem(element, contentZoneName);
                             }
@@ -940,6 +942,8 @@
                             } else {
                                 if (element.previousSibling && element.previousSibling.previousSibling) {
                                     this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
                                 }
                                 this.removeZoneItem(element, contentZoneName);
                             }
