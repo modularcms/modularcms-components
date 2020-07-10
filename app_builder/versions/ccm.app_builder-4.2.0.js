@@ -250,6 +250,10 @@
           // perform 'onchange' callback
           self.onchange && self.onchange( self, 'create' );
 
+          dataset['_'] !== undefined && delete dataset['_'];
+          dataset['updated_at'] !== undefined && delete dataset['updated_at'];
+          dataset['created_at'] !== undefined && delete dataset['created_at'];
+
           const event = new CustomEvent("createDMSComponent", {
             detail: {
               dataset: dataset

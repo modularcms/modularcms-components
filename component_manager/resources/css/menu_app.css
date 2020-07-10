@@ -1,0 +1,21 @@
+/**
+ * @overview additional layout for the demo and builder menu in the component manager
+ * @author André Kless <andre.kless@web.de.de> 2019
+ * @license The MIT License (MIT)
+ */
+
+.entry {
+  cursor: pointer;
+  overflow: hidden;
+  z-index: unset;
+  border-left: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  padding: 0.5em 1em !important;
+}
+
+.entry.active {
+  color: white !important;
+  border-color: #337ab7 !important;
+  background-color: #337ab7 !important;
+}
