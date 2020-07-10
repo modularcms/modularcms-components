@@ -117,3 +117,7 @@
 #dms-component-modal-inner {
     width: 80% !important;
 }
+
+#component-manager-wrapper {
+    overflow: auto;
+}

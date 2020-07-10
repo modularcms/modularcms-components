@@ -158,11 +158,11 @@
                 // handle remove button
                 const removeButton = editThemeDefinition.querySelector('img[data-action="remove"');
                 removeButton.addEventListener('click', () => {
-                    const event = new CustomEvent("pageRendererRemoveBlock", {
-                        detail: {}
-                    });
-                    window.dispatchEvent(event);
                     if (confirm('Do you really want to remove this block?')) {
+                        const event = new CustomEvent("pageRendererRemoveBlock", {
+                            detail: {}
+                        });
+                        window.dispatchEvent(event);
                         this.parent.parent.core.removeZoneItem(element, contentZoneName);
                     }
                 });
