@@ -1001,6 +1001,14 @@
                 return element;
             }
 
+            this.updateThemeDefinitionElementConfig = (parentNode, element, zoneItem, contentZoneName, component, config) => {
+                zoneItem.data.config = config;
+                zoneItem.contentZones = component.core.getContentZones();
+                let newElement = this.getThemeDefinitionElement(contentZoneName, zoneItem);
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
+                this.removeZoneItem(element, contentZoneName);
+            }
+
             this.getContentZone = (contentZoneName) => {
                 let re = [];
                 if (_contentZoneElements[contentZoneName] !== undefined) {

@@ -571,7 +571,6 @@ div.checkbox-wrapper label {
     height: 100%;
     margin-top: 10px;
     border: 1px solid #c4c4c4;
-    z-index: 1001;
     position: relative;
 }
 

@@ -57,7 +57,6 @@
 
 #edit-content #page-renderer-wrapper, #edit-content #builder {
     height: 100%;
-    z-index: 1001;
     position: relative;
     overflow: auto;
 }
@@ -123,4 +122,10 @@
     max-width: 100%;
     width: 100%;
     position: relative;
+}
+
+#edit-component-builder, #builder > div {
+    height: 100%;
+    position: relative;
+
 }

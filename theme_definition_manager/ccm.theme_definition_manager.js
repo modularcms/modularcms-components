@@ -497,7 +497,7 @@
                 }));
                 this.json_builder.data = {json: {}};
                 await this.json_builder.start();
-                $.setContent(this.element.querySelector('#create-modal-theme-definition-ccm-component-config'), this.json_builder.root, {});
+                $.setContent(this.element.querySelector('#create-modal-theme-definition-ccm-component-config'), this.json_builder.root);
 
                 // Add events for close
                 this.element.querySelectorAll('.modal-close, .modal-bg').forEach(elem => elem.addEventListener('click', () =>{

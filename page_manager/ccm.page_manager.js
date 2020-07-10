@@ -13,6 +13,7 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
+            "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/page_manager.html" ],
             "css": [ "ccm.load",
                 "https://modularcms.github.io/modularcms-components/page_manager/resources/css/style.css",
@@ -26,7 +27,7 @@
             "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
-            "component_manager": ["ccm.instance", "https://ccmjs.github.io/akless-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://ccmjs.github.io/akless-components/component_manager/resources/resources.js","live"]]
+            "component_manager": ["ccm.component", "https://modularcms.github.io/modularcms-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","component_manager"]]
         },
 
         Instance: function () {
@@ -148,15 +149,15 @@
                 const page = await this.data_controller.getPage(websiteKey, pageKey);
 
                 if (page != null) {
-                    let parentPageUrl = '';
+                    /*let parentPageUrl = '';
                     if (page.parentKey) {
                         parentPageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.parentKey);
-                    }
+                    }*/
 
                     const content = $.html(this.html.editPage, {
                         title: page.title,
                         urlPart: page.urlPart,
-                        parentUrl: parentPageUrl == '/' ? '' : parentPageUrl,
+                        //parentUrl: parentPageUrl == '/' ? '' : parentPageUrl,
                         metaDescription: page.meta.description,
                         metaKeywords: page.meta.keywords,
                         metaRobots: page.meta.robots,
@@ -170,19 +171,34 @@
                     // page preview
                     $.append(content.querySelector('#page-renderer-wrapper'), loader);
                     const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
+                        root: content.querySelector('#page-renderer-wrapper'),
                         websiteKey: websiteKey,
                         page: page,
                         parent: this,
                         edit: true
                     });
-                    $.setContent(content.querySelector('#page-renderer-wrapper'), pageRenderer.root);
+
+                    //define inputs and buttons
+                    const form = this.element.querySelector('#page-edit-form');
+                    const titleInput = this.element.querySelector('#edit-page-title');
+                    const urlPartInput = this.element.querySelector('#edit-page-url-part');
+                    const metaDescriptionInput = this.element.querySelector('#edit-page-meta-description');
+                    const metaKeywordsInput = this.element.querySelector('#edit-page-meta-keywords');
+                    const metaRobotsInput = this.element.querySelector('#edit-page-meta-robots');
+                    const layoutSelect = this.element.querySelector('#edit-page-layout-select');
+                    const saveButton = this.element.querySelector('#save-button');
+                    const publishButton = this.element.querySelector('#publish-button');
+                    const onDataChange = () => {
+                        saveButton.classList.remove('button-disabled');
+                        publishButton.classList.add('button-disabled');
+                    };
 
                     // handle add block event
                     if (window.pageManagerAddBlockEventHandler) {
                         window.removeEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler)
                     }
                     window.pageManagerAddBlockEventHandler = async (e) => {
-                        await this.openAddComponentModal(page, e.detail.addFunction, onDataChange);
+                        await this.openAddComponentModal(page, e.detail.addFunction, onDataChange, 'block');
                     };
                     window.addEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler);
 
@@ -202,9 +218,22 @@
                         builder.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
 
                         this.component_json_builder.data.json = zoneItem.data.config;
+                        let currentConfigHash = this.hash.md5(zoneItem.data.config);
+                        this.component_json_builder.onchange = (event) => {
+                            // handle json change
+                            let value = event.instance.getValue();
+                            if (value.valid) {
+                                let configHash = this.hash.md5(JSON.stringify(value.json));
+                                console.log(currentConfigHash, configHash);
+                                if (configHash != currentConfigHash) {
+                                    currentConfigHash = configHash;
+                                    parentComponent.core.updateThemeDefinitionElementConfig(parentNode, component.root, zoneItem, contentZoneName, component, value.json);
+                                }
+                            }
+                        }
+                        this.element.querySelector('#builder').classList.add('has-builder-content');
                         await this.component_json_builder.start();
                         $.setContent(this.element.querySelector('#edit-component-builder'), this.component_json_builder.root);
-                        this.element.querySelector('#builder').classList.add('has-builder-content');
 
                         // Handle close
                         let hideHandler = () => {
@@ -231,7 +260,7 @@
                         window.removeEventListener('pageRendererAddComponent', window.pageManagerAddComponentEventHandler)
                     }
                     window.pageManagerAddComponentEventHandler = async (e) => {
-                        await this.openAddComponentModal(page, e.detail.addFunction, onDataChange);
+                        await this.openAddComponentModal(page, e.detail.addThemeDefinition, onDataChange, 'contentComponent');
                     };
                     window.addEventListener('pageRendererAddComponent', window.pageManagerAddComponentEventHandler);
 
@@ -244,23 +273,12 @@
                         this.element.querySelector('.edit-content[data-content-name="' + item.getAttribute('data-content-name') + '"]').classList.add('active');
                     }));
 
-                    //define inputs and buttons
-                    const form = this.element.querySelector('#page-edit-form');
-                    const titleInput = this.element.querySelector('#edit-page-title');
-                    const urlPartInput = this.element.querySelector('#edit-page-url-part');
-                    const metaDescriptionInput = this.element.querySelector('#edit-page-meta-description');
-                    const metaKeywordsInput = this.element.querySelector('#edit-page-meta-keywords');
-                    const metaRobotsInput = this.element.querySelector('#edit-page-meta-robots');
-                    const layoutSelect = this.element.querySelector('#edit-page-layout-select');
-                    const saveButton = this.element.querySelector('#save-button');
-                    const publishButton = this.element.querySelector('#publish-button');
-
                     // make sure url part begins with a slash
-                    urlPartInput.addEventListener('keyup', () => {
+                    /*urlPartInput.addEventListener('keyup', () => {
                         if (urlPartInput.value.indexOf('/') != 0) {
                             urlPartInput.value = '/' + urlPartInput.value;
                         }
-                    });
+                    });*/
 
                     // make sure meta description is a one liner
                     metaDescriptionInput.addEventListener('keyup', () => {
@@ -290,10 +308,6 @@
                     if (!publishedVersionEqual) {
                         publishButton.classList.remove('button-disabled');
                     }
-                    const onDataChange = () => {
-                        saveButton.classList.remove('button-disabled');
-                        publishButton.classList.add('button-disabled');
-                    };
                     form.addEventListener('keyup', onDataChange);
                     form.addEventListener('change', onDataChange);
                     form.addEventListener('paste', onDataChange);
@@ -376,10 +390,17 @@
                 }
             };
 
-            this.openAddComponentModal = async (page, addFunction, onDataChange) => {
-                const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
+            this.openDMSModal = async () => {
+                $.append(this.element, $.html(this.html.dmsComponentModal, {}));
+                await this.component_manager.start();
+                console.log(this.component_manager);
+                $.setContent(this.element.querySelector('#component-manager-wrapper'), this.component_manager.root);
+            }
+
+            this.openAddComponentModal = async (page, addFunction, onDataChange, type) => {
+                const modal = $.html(this.html.addComponentModal, {typeName: type});
                 $.append(this.element, modal);
-                await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
+                await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey, type);
                 modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
 
                 //Add events for page theme definition list select
@@ -396,9 +417,13 @@
 
                 const selectButton = this.element.querySelector('#add-component-modal-select-button');
                 selectButton.addEventListener('click', () => {
-                    addFunction(selectedThemeDefinitionKey);
-                    $.remove(modal);
-                    onDataChange();
+                    try {
+                        addFunction(selectedThemeDefinitionKey);
+                        $.remove(modal);
+                        onDataChange();
+                    } catch (e) {
+                        alert('There\'s something wrong with your selected ccm component! An error occured on embedding the component. Please check the following error message:\n' + e.message)
+                    }
                 });
 
                 let enableSelectButton = () => {
@@ -415,7 +440,7 @@
              * @param {boolean} showThemeDefinitions    Should the layouts be loaded? defaults to true
              * @returns {Promise<void>}
              */
-            this.loadAllThemeBlockDefinitions = async (target, themeKey) => {
+            this.loadAllThemeBlockDefinitions = async (target, themeKey, type = 'block') => {
                 const list = this.element.querySelector(target);
                 list.classList.add('loading');
                 $.append(list, $.html(this.html.loader, {}));
@@ -430,7 +455,7 @@
                     let uniqueItemIndex = 0;
 
                     let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, themeKey);
-                    themeDefinitions = themeDefinitions.filter(item => item.type == 'block');
+                    themeDefinitions = themeDefinitions.filter(item => item.type == type);
                     themeDefinitions.sort((a, b) => {
                         if (a.name < b.name) {
                             return -1;
