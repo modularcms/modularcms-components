@@ -54,7 +54,7 @@ ccm.files[ 'resources.js' ] = {
     },
 
     "app_builder": {
-        "html.1": "https://modularcms.github.io/modularcms-components/page_manager/resources/html/app_builder.html",
+        "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/app_builder.html" ],
         "app": [ "ccm.component", "https://ccmjs.github.io/akless-components/cloze/versions/ccm.cloze-7.0.0.js" ],
         "data": {
             "store": [ "ccm.store", { "name": "dms-configs", "url": "https://ccm2.inf.h-brs.de" } ]
