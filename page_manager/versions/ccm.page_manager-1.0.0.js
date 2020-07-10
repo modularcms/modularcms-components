@@ -27,7 +27,8 @@
             "pageRendererUrl": "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js",
             "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
-            "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ]
+            "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
+            "component_manager": ["ccm.instance", "https://ccmjs.github.io/akless-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://ccmjs.github.io/akless-components/component_manager/resources/resources.js","live"]]
         },
 
         Instance: function () {
@@ -183,7 +184,7 @@
                         window.removeEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler)
                     }
                     window.pageManagerAddBlockEventHandler = async (e) => {
-                        await this.openAddComponentModal(page, e.detail.parentComponent, e.detail.parentNode, e.detail.contentZoneName, onDataChange);
+                        await this.openAddComponentModal(page, e.detail.addFunction, onDataChange);
                     };
                     window.addEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler);
 
@@ -227,6 +228,15 @@
                     };
                     window.addEventListener('pageRendererRemoveBlock', window.pageManagerRemoveBlockEventHandler);
 
+                    // handle add component event
+                    if (window.pageManagerAddComponentEventHandler) {
+                        window.removeEventListener('pageRendererAddComponent', window.pageManagerAddComponentEventHandler)
+                    }
+                    window.pageManagerAddComponentEventHandler = async (e) => {
+                        await this.openAddComponentModal(page, e.detail.addFunction, onDataChange);
+                    };
+                    window.addEventListener('pageRendererAddComponent', window.pageManagerAddComponentEventHandler);
+
                     //handle content switcher
                     let editMenuItems = this.element.querySelectorAll('.edit-menu .menu-item');
                     editMenuItems.forEach(item => item.addEventListener('click', () => {
@@ -268,6 +278,8 @@
 
                     // handle layout change
                     layoutSelect.addEventListener('change', async () => {
+                        this.element.querySelector('#builder').innerHTML = '';
+                        this.element.querySelector('#builder').classList.remove('has-builder-content')
                         page.themeKey = layoutSelect.querySelector('option[value="' + layoutSelect.value + '"]').getAttribute('data-theme-key');
                         page.contentZones = pageRenderer.getContentZones();
                         page.contentZones.layout[0].data.themeDefinitionKey = layoutSelect.value;
@@ -366,7 +378,7 @@
                 }
             };
 
-            this.openAddComponentModal = async (page, parentComponent, parentNode, contentZoneName, onDataChange) => {
+            this.openAddComponentModal = async (page, addFunction, onDataChange) => {
                 const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
                 $.append(this.element, modal);
                 await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
@@ -386,7 +398,7 @@
 
                 const selectButton = this.element.querySelector('#add-component-modal-select-button');
                 selectButton.addEventListener('click', () => {
-                    parentComponent.core.createBlock(parentNode, contentZoneName, selectedThemeDefinitionKey);
+                    addFunction(selectedThemeDefinitionKey);
                     $.remove(modal);
                     onDataChange();
                 });

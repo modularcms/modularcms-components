@@ -212,9 +212,9 @@
                 //dispatch add block event
                 const event = new CustomEvent("pageRendererAddBlock", {
                     detail: {
-                        contentZoneName: contentZoneName,
-                        parentComponent: this.parent,
-                        parentNode: this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]')
+                        addFunction: (selectedThemeDefinitionKey) => {
+                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), contentZoneName, selectedThemeDefinitionKey);
+                        }
                     }
                 });
                 window.dispatchEvent(event);
