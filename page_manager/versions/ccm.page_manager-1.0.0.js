@@ -210,7 +210,7 @@
                     }
                     window.pageManagerEditBlockConfigEventHandler = async (e) => {
                         const zoneItem = e.detail.zoneItem;
-                        const updateConfig = e.detail.updateConfig;
+                        let updateConfig = e.detail.updateConfig;
                         const builder = $.html(this.html.editComponentBuilder, {typeName: 'block'});
 
                         $.setContent(this.element.querySelector('#builder'), builder);
@@ -227,6 +227,7 @@
                                 if (configHash != currentConfigHash) {
                                     currentConfigHash = configHash;
                                     updateConfig(value.json);
+                                    onDataChange();
                                 }
                             }
                         }

@@ -169,19 +169,24 @@
 
                 // handle edit button
                 const configButton = editThemeDefinition.querySelector('img[data-action="config"');
+                let configParent = this.parent;
                 configButton.addEventListener('click', () => {
+                    let updateConfig = async (config) => {
+                        let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
+                            configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
+                            configParent.root,
+                            configParent.zoneItem,
+                            parentZoneName,
+                            configParent,
+                            config
+                        );
+                        return newElement.ccmInstance;
+                    };
                     const event = new CustomEvent("pageRendererEditBlockConfig", {
                         detail: {
                             zoneItem: this.parent.zoneItem,
-                            updateConfig: (config) => {
-                                this.parent.parent.core.updateThemeDefinitionElementConfig(
-                                    this.parent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
-                                    this.parent.root,
-                                    this.parent.zoneItem,
-                                    parentZoneName,
-                                    this.parent,
-                                    config
-                                );
+                            updateConfig: async (config) => {
+                                configParent = await updateConfig(config);
                             }
                         }
                     });
@@ -1011,8 +1016,24 @@
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
                 let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem);
-                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                if (newElement.themeDefinitionType == 'block') {
+                    newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
+                        let newElementContentZoneName = item.getAttribute('data-content-zone-name')
+                        if (newElement.ccmInstance.core.getContentZoneElementCount(newElementContentZoneName) === 0) {
+                            newElement.ccmInstance.core.addParagraphAfter(item, null, newElementContentZoneName);
+                        }
+                    });
+                }
                 this.removeZoneItem(element, contentZoneName);
+                return newElement;
+            }
+
+            this.getContentZoneElementCount = (contentZoneName) => {
+                if (_contentZoneElements[contentZoneName] === undefined) {
+                    return 0;
+                }
+                return _contentZoneElements[contentZoneName].length;
             }
 
             this.getContentZone = (contentZoneName) => {
