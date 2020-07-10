@@ -25,8 +25,45 @@
 }
 
 #edit-content {
+    display: flex;
+    border: none;
     padding: 0px;
+    height: 100%;
     overflow: auto;
+    margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+    #edit-content {
+        flex-direction: column;
+    }
+}
+
+#edit-content:not(.active) {
+    display: none;
+}
+
+#edit-content #page-renderer-wrapper {
+    flex-grow: 1;
+    padding: 0px;
+    border: 1px solid #c4c4c4;
+}
+
+#edit-content #builder {
+    margin-left: 10px;
+    width: 33%;
+    min-width: 300px;
+}
+
+#edit-content #page-renderer-wrapper, #edit-content #builder {
+    height: 100%;
+    z-index: 1001;
+    position: relative;
+    overflow: auto;
+}
+
+#edit-content #builder:not(.has-builder-content) {
+    display: none;
 }
 
 .edit-content:not(.active) {
@@ -40,4 +77,39 @@
 .list-item-title .draft {
     font-style: italic;
     opacity: 0.6;
+}
+
+#add-component-modal-step-1 {
+    width: 80%;
+    height: 80% !important;
+}
+
+#add-component-grid-modal .list-item-wrapper {
+    width: 33%;
+    min-width: 200px;
+    flex-grow: 1;
+}
+
+#add-component-grid-modal .list-item {
+    text-align: center;
+}
+
+#add-component-grid-modal .list-item-title {
+    font-size: 16px;
+}
+
+#add-component-grid-modal img {
+    opacity: 0.2;
+    height: 50px;
+    width: 50px;
+    margin: 0 auto 7px auto;
+    opacity: 0.2;
+    height: 50px;
+    width: 50px;
+    border-radius: 3px;
+}
+
+#add-component-grid-modal > div {
+    display: flex;
+    flex-wrap: wrap;
 }

@@ -24,7 +24,8 @@
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "pageRendererUrl": "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js",
             "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
-            "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ]
+            "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
+            "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ]
         },
 
         Instance: function () {
@@ -166,48 +167,21 @@
                     $.setContent(this.element, content);
 
                     // page preview
-                    $.append(content.querySelector('#edit-content'), loader);
+                    $.append(content.querySelector('#page-renderer-wrapper'), loader);
                     const pageRenderer = await this.ccm.start(this.pageRendererUrl, {
                         websiteKey: websiteKey,
                         page: page,
                         parent: this,
                         edit: true
                     });
-                    $.setContent(content.querySelector('#edit-content'), pageRenderer.root);
+                    $.setContent(content.querySelector('#page-renderer-wrapper'), pageRenderer.root);
 
                     // handle add block event
                     if (window.pageManagerAddBlockEventHandler) {
                         window.removeEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler)
                     }
                     window.pageManagerAddBlockEventHandler = async (e) => {
-                        const parentComponent = e.detail.parentComponent;
-                        const parentNode = e.detail.parentNode;
-                        const contentZoneName = e.detail.contentZoneName
-                        const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
-                        $.append(this.element, modal);
-                        await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
-                        modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
-
-                        //Add events for page theme definition list select
-                        let selectedThemeDefinitionKey = null;
-                        this.element.querySelectorAll('#add-component-grid-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
-                            let previousSelectedElement = this.element.querySelector('#list-modal .list-item.selected');
-                            previousSelectedElement && previousSelectedElement.classList.remove('selected');
-                            elem.classList.add('selected');
-                            selectedThemeDefinitionKey = elem.getAttribute('data-theme-definition-key');
-
-                            // Enable button
-                            enableSelectButton();
-                        }));
-
-                        let enableSelectButton = () => {
-                            const selectButton = this.element.querySelector('#add-component-modal-select-button');
-                            selectButton.classList.remove('button-disabled')
-                            selectButton.addEventListener('click', () => {
-                                parentComponent.core.createBlock(parentNode, contentZoneName, selectedThemeDefinitionKey);
-                                $.remove(modal);
-                            });
-                        }
+                        await this.openAddComponentModal(page, e.detail.parentComponent, e.detail.parentNode, e.detail.contentZoneName, onDataChange);
                     };
                     window.addEventListener('pageRendererAddBlock', window.pageManagerAddBlockEventHandler);
 
@@ -217,35 +191,39 @@
                     }
                     window.pageManagerEditBlockConfigEventHandler = async (e) => {
                         const parentComponent = e.detail.parentComponent;
+                        const component = e.detail.component;
+                        const zoneItem = e.detail.zoneItem;
                         const parentNode = e.detail.parentNode;
                         const contentZoneName = e.detail.contentZoneName
-                        const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
-                        $.append(this.element, modal);
-                        await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
-                        modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
+                        const builder = $.html(this.html.editComponentBuilder, {typeName: 'block'});
 
-                        //Add events for page theme definition list select
-                        let selectedThemeDefinitionKey = null;
-                        this.element.querySelectorAll('#add-component-grid-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
-                            let previousSelectedElement = this.element.querySelector('#list-modal .list-item.selected');
-                            previousSelectedElement && previousSelectedElement.classList.remove('selected');
-                            elem.classList.add('selected');
-                            selectedThemeDefinitionKey = elem.getAttribute('data-theme-definition-key');
+                        $.setContent(this.element.querySelector('#builder'), builder);
+                        builder.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
 
-                            // Enable button
-                            enableSelectButton();
-                        }));
+                        this.component_json_builder.data.json = zoneItem.data.config;
+                        await this.component_json_builder.start();
+                        $.setContent(this.element.querySelector('#edit-component-builder'), this.component_json_builder.root);
+                        this.element.querySelector('#builder').classList.add('has-builder-content');
 
-                        let enableSelectButton = () => {
-                            const selectButton = this.element.querySelector('#add-component-modal-select-button');
-                            selectButton.classList.remove('button-disabled')
-                            selectButton.addEventListener('click', () => {
-                                parentComponent.core.createBlock(parentNode, contentZoneName, selectedThemeDefinitionKey);
-                                $.remove(modal);
-                            });
+                        // Handle close
+                        let hideHandler = () => {
+                            $.remove(builder);
+                            this.element.querySelector('#builder').classList.remove('has-builder-content');
+                            pageRenderer.root.removeEventListener('mouseup', hideHandler);
                         }
+                        pageRenderer.root.addEventListener('mouseup', hideHandler);
+                        // TODO save click
                     };
                     window.addEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler);
+
+                    // handle remove block config event
+                    if (window.pageManagerRemoveBlockEventHandler) {
+                        window.removeEventListener('pageRendererRemoveBlock', window.pageManagerRemoveBlockEventHandler)
+                    }
+                    window.pageManagerRemoveBlockEventHandler = async (e) => {
+                        onDataChange();
+                    };
+                    window.addEventListener('pageRendererRemoveBlock', window.pageManagerRemoveBlockEventHandler);
 
                     //handle content switcher
                     let editMenuItems = this.element.querySelectorAll('.edit-menu .menu-item');
@@ -386,6 +364,39 @@
                 }
             };
 
+            this.openAddComponentModal = async (page, parentComponent, parentNode, contentZoneName, onDataChange) => {
+                const modal = $.html(this.html.addComponentModal, {typeName: 'block'});
+                $.append(this.element, modal);
+                await this.loadAllThemeBlockDefinitions('#add-component-grid-modal', page.themeKey);
+                modal.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
+
+                //Add events for page theme definition list select
+                let selectedThemeDefinitionKey = null;
+                this.element.querySelectorAll('#add-component-grid-modal .list-item').forEach(elem => elem.addEventListener('click', () => {
+                    let previousSelectedElement = this.element.querySelector('#add-component-grid-modal .list-item.selected');
+                    previousSelectedElement && previousSelectedElement.classList.remove('selected');
+                    elem.classList.add('selected');
+                    selectedThemeDefinitionKey = elem.getAttribute('data-theme-definition-key');
+
+                    // Enable button
+                    enableSelectButton();
+                }));
+
+                const selectButton = this.element.querySelector('#add-component-modal-select-button');
+                selectButton.addEventListener('click', () => {
+                    parentComponent.core.createBlock(parentNode, contentZoneName, selectedThemeDefinitionKey);
+                    $.remove(modal);
+                    onDataChange();
+                });
+
+                let enableSelectButton = () => {
+                    selectButton.classList.remove('button-disabled')
+                }
+
+                // Add search
+                await this.initSearch('#add-component-modal-list-search', '#add-component-grid-modal')
+            };
+
             /**
              * Loads all themes
              * @param {string}  target                  Target element
@@ -409,10 +420,10 @@
                     let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, themeKey);
                     themeDefinitions = themeDefinitions.filter(item => item.type == 'block');
                     themeDefinitions.sort((a, b) => {
-                        if (themeDefinitionsTypeNames[a.type] < themeDefinitionsTypeNames[b.type] && a.name < b.name) {
+                        if (a.name < b.name) {
                             return -1;
                         }
-                        if (themeDefinitionsTypeNames[a.type] > themeDefinitionsTypeNames[b.type] && a.name > b.name) {
+                        if (a.name > b.name) {
                             return 1;
                         }
                         return 0;
@@ -589,13 +600,13 @@
                 listSearchInput.addEventListener('keyup', () => {
                     let searchTerms = listSearchInput.value.split(' ');
                     this.element.querySelectorAll(targetList + ' .list-item').forEach(elem => {
-                        let title = elem.getAttribute('data-page-title');
+                        let title = elem.getAttribute('data-title');
                         let layoutType = elem.getAttribute('data-page-layout-type');
                         let pagePath = elem.getAttribute('data-page-path');
 
                         let allMatching = false;
                         for (let searchTerm of searchTerms) {
-                            if (searchTerm == '' || title.indexOf(searchTerm) >= 0 || layoutType.indexOf(searchTerm) >= 0 || pagePath.indexOf(searchTerm) >= 0) {
+                            if (searchTerm == '' || (title && title.indexOf(searchTerm) >= 0) || (layoutType && layoutType.indexOf(searchTerm) >= 0) || (pagePath && pagePath.indexOf(searchTerm) >= 0)) {
                                 allMatching = true;
                             } else {
                                 allMatching = false;

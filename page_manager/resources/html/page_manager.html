@@ -22,7 +22,7 @@
 </ccm-template>
 <ccm-template key="listItem">
     <div class="list-item-wrapper">
-        <div class="list-item list-item-with-more-button" data-page-key="%pageKey%" data-page-title="%title%" data-page-layout-type="%layoutTypeName%" data-page-path="%urlName%">
+        <div class="list-item list-item-with-more-button" data-page-key="%pageKey%" data-title="%title%" data-page-layout-type="%layoutTypeName%" data-page-path="%urlName%">
             <div class="list-item-title">%title%%draft%</div>
             <div class="list-item-subline">%layoutTypeName% – <i>%urlName%</i></div>
             <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
@@ -110,7 +110,10 @@
                 <!--<div class="menu-item" data-content-name="history">History</div>-->
             </div>
         </div>
-        <div class="edit-content active" id="edit-content" data-content-name="content"></div>
+        <div class="edit-content active" id="edit-content" data-content-name="content">
+            <div id="page-renderer-wrapper"></div>
+            <div id="builder"></div>
+        </div>
         <div class="edit-content" id="edit-layout" data-content-name="layout">
             <div>
                 <label for="edit-page-layout-select">Layout</label>
@@ -192,7 +195,8 @@
 </ccm-template>
 <ccm-template key="themeDefinitionListItem">
     <div class="list-item-wrapper">
-        <div class="list-item list-item-with-more-button" data-type="%themeDefinitionType%" data-theme-key="%themeKey%" data-theme-definition-key="%themeDefinitionKey%" data-theme-definition-type-name="%themeDefinitionTypeName%" data-theme-definition-name="%themeDefinitionName%">
+        <div class="list-item list-item-with-more-button" data-type="%themeDefinitionType%" data-theme-key="%themeKey%" data-theme-definition-key="%themeDefinitionKey%" data-theme-definition-type-name="%themeDefinitionTypeName%" data-title="%themeDefinitionName%">
+            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/module-icon.svg" loading="lazy" />
             <div class="list-item-title">%themeDefinitionName%</div>
             <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
         </div>
@@ -222,21 +226,10 @@
         </div>
     </div>
 </ccm-template>
-<ccm-template key="editComponentModal">
-    <div id="edit-component-modal" class="modal">
-        <div class="modal-bg"></div>
-        <div class="modal-inner" id="edit-component-modal-step-1">
-            <div class="modal-head">
-                <h2>Edit %typeName%</h2>
-                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
-            </div>
-            <label for="add-component-modal-list-search">Please select a %typeName% component to use</label>
-            <div class="modal-footer">
-                <div id="edit-component-modal-apply-button" class="button button-primary button-disabled">
-                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
-                    <div class="button-text">Apply config</div>
-                </div>
-            </div>
-        </div>
+<ccm-template key="editComponentBuilder">
+    <div class="edit-menu">
+        <div class="menu-item active" data-builder-url="submit-builder">Submit Builder</div>
+        <div class="menu-item" data-default-builder>Default Builder</div>
     </div>
+    <div id="edit-component-builder"></div>
 </ccm-template>

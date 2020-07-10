@@ -239,6 +239,38 @@
                 }
             };
 
+            // inspiried by https://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
+            this.addContentPasteHandling = (element, contentZoneName, ownsText = true) => {
+                element.addEventListener("paste", (e) => {
+                    e.preventDefault();
+                    let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                    let textSplit = text.split('\n');
+                    if (ownsText) {
+                        document.execCommand("insertText", false, textSplit[0]);
+                    }
+                    let translateDiv = null;
+
+                    if (ownsText && textSplit.length > 1) {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const ranges = this.splitNode(selection, element);
+                        const fragment = ranges.next.extractContents();
+                        translateDiv = document.createElement('div');
+                        translateDiv.appendChild(fragment);
+                    }
+
+                    let paragraph = element;
+
+                    for (let i = ownsText?1:0; i < textSplit.length - 1; i++) {
+
+                        paragraph = this.addParagraphAfter(element.parentNode, paragraph, contentZoneName, textSplit[i].replace(/  /g, '&nbsp; '));
+                    }
+
+                    if (translateDiv) {
+                        paragraph.innerHTML += translateDiv.innerHTML;
+                    }
+                });
+            }
+
             this.getNewThemeDefinitionElement = async (contentZoneName, themeDefinitionKey) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
@@ -369,6 +401,8 @@
 
                 element.setAttribute('data-type', contentZoneItem.type);
 
+                this.addContentPasteHandling(element, contentZoneName);
+
                 return element;
             }
 
@@ -398,15 +432,27 @@
                     };
                 };
 
+                this.addContentPasteHandling(element, contentZoneName);
+
                 element.setAttribute('data-type', contentZoneItem.type);
 
                 return element;
             }
 
+            this.addHeaderAfter = (parentNode, element, contentZoneName, level = 2, content='') => {
+                let newElement = this.getHeaderElement(contentZoneName, {contentZones:{}, type: 'header', data: {level: level, text: content}});
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
+                newElement.focus();
+            };
+
             this.addParagraphAfter = (parentNode, element, contentZoneName, content='') => {
                 let newElement = this.getParagraphElement(contentZoneName, {contentZones:{}, type: 'paragraph', data: {text: content}});
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
                 newElement.focus();
+                if (content != '') {
+                    newElement.classList.add('has-content');
+                }
+                return newElement;
             };
 
             this.addParagraphBefore = (parentNode, element, contentZoneName, content='') => {
@@ -537,7 +583,7 @@
                 });
 
                 // handle text selection
-                this.addContentEditingFormat(element);
+                this.addContentEditingFormat(element, contentZoneName);
             }
 
             // copied from https://dev.to/itsarnavb/how-do-you-split-contenteditable-text-preserving-html-formatting-g9d
@@ -559,7 +605,7 @@
                 };
             }
 
-            this.addContentEditingFormat = (element) => {
+            this.addContentEditingFormat = (element, contentZoneName) => {
                 let mouseUpHandler = () => {
                     element.removeEventListener('mouseup', mouseUpHandler);
                     const selection = this.parent.element.parentNode.getSelection();
@@ -585,7 +631,7 @@
                         return getOffsetLeft(element.offsetParent);
                     };
 
-                    if (!range.collapsed || element.contentZoneItem.type == 'header') {
+                    if (!range.collapsed || (range.collapsed && element.contentZoneItem.type == 'header')) {
                         let hint = $.html(this.html.editInlineTool, {});
                         let left = (rect.left - getOffsetLeft(this.parent.element) + rect.width / 2);
                         if (left < 0) {
@@ -609,14 +655,16 @@
                                 ) {
                                     button.style.display = 'none';
                                 }
-                                if (item == 'header') {
-                                    element.tagName = 'h' + item.getAttribute('data-header-level');
-                                } else {
-                                    button.addEventListener('mouseup', () => {
+                                button.addEventListener('mouseup', () => {
+                                    if (item == 'header') {
+                                        this.addHeaderAfter(element.parentNode, element, contentZoneName, parseInt(button.getAttribute('data-header-level')), element.innerHTML);
+                                        this.removeZoneItem(element, contentZoneName);
+                                        remove();
+                                    } else {
                                         selection.addRange(range);
                                         document.execCommand(item);
-                                    });
-                                }
+                                    }
+                                });
                             });
                         });
 
@@ -630,7 +678,7 @@
                                 window.removeEventListener('mouseup', handler2);
                                 remove();
                                 const selection = this.parent.element.parentNode.getSelection();
-                                if (selection.rangeCount == 1 && range.collapsed) {
+                                if (selection.rangeCount == 1 && range.collapsed && element.contentZoneItem.type != 'header') {
                                     mouseUpHandler();
                                 }
                             }
@@ -643,6 +691,11 @@
                             remove();
                         };
                         window.addEventListener('selectstart', handler3);
+                        let handler4 = () => {
+                            window.removeEventListener('keydown', handler4);
+                            remove();
+                        };
+                        window.addEventListener('keydown', handler4);
                     }
                 };
                 element.addEventListener('selectstart', () => {
@@ -813,7 +866,7 @@
 
                 if (edit) {
                     // handle text selection
-                    this.addContentEditingFormat(element);
+                    this.addContentEditingFormat(element, contentZoneName);
                 }
 
                 // define content get method
@@ -826,6 +879,8 @@
                         items: items
                     };
                 };
+
+                this.addContentPasteHandling(element, contentZoneName);
 
                 return element;
             }
@@ -924,6 +979,8 @@
                         caption: caption?caption.innerHTML:null
                     };
                 };
+
+                this.addContentPasteHandling(element, contentZoneName, false);
 
                 element.setAttribute('data-type', contentZoneItem.type);
                 element.contentZoneItem = contentZoneItem;
