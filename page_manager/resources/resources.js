@@ -27,7 +27,7 @@ ccm.files[ 'resources.js' ] = {
     },
 
     "component_manager": {
-        "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/html/component_manager_style.css" ],
+        "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/page_manager/resources/css/component_manager_style.css" ],
         "builder": [ "ccm.component", "https://ccmjs.github.io/akless-components/app_builder/versions/ccm.app_builder-4.2.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "app_builder" ] ],
         "component_details": [ "ccm.component", "https://ccmjs.github.io/akless-components/content/versions/ccm.content-5.4.7.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/content/resources/configs.js", "component_meta" ] ],
         "data": {
