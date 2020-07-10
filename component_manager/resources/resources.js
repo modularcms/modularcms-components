@@ -147,7 +147,6 @@ ccm.files[ 'resources.js' ] = {
     ],
     "data": { "entries": [
       { "id": "overview", "title": "overview" },
-      { "id": "reviews",  "title": "reviews"  },
       { "id": "creation", "title": "creation" }
     ] },
     "html": [ "ccm.load", "https://ccmjs.github.io/akless-components/menu/resources/top_tabs.html" ],
