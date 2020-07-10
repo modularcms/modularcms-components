@@ -783,7 +783,14 @@
                 // component button
                 const componentButton = definer.querySelector('img[data-type="component"]');
                 componentButton.addEventListener('click', () => {
-                    // TODO
+                    const event = new CustomEvent("pageRendererAddComponent", {
+                        detail: {
+                            addThemeDefinition: (themeDefinitionKey) => {
+                                replaceWith(this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey))
+                            }
+                        }
+                    });
+                    window.dispatchEvent(event);
                 });
 
                 return definer;
