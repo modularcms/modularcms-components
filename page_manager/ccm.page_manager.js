@@ -352,7 +352,7 @@
                         page.contentZones = pageRenderer.getContentZones();
                         page.contentZones.layout[0].data.themeDefinitionKey = layoutSelect.value;
                         Object.assign(pageRenderer.page, page);
-                        await pageRenderer.update();
+                        await pageRenderer.updateChildren();
                     });
 
                     // handle buttons
