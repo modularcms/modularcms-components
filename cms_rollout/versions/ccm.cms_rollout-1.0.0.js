@@ -76,12 +76,11 @@
                                     const config = {
                                         parent: this,
                                         websiteKey: website.websiteKey,
-                                        page: page,
-                                        root: this.element.querySelector('#page-renderer-container')
+                                        page: page
                                     };
 
                                     if (pageRenderer == null) {
-                                        pageRenderer = await this.page_renderer.start(config);
+                                        pageRenderer = await this.page_renderer.start(Object.assign(config, {root: this.element.querySelector('#page-renderer-container')}));
                                     } else {
                                         Object.assign(pageRenderer, config);
                                         pageRenderer.updateChildren();
