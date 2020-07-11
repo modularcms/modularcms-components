@@ -318,6 +318,8 @@
              * @returns {Promise<*>}
              */
             this.getThemeDefinitionInstance = async (themeDefinitionKey) => {
+                const page = this.parent.page;
+
                 if (window.modularcms._themeDefinitionComponents === undefined) {
                     window.modularcms._themeDefinitionComponents = {};
                 }
