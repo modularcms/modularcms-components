@@ -84,8 +84,8 @@
             opacity: 0.5;
         }
 
-        *[contenteditable="true"][data-type="paragraph"]:not(.focus):not(.has-content)::before {
-            content: 'Click to edit';
+        *[contenteditable="true"][data-type="paragraph"]:not(.focus):not(.has-content)::before, *[contenteditable="true"][data-type="header"]:not(.focus):not(.has-content)::before {
+            content: '[Click to edit paragraph text]';
             opacity: 0.5;
         }
 
