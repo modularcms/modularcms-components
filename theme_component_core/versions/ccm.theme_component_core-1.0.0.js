@@ -213,12 +213,12 @@
              * @returns {boolean}
              */
             this.checkIfZoneItemAtIndexIsEqual = (contentZoneName, contentZoneItem, index) => {
+                console.log(contentZoneName, contentZoneItem, index);
                 if (_contentZonesBefore[contentZoneName] !== undefined && _contentZonesBefore[contentZoneName][index] !== undefined) {
                     // let instance = window.modularcms.themeComponents
                     let getZoneComponentComparableData = (item) => {
                         let zoneComponentCopy = $.clone(item);
                         delete zoneComponentCopy['contentZones'];
-                        delete zoneComponentCopy.data['config'];
                         return zoneComponentCopy;
                     }
                     let getZoneComponentHash = (item) => {
