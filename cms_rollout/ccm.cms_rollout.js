@@ -11,8 +11,6 @@
 
         name: 'cms_rollout',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
@@ -22,7 +20,7 @@
             "routing": ["ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js"],
             "routing_sensor": ["ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js"],
             "data_controller": ["ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js"],
-            "pageRenderer": ["ccm.component", "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js"]
+            "page_renderer": ["ccm.component", "https://modularcms.github.io/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js"]
         },
 
         Instance: function () {
@@ -79,7 +77,7 @@
                                     };
 
                                     if (this._pageRenderer === undefined) {
-                                        this._pageRenderer = await this._pageRenderer.start(this.pageRendererUrl, config);
+                                        this._pageRenderer = await this.page_renderer.start(this.pageRendererUrl, config);
                                     } else {
                                         Object.assign(this._pageRenderer, config);
                                         this._pageRenderer.update();
