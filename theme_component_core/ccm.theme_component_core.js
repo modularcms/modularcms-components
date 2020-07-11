@@ -377,7 +377,7 @@
                     if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
                         element.contentEditable = "true";
                         component.root.contentEditable = "false";
-                        component.root.style.pointerEvents = "none !important";
+                        component.element.style.pointerEvents = "none !important";
                         component.root.classList.add('content-component');
 
                         element.addEventListener('click', () => {
