@@ -12,7 +12,7 @@
 
         version: [1,0,0],
 
-        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
+        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/website_manager/resources/html/website_manager.html" ],

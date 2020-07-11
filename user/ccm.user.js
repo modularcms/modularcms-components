@@ -14,7 +14,7 @@
 
     name: 'user',
 
-    ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
+    ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
     config: {
 

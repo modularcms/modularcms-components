@@ -11,7 +11,7 @@
 
         name: 'cms_rollout',
 
-        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
+        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cms_rollout/resources/html/templates.html" ],

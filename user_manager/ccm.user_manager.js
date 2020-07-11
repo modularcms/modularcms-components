@@ -10,7 +10,7 @@
 
         name: 'user_manager',
 
-        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
+        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/user_manager/resources/html/user_manager.html" ],

@@ -10,7 +10,7 @@
 
         name: 'theme_component_core',
 
-        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
+        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/theme_component_core/resources/html/template.html"],
@@ -45,7 +45,6 @@
             this.initContent = async (html = this.parent.html.main, htmlOptions = {}, htmlPlaceholders = {}) => {
                 const element = this.parent.element;
                 const zoneItem = this.parent.zoneItem;
-                const contentZones = this.parent.contentZones || {};
                 const edit = this.parent.edit;
                 const parentZoneName = this.parent.parentZoneName;
 
@@ -62,6 +61,21 @@
                 for (let elementId in htmlPlaceholders) {
                     $.setContent(element.querySelector('#' + elementId), htmlPlaceholders[elementId]);
                 }
+
+                this.updateContent();
+
+                // handle block config
+                if (edit && zoneItem.type == 'themeDefinition' && ['block', 'contentComponent'].indexOf(zoneItem.data.themeDefinitionType) >= 0) {
+                    this.addEditFocusHandling(element, parentZoneName);
+                }
+
+            };
+
+            this.updateContent = async () => {
+                const element = this.parent.element;
+                const zoneItem = this.parent.zoneItem;
+                const contentZones = this.parent.contentZones || {};
+                const edit = this.parent.edit;
 
                 // Init content of content zones
                 for (let contentZoneName in contentZones) {
@@ -131,12 +145,7 @@
                 }
 
                 _contentZonesBefore = contentZones;
-
-                // handle block config
-                if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block') {
-                    this.addEditFocusHandling(element, parentZoneName);
-                }
-            };
+            }
 
             this.addEditFocusHandling = (element, parentZoneName) => {
                 // handle focusing
@@ -200,6 +209,7 @@
             this.checkIfZoneComponentAtIndexIsEqual = (zone, zoneComponent, index) => {
                 if (_contentZonesBefore[zone] !== undefined && _contentZonesBefore[zone][index] !== undefined) {
                     let getZoneComponentComparableData = (zoneComponent) => {
+                        console.log(zoneComponent);
                         let zoneComponentCopy = $.clone(zoneComponent);
                         delete zoneComponentCopy['contentZones'];
                         delete zoneComponentCopy.data['config'];

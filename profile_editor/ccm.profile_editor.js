@@ -10,7 +10,7 @@
 
         name: 'profile_editor',
 
-        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
+        ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
             "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/profile_editor/resources/html/profile_editor.html" ],
