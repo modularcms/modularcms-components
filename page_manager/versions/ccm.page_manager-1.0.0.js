@@ -620,8 +620,8 @@
 
                     let uniqueItemIndex = 0;
                     // Closure for adding a page item
-                    const getPageListItemElement = async (page, depth = 0) => {
-                        let pageUrl = await this.data_controller.getFullPageUrl(websiteKey, page.pageKey);
+                    const getPageListItemElement = async (page, depth = 0, parentUrl = '/') => {
+                        let pageUrl = parentUrl == '/' ? page.urlPart : (parentUrl + page.urlPart);
                         const draft = !await this.data_controller.isPagePublishedVersionEqual(websiteKey, page.pageKey);
                         const layoutName = (themeLayoutNames[page.themeKey] != undefined && themeLayoutNames[page.themeKey][page.contentZones.layout[0].data.themeDefinitionKey] != undefined) ? themeLayoutNames[page.themeKey][page.contentZones.layout[0].data.themeDefinitionKey]: '!UNKNOWN LAYOUT!';
                         let itemWrapper = $.html(this.html.listItem, {
@@ -638,17 +638,17 @@
                     };
 
                     // Closure for adding a page item
-                    const addPageListItem = async (page, element, depth = 0) => {
+                    const addPageListItem = async (page, element, depth = 0, parentUrl = '/') => {
                         let item = await getPageListItemElement(page, depth);
                         $.append(element, item);
                         return item;
                     };
 
                     // Closure to load page children
-                    const loadPageChildren = async (pageKey, element, depth = 0) => {
+                    const loadPageChildren = async (pageKey, element, depth = 0, parentUrl = '') => {
                         // Get children of page
-                        let pages = await this.data_controller.getPageChildren(websiteKey, pageKey);
-                        pages.sort((a, b) => {
+                        let childPages = pages.filter(page => page.parentKey == pageKey);
+                        childPages.sort((a, b) => {
                             if (a.title < b.title) {
                                 return -1;
                             }
@@ -660,14 +660,15 @@
 
                         // Iterate through all children pages
                         const childrenWrapper = element.querySelector('.list-item-children');
-                        for (let page of pages) {
-                            const item = await addPageListItem(page, childrenWrapper, depth + 1);
-                            await loadPageChildren(page.pageKey, item, depth + 1);
+                        for (let page of childPages) {
+                            const item = await addPageListItem(page, childrenWrapper, depth + 1, parentUrl);
+                            await loadPageChildren(page.pageKey, item, depth + 1, parentUrl + page.urlPart);
                         }
                     }
 
                     // Get page with url mapping '/'
-                    const entryPage = await this.data_controller.getPageByUrl(websiteKey, '/');
+                    const pages = await this.data_controller.getAllPagesOfWebsite(websiteKey);
+                    const entryPage = pages.filter(page => page.parentKey == null)[0];
 
                     const entryElement = await getPageListItemElement(entryPage);
                     await loadPageChildren(entryPage.pageKey, entryElement);
