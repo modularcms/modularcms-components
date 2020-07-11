@@ -636,6 +636,7 @@
             }
 
             this.removeZoneItem = (element, contentZoneName) => {
+                console.log(element);
                 let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex, 1);
@@ -643,7 +644,7 @@
                     $.remove(element.nextSibling);
                     $.remove(element);
                 } else {
-                    console.warn('Check zone management implementation!');
+                    console.error('Could not remove zone item. Please check zone management implementation!');
                 }
             }
 
