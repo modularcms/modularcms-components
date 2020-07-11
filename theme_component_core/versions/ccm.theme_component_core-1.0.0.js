@@ -700,11 +700,6 @@
                         }
                     }
                 });
-                element.addEventListener('click', () => {
-                    if (element.innerHTML == '') {
-                        element.focus();
-                    }
-                });
 
                 // handle text selection
                 this.addContentEditingFormat(element, contentZoneName);
@@ -843,6 +838,7 @@
                 });
                 definer.addEventListener('mouseup', () => {
                     mouseDown = false;
+                    element.focus();
                 });
                 definer.addEventListener('click', () => {
                     element.focus();
