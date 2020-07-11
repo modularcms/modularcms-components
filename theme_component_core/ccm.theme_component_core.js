@@ -383,7 +383,7 @@
                     let element = document.createElement('div');
                     if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                         // Start component
-                        instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, Object.assign($.clone(contentZoneItem.data.ccmComponent.config), {root: element}));
+                        instance = await component.start(Object.assign($.clone(contentZoneItem.data.config), {root: element}));
                     } else {
                         // Update existing component
                         instance = _contentZoneInstances[contentZoneName][i];
