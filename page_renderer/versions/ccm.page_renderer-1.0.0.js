@@ -36,10 +36,7 @@
                 await this.update();
             };
 
-            this.update = async (key = null, value) => {
-                if (key) {
-                    this[key] = value;
-                }
+            this.updateChildren = async () => {
                 if (window.modularcms == undefined) {
                     window.modularcms = {};
                 }
