@@ -68,8 +68,6 @@
                                     this.setMeta('keywords', page.meta.keywords);
                                     this.setMeta('robots', page.meta.robots ? 'index, follow' : 'noindex, nofollow');
 
-                                    $.setContent(this.element, $.html(this.html.main, {}));
-
                                     // render page
                                     const config = {
                                         parent: this,
@@ -78,11 +76,11 @@
                                     };
 
                                     if (pageRenderer == null) {
+                                        $.setContent(this.element, $.html(this.html.main, {}));
                                         pageRenderer = await this.page_renderer.start(Object.assign(config, {root: this.element.querySelector('#page-renderer-container')}));
                                     } else {
                                         Object.assign(pageRenderer, config);
                                         pageRenderer.updateChildren();
-                                        $.setContent(this.element.querySelector('#page-renderer-container'), pageRenderer.root);
                                     }
                                 }
                             } else {

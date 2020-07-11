@@ -102,7 +102,7 @@
                                 appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
                                 appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
-                            } else if (this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                            } else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
                                 appendElement = this.getHeaderElement(contentZoneName, contentZoneItem);
@@ -116,6 +116,10 @@
 
                             // Remember element
                             _contentZoneElements[contentZoneName][i] = appendElement;
+
+                            if (appendElement.ccmInstance !== undefined) {
+                                _contentZoneInstances[cappendElement.ccmInstance][i]
+                            }
 
                             if (appendElement != null) {
                                 appendElements.push(appendElement);
@@ -206,23 +210,23 @@
              * @param index
              * @returns {boolean}
              */
-            this.checkIfZoneComponentAtIndexIsEqual = (zone, zoneComponent, index) => {
-                if (_contentZonesBefore[zone] !== undefined && _contentZonesBefore[zone][index] !== undefined) {
-                    let getZoneComponentComparableData = (zoneComponent) => {
-                        console.log(zoneComponent);
-                        let zoneComponentCopy = $.clone(zoneComponent);
+            this.checkIfZoneItemAtIndexIsEqual = (contentZoneName, contentZoneItem, index) => {
+                if (_contentZonesBefore[contentZoneName] !== undefined && _contentZonesBefore[contentZoneName][index] !== undefined) {
+                    // let instance = window.modularcms.themeComponents
+                    let getZoneComponentComparableData = (item) => {
+                        let zoneComponentCopy = $.clone(item);
                         delete zoneComponentCopy['contentZones'];
                         delete zoneComponentCopy.data['config'];
                         return zoneComponentCopy;
                     }
-                    let getZoneComponentHash = (zoneComponent) => {
-                        const json = JSON.stringify(zoneComponent);
+                    let getZoneComponentHash = (item) => {
+                        const json = JSON.stringify(item);
                         const hash = this.hash.md5(json);
                         return hash;
                     }
-                    const zoneComponentBefore = getZoneComponentComparableData(_contentZonesBefore[zone][index]);
-                    const zoneComponent = getZoneComponentComparableData(zoneComponent);
-                    return getZoneComponentHash(zoneComponentBefore) == getZoneComponentHash(zoneComponent);
+                    const zoneItemBefore = getZoneComponentComparableData(_contentZonesBefore[contentZoneName][index]);
+                    const zoneItem = getZoneComponentComparableData(contentZoneItem);
+                    return getZoneComponentHash(zoneItemBefore) == getZoneComponentHash(zoneItem);
                 }
                 return false;
             }
@@ -321,11 +325,11 @@
             }
 
             /**
-             * Return an theme definition instance and caches the theme definition components in the background
+             * Return an theme definition component and caches the theme definition components in the background
              * @param themeDefinitionKey
              * @returns {Promise<*>}
              */
-            this.getThemeDefinitionInstance = async (themeDefinitionKey) => {
+            this.getThemeDefinitionComponent = async (themeDefinitionKey) => {
                 const page = this.parent.page;
 
                 if (window.modularcms._themeDefinitionComponents === undefined) {
@@ -357,7 +361,7 @@
                 })
             };
 
-            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem) => {
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
@@ -374,15 +378,21 @@
                         edit: edit,
                         parentZoneName: contentZoneName
                     });
-                    const instance = await this.getThemeDefinitionInstance(contentZoneItem.data.themeDefinitionKey);
-                    const component = await instance.start(config);
-                    //let element = _contentZoneInstances[contentZoneName][i].root;
+                    const component = await this.getThemeDefinitionComponent(contentZoneItem.data.themeDefinitionKey);
+                    let instance = null;
                     let element = document.createElement('div');
+                    if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                        // Start component
+                        instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, Object.assign($.clone(contentZoneItem.data.ccmComponent.config), {root: element}));
+                    } else {
+                        // Update existing component
+                        instance = _contentZoneInstances[contentZoneName][i];
+                        Object.assign(_contentZoneInstances[contentZoneName][i], config);
+                        instance.updateChildren !== undefined && instance.updateChildren();
+                    }
                     element.contentZoneItem = contentZoneItem;
-                    element.ccmInstance = component;
+                    element.ccmInstance = instance;
                     element.themeDefinitionType = themeDefinition.type;
-
-                    $.append(element, component.root);
 
                     if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
                         element.contentEditable = "true";
@@ -463,14 +473,14 @@
                     page: page,
                     edit: edit
                 });
-                if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                     // Start component
                     const instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
                     _contentZoneInstances[contentZoneName][i] = instance;
                 } else {
                     // Update existing component
                     Object.assign(_contentZoneInstances[contentZoneName][i], config);
-                    _contentZoneInstances[contentZoneName][i].update();
+                    _contentZoneInstances[contentZoneName][i].updateChildren && _contentZoneInstances[contentZoneName][i].updateChildren();
                 }
                 let element = _contentZoneInstances[contentZoneName][i].root;
                 element.contentZoneItem = contentZoneItem;

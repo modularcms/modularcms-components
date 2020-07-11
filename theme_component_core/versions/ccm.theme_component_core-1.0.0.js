@@ -119,6 +119,10 @@
                             // Remember element
                             _contentZoneElements[contentZoneName][i] = appendElement;
 
+                            if (appendElement.ccmInstance !== undefined) {
+                                _contentZoneInstances[cappendElement.ccmInstance][i]
+                            }
+
                             if (appendElement != null) {
                                 appendElements.push(appendElement);
                             }
@@ -293,27 +297,6 @@
             }
 
             /**
-             * Return an content zone componente
-             * @param themeDefinitionKey
-             * @returns {Promise<*>}
-             */
-            this.getContentZoneComponentInstance = async (themeDefinitionKey) => {
-                const page = this.parent.page;
-
-                if (window.modularcms._themeDefinitionComponents === undefined) {
-                    window.modularcms._themeDefinitionComponents = {};
-                }
-                if (window.modularcms._themeDefinitionComponents[page.themeKey] === undefined) {
-                    window.modularcms._themeDefinitionComponents[page.themeKey] = {};
-                }
-                if (window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey] === undefined) {
-                    const themeDefinition = await this.getThemeDefinition(themeDefinitionKey);
-                    window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey] = await this.ccm.component(themeDefinition.ccmComponent.url, themeDefinition.ccmComponent.config);
-                }
-                return window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey];
-            }
-
-            /**
              * Return an theme definition and caches the theme definition and all of its theme siblings
              * @param themeDefinitionKey
              * @returns {Promise<*>}
@@ -344,11 +327,11 @@
             }
 
             /**
-             * Return an theme definition instance and caches the theme definition components in the background
+             * Return an theme definition component and caches the theme definition components in the background
              * @param themeDefinitionKey
              * @returns {Promise<*>}
              */
-            this.getThemeDefinitionInstance = async (themeDefinitionKey) => {
+            this.getThemeDefinitionComponent = async (themeDefinitionKey) => {
                 const page = this.parent.page;
 
                 if (window.modularcms._themeDefinitionComponents === undefined) {
@@ -380,7 +363,7 @@
                 })
             };
 
-            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem) => {
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
@@ -397,15 +380,21 @@
                         edit: edit,
                         parentZoneName: contentZoneName
                     });
-                    const instance = await this.getThemeDefinitionInstance(contentZoneItem.data.themeDefinitionKey);
-                    const component = await instance.start(config);
-                    //let element = _contentZoneInstances[contentZoneName][i].root;
+                    const component = await this.getThemeDefinitionComponent(contentZoneItem.data.themeDefinitionKey);
+                    let instance = null;
                     let element = document.createElement('div');
+                    if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                        // Start component
+                        instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, Object.assign($.clone(contentZoneItem.data.ccmComponent.config), {root: element}));
+                    } else {
+                        // Update existing component
+                        instance = _contentZoneInstances[contentZoneName][i];
+                        Object.assign(_contentZoneInstances[contentZoneName][i], config);
+                        instance.updateChildren !== undefined && instance.updateChildren();
+                    }
                     element.contentZoneItem = contentZoneItem;
-                    element.ccmInstance = component;
+                    element.ccmInstance = instance;
                     element.themeDefinitionType = themeDefinition.type;
-
-                    $.append(element, component.root);
 
                     if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
                         element.contentEditable = "true";
@@ -493,7 +482,7 @@
                 } else {
                     // Update existing component
                     Object.assign(_contentZoneInstances[contentZoneName][i], config);
-                    _contentZoneInstances[contentZoneName][i].update();
+                    _contentZoneInstances[contentZoneName][i].updateChildren && _contentZoneInstances[contentZoneName][i].updateChildren();
                 }
                 let element = _contentZoneInstances[contentZoneName][i].root;
                 element.contentZoneItem = contentZoneItem;
