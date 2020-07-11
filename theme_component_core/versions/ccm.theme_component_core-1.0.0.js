@@ -838,10 +838,9 @@
                 });
                 definer.addEventListener('mouseup', () => {
                     mouseDown = false;
-                    element.focus();
                 });
                 definer.addEventListener('click', () => {
-                    element.focus();
+                    setTimeout(() => {element.focus()}, 50);
                 });
                 element.addEventListener('focusout', () => {
                     focused = false;
