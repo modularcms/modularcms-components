@@ -397,9 +397,9 @@
 
                     if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
                         element.contentEditable = "true";
-                        component.root.contentEditable = "false";
-                        component.element.style.pointerEvents = "none !important";
-                        component.root.classList.add('content-component');
+                        instance.root.contentEditable = "false";
+                        instance.element.style.pointerEvents = "none !important";
+                        instance.root.classList.add('content-component');
 
                         element.addEventListener('click', () => {
                             element.focus();
