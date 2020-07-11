@@ -29,7 +29,8 @@
             "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
-            "component_manager": ["ccm.component", "https://modularcms.github.io/modularcms-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","component_manager"]]
+            "component_manager": ["ccm.component", "https://modularcms.github.io/modularcms-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","component_manager"]],
+            "component_submit_builder": ["ccm.component", "https://ccmjs.github.io/akless-components/submit/versions/ccm.submit-8.1.3.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","submit_builder"]]
         },
 
         Instance: function () {
@@ -217,23 +218,77 @@
                         builder.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
 
                         //Handle config change
-                        this.component_json_builder.data.json = zoneItem.data.config;
                         let currentConfigHash = this.hash.md5(JSON.stringify(zoneItem.data.config));
-                        this.component_json_builder.onchange = (event) => {
-                            // handle json change
-                            let value = event.instance.getValue();
-                            if (value.valid) {
-                                let configHash = this.hash.md5(JSON.stringify(value.json));
-                                if (configHash != currentConfigHash) {
-                                    currentConfigHash = configHash;
-                                    updateConfig(value.json);
-                                    onDataChange();
-                                }
+                        let updateTheConfig = (value) => {
+                            let configHash = this.hash.md5(JSON.stringify(value));
+                            if (configHash != currentConfigHash) {
+                                currentConfigHash = configHash;
+                                updateConfig(value);
+                                onDataChange();
                             }
                         }
-                        this.element.querySelector('#builder').classList.add('has-builder-content');
-                        await this.component_json_builder.start();
-                        $.setContent(this.element.querySelector('#edit-component-builder'), this.component_json_builder.root);
+
+                        let data = zoneItem.data.config;
+
+                        let openJsonBuilder = async () => {
+                            this.component_json_builder.data.json = data;
+                            this.component_json_builder.onchange = (event) => {
+                                // handle json change
+                                let value = event.instance.getValue();
+                                if (value.valid) {
+                                    data = value.json;
+                                    updateTheConfig(data);
+                                }
+                            }
+                            this.element.querySelector('#builder').classList.add('has-builder-content');
+                            await this.component_json_builder.start();
+                            $.setContent(this.element.querySelector('#edit-component-builder'), this.component_json_builder.root);
+                        }
+
+                        let openSubmitBuilder = async () => {
+                            this.element.querySelector('#builder').classList.add('has-builder-content');
+                            await this.component_submit_builder.start({
+                                root: this.element.querySelector('#edit-component-builder'),
+                                entries: [
+                                    {
+                                        "label": "Columns count",
+                                        "name": "columns",
+                                        "type": "number",
+                                        "info": "The count of columns",
+                                        "min": 1,
+                                        "max": 4
+                                    },
+                                    {
+                                        "label": "Split of the two columns",
+                                        "name": "range",
+                                        "type": "range",
+                                        "min": 1,
+                                        "max": 3,
+                                        "info": "The split"
+                                    }
+                                ],
+                                data: data,
+                                onchange: e => {
+                                    data = e.instance.getValue();
+                                    updateTheConfig(data);
+                                }
+                            });
+                        }
+
+                        this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach((item) => {
+                            item.addEventListener('click', () => {
+                                this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach(i => i.classList.remove('active'));
+                                item.classList.add('active');
+                                let action = item.getAttribute('data-builder');
+                                if (action == 'submit_builder') {
+                                    openSubmitBuilder();
+                                } else {
+                                    openJsonBuilder();
+                                }
+                            });
+                        });
+
+                        openSubmitBuilder();
 
                         // Handle close
                         let hideHandler = () => {
@@ -242,7 +297,6 @@
                             pageRenderer.root.removeEventListener('mouseup', hideHandler);
                         }
                         pageRenderer.root.addEventListener('mouseup', hideHandler);
-                        // TODO save click
                     };
                     window.addEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler);
 

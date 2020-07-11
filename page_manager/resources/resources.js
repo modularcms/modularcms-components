@@ -18,7 +18,9 @@ ccm.files[ 'resources.js' ] = {
         "data_controller": [ "ccm.instance", "/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
         "pageRendererUrl": "/modularcms-components/page_renderer/versions/ccm.page_renderer-1.0.0.js",
         "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
-        "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ]
+        "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
+        "component_manager": ["ccm.component", "/modularcms-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","/modularcms-components/page_manager/resources/resources.js","component_manager"]],
+        "component_submit_builder": ["ccm.component", "https://ccmjs.github.io/akless-components/submit/versions/ccm.submit-8.1.3.js", ["ccm.get","/modularcms-components/page_manager/resources/resources.js","submit_builder"]]
     },
 
     "json_builder": {
@@ -66,5 +68,41 @@ ccm.files[ 'resources.js' ] = {
             ]
         } ],
         "user": [ "ccm.start", "https://ccmjs.github.io/akless-components/user/versions/ccm.user-9.7.0.js", [ "ccm.get", "https://ccmjs.github.io/akless-components/app_builder/resources/resources.js", "user" ] ]
+    },
+
+    "submit_builder": {
+        "data": {},
+        "onfinish": {
+            "store": true,
+            "alert": "Saved!"
+        },
+        "helper": [
+            "ccm.load",
+            {
+                "url": "https://ccmjs.github.io/akless-components/modules/helper.mjs"
+            }
+        ],
+        "css": [
+            "ccm.load",
+            [
+                [
+                    "https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css",
+                    {
+                        "url": "https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
+                        "type": "css"
+                    },
+                    {
+                        "url": "https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp",
+                        "type": "css",
+                        "context": "head"
+                    }
+                ],
+                "https://ccmjs.github.io/akless-components/submit/resources/default_b4.css"
+            ]
+        ],
+        "html": [
+            "ccm.load",
+            "https://ccmjs.github.io/akless-components/submit/resources/templates_b4.html"
+        ]
     }
 };

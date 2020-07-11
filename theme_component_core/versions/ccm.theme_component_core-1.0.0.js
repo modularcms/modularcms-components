@@ -38,6 +38,7 @@
             let _contentZoneElements = {};
 
             let _themeDefinitions = {};
+            let _themeDefinitionComponents = {};
 
             /**
              *
@@ -310,10 +311,13 @@
                 if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
                     _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
                 }
+                if (_themeDefinitionComponents[contentZoneItem.data.themeDefinitionKey] === undefined) {
+                    _themeDefinitionComponents[contentZoneItem.data.themeDefinitionKey] = await this.ccm.component(_themeDefinitions[contentZoneItem.data.themeDefinitionKey].ccmComponent.url, _themeDefinitions[contentZoneItem.data.themeDefinitionKey].ccmComponent.config);
+                }
                 const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
                 if (themeDefinition) {
                     let config = {};
-                    Object.assign(config, themeDefinition.ccmComponent.config, contentZoneItem.data.config, {
+                    Object.assign(config, contentZoneItem.data.config, {
                         parent: this.parent,
                         zoneItem: contentZoneItem,
                         contentZones: contentZoneItem.contentZones,
@@ -322,16 +326,7 @@
                         edit: edit,
                         parentZoneName: contentZoneName
                     });
-                    /*if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                        // Start component
-                        const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
-                        _contentZoneComponents[contentZoneName][i] = component;
-                    } else {
-                        // Update existing component
-                        Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                        _contentZoneComponents[contentZoneName][i].update();
-                    }*/
-                    const component = await this.ccm.start(themeDefinition.ccmComponent.url, config);
+                    const component = await _themeDefinitionComponents[contentZoneItem.data.themeDefinitionKey].start(config);
                     //let element = _contentZoneComponents[contentZoneName][i].root;
                     let element = component.root;
                     element.contentZoneItem = contentZoneItem;
