@@ -84,7 +84,7 @@
                                         pageRenderer = await this.page_renderer.start(config);
                                     } else {
                                         //Object.assign(pageRenderer, config);
-                                        pageRenderer.update(config);
+                                        this.page_renderer.update(config);
                                     }
                                 }
                             } else {
