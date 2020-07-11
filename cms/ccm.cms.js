@@ -35,7 +35,7 @@
       "user_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/user_manager/versions/ccm.user_manager-1.0.0.js" ],
       "theme_definition_manager": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/theme_definition_manager/versions/ccm.theme_definition_manager-1.0.0.js" ],
       "profile_editor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/profile_editor/versions/ccm.profile_editor-1.0.0.js" ],
-      "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
+      "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.min.js" ],
     },
 
     Instance: function () {
