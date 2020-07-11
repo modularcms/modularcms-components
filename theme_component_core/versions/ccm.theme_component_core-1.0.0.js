@@ -768,7 +768,7 @@
                             hint.querySelectorAll('img[data-action="' + item + '"]').forEach(button => {
                                 if (
                                     (range.collapsed && button.getAttribute('data-only-with-range'))
-                                    || (button.getAttribute('data-type') && button.getAttribute('data-type') != element.contentZoneItem.type)
+                                    || (button.getAttribute('data-type') && JSON.parse(button.getAttribute('data-type')).indexOf(element.contentZoneItem.type) < 0)
                                     || (button.getAttribute('data-type-not') && button.getAttribute('data-type-not') == element.contentZoneItem.type)
                                 ) {
                                     button.style.display = 'none';
@@ -839,7 +839,7 @@
                     mouseDown = false;
                 });
                 definer.addEventListener('click', () => {
-                    setTimeout(() => {element.focus()}, 50);
+                    element.focus();
                 });
                 element.addEventListener('focusout', () => {
                     focused = false;
