@@ -371,7 +371,7 @@
                 const themeDefinition = await this.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
                 if (themeDefinition) {
                     let config = {};
-                    Object.assign(config, contentZoneItem.data.config, {
+                    Object.assign(config, $.clone(contentZoneItem.data.config), {
                         parent: this.parent,
                         zoneItem: contentZoneItem,
                         contentZones: contentZoneItem.contentZones,
@@ -385,7 +385,7 @@
                     let element = document.createElement('div');
                     if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                         // Start component
-                        instance = await component.start(Object.assign($.clone(contentZoneItem.data.config), {root: element}));
+                        instance = await component.start(Object.assign(config, {root: element}));
                     } else {
                         // Update existing component
                         instance = _contentZoneInstances[contentZoneName][i];
