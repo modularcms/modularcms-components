@@ -1136,7 +1136,8 @@
                             type: elementType,
                             data: zoneElement.getDataContent ? zoneElement.getDataContent(): {},
                         };
-                        if (elementType == 'themeDefinition') {
+                        obj.contentZones = {};
+                        if (elementType == 'themeDefinition' && zoneElement.ccmInstance.core && zoneElement.ccmInstance.core.getContentZones) {
                             obj.contentZones = zoneElement.ccmInstance.core.getContentZones()
                         }
                         re.push(obj);

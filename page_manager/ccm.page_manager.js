@@ -411,7 +411,7 @@
                             publishButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg';
                             setTimeout(() => {
                                 publishButton.querySelector('.button-text').innerHTML = 'Publish';
-                                publishButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/save-icon.svg';
+                                publishButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/megaphone-icon.svg';
                             }, 1500);
                         };
                         await this.data_controller.publishPage(websiteKey, pageKey, 'Publish page').then(() => {

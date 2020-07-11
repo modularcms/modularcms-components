@@ -135,7 +135,7 @@
                 _contentZonesBefore = contentZones;
 
                 // handle block config
-                if (edit && zoneItem.type == 'themeDefinition' && zoneItem.data.themeDefinitionType == 'block') {
+                if (edit && zoneItem.type == 'themeDefinition' && ['block', 'contentComponent'].indexOf(zoneItem.data.themeDefinitionType) >= 0) {
                     this.addEditFocusHandling(element, parentZoneName);
                 }
             };
@@ -1138,7 +1138,8 @@
                             type: elementType,
                             data: zoneElement.getDataContent ? zoneElement.getDataContent(): {},
                         };
-                        if (elementType == 'themeDefinition') {
+                        obj.contentZones = {};
+                        if (elementType == 'themeDefinition' && zoneElement.ccmInstance.core && zoneElement.ccmInstance.core.getContentZones) {
                             obj.contentZones = zoneElement.ccmInstance.core.getContentZones()
                         }
                         re.push(obj);
