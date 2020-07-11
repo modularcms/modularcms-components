@@ -10,8 +10,6 @@
 
         name: 'theme_component_core',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -174,7 +172,7 @@
                             detail: {}
                         });
                         window.dispatchEvent(event);
-                        this.parent.parent.core.removeZoneItem(element, parentZoneName);
+                        this.parent.parent.core.removeZoneItem(this.parent.root.parentNode, parentZoneName);
                     }
                 });
 
@@ -636,7 +634,6 @@
             }
 
             this.removeZoneItem = (element, contentZoneName) => {
-                console.log(element);
                 let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex, 1);
