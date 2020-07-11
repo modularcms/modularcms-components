@@ -62,7 +62,7 @@
                     $.setContent(element.querySelector('#' + elementId), htmlPlaceholders[elementId]);
                 }
 
-                this.updateContent();
+                await this.updateContent();
 
                 // handle block config
                 if (edit && zoneItem.type == 'themeDefinition' && ['block', 'contentComponent'].indexOf(zoneItem.data.themeDefinitionType) >= 0) {
@@ -211,12 +211,12 @@
              * @returns {boolean}
              */
             this.checkIfZoneItemAtIndexIsEqual = (contentZoneName, contentZoneItem, index) => {
+                console.log(contentZoneName, contentZoneItem, index);
                 if (_contentZonesBefore[contentZoneName] !== undefined && _contentZonesBefore[contentZoneName][index] !== undefined) {
                     // let instance = window.modularcms.themeComponents
                     let getZoneComponentComparableData = (item) => {
                         let zoneComponentCopy = $.clone(item);
                         delete zoneComponentCopy['contentZones'];
-                        delete zoneComponentCopy.data['config'];
                         return zoneComponentCopy;
                     }
                     let getZoneComponentHash = (item) => {
@@ -369,7 +369,7 @@
                 const themeDefinition = await this.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
                 if (themeDefinition) {
                     let config = {};
-                    Object.assign(config, contentZoneItem.data.config, {
+                    Object.assign(config, $.clone(contentZoneItem.data.config), {
                         parent: this.parent,
                         zoneItem: contentZoneItem,
                         contentZones: contentZoneItem.contentZones,
@@ -383,13 +383,14 @@
                     let element = document.createElement('div');
                     if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                         // Start component
-                        instance = await component.start(Object.assign($.clone(contentZoneItem.data.config), {root: element}));
+                        instance = await component.start(Object.assign(config, {root: element}));
                     } else {
                         // Update existing component
                         instance = _contentZoneInstances[contentZoneName][i];
                         Object.assign(_contentZoneInstances[contentZoneName][i], config);
-                        instance.updateChildren !== undefined && instance.updateChildren();
+                        instance.updateChildren();
                     }
+                    console.log(instance);
                     element.contentZoneItem = contentZoneItem;
                     element.ccmInstance = instance;
                     element.themeDefinitionType = themeDefinition.type;
