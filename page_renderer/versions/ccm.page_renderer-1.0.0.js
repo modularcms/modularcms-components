@@ -33,7 +33,7 @@
             };
 
             this.start = async () => {
-                await this.update();
+                await this.updateChildren();
             };
 
             this.updateChildren = async () => {
