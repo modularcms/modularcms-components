@@ -10,6 +10,8 @@
 
         name: 'theme_component_core',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -696,6 +698,11 @@
                             this.addParagraphAfter(element.parentNode, element, contentZoneName);
                             this.removeZoneItem(element.parentNode, element, contentZoneName);
                         }
+                    }
+                });
+                element.addEventListener('click', () => {
+                    if (element.innerHTML == '') {
+                        element.focus();
                     }
                 });
 

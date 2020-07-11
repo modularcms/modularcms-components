@@ -700,6 +700,11 @@
                         }
                     }
                 });
+                element.addEventListener('click', () => {
+                    if (element.innerHTML == '') {
+                        element.focus();
+                    }
+                });
 
                 // handle text selection
                 this.addContentEditingFormat(element, contentZoneName);
