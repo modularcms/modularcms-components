@@ -83,8 +83,8 @@
                                     if (pageRenderer == null) {
                                         pageRenderer = await this.page_renderer.start(config);
                                     } else {
-                                        //Object.assign(pageRenderer, config);
-                                        this.page_renderer.update(config);
+                                        Object.assign(pageRenderer, config);
+                                        pageRenderer.update('root', this.element.querySelector('#page-renderer-container'));
                                     }
                                 }
                             } else {
