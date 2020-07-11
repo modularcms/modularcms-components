@@ -33,6 +33,8 @@
 
             let currentContent = null;
 
+            let pageRenderer = null;
+
             /**
              * Component start closure
              * @returns {Promise<void>}
@@ -76,11 +78,11 @@
                                         root: this.element.querySelector('#page-renderer-container')
                                     };
 
-                                    if (this._pageRenderer === undefined) {
-                                        this._pageRenderer = await this.page_renderer.start(config);
+                                    if (pageRenderer == null) {
+                                        pageRenderer = await this.page_renderer.start(config);
                                     } else {
-                                        Object.assign(this._pageRenderer, config);
-                                        this._pageRenderer.update();
+                                        Object.assign(pageRenderer, config);
+                                        pageRenderer.updateChildren();
                                     }
                                 }
                             } else {

@@ -84,7 +84,7 @@
                                         pageRenderer = await this.page_renderer.start(config);
                                     } else {
                                         Object.assign(pageRenderer, config);
-                                        pageRenderer.update('root', this.element.querySelector('#page-renderer-container'));
+                                        pageRenderer.updateChildren();
                                     }
                                 }
                             } else {
