@@ -345,7 +345,7 @@
                 return window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey];
             }
 
-            this.getNewThemeDefinitionElement = async (contentZoneName, themeDefinitionKey) => {
+            this.getNewThemeDefinitionElement = async (contentZoneName, themeDefinitionKey, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
 
@@ -358,7 +358,7 @@
                         themeDefinitionType: themeDefinition.type
                     },
                     config: {}
-                })
+                }, i)
             };
 
             this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
@@ -580,7 +580,7 @@
             };
 
             this.addThemeDefinitionAfter = async (parentNode, element, contentZoneName, themeDefinitionKey) => {
-                let newElement = await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey);
+                let newElement = await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element) + 1);
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
@@ -904,7 +904,7 @@
                     const event = new CustomEvent("pageRendererAddComponent", {
                         detail: {
                             addThemeDefinition: async (themeDefinitionKey) => {
-                                replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey))
+                                replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
                             }
                         }
                     });
@@ -1126,7 +1126,7 @@
             this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, component, config) => {
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
-                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem);
+                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
