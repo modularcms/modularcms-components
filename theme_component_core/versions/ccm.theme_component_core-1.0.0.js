@@ -364,7 +364,7 @@
                         edit: edit,
                         parentZoneName: contentZoneName
                     });
-                    const instance = await this.getThemeDefinitionInstance();
+                    const instance = await this.getThemeDefinitionInstance(contentZoneItem.data.themeDefinitionKey);
                     const component = await instance.start(config);
                     //let element = _contentZoneInstances[contentZoneName][i].root;
                     let element = component.root;
