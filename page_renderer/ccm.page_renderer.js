@@ -21,41 +21,53 @@
         Instance: function () {
             let $;
 
+            let _themeComponent = null;
+
             this.ready = async () => {
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
             };
-
-            let _themeComponent = null;
-            let _themeComponentUrl = null;
-            let _theme = null;
-
 
             this.start = async () => {
                 await this.update();
             };
 
             this.update = async () => {
-                if (_theme == null || _theme.themeKey != this.page.themeKey) {
-                    _theme = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
+                if (window.modularcms == undefined) {
+                    window.modularcms = {};
+                }
+                if (window.modularcms.themes == undefined) {
+                    window.modularcms.themes = {};
+                }
+                if (window.modularcms.themes[this.page.themeKey] === undefined) {
+                    window.modularcms.themes[this.page.themeKey] = await this.data_controller.getTheme(this.websiteKey, this.page.themeKey);
+                }
+                let theme = window.modularcms.themes[this.page.themeKey];
+
+                if (window.modularcms.themeComponents == undefined) {
+                    window.modularcms.themeComponents = {};
+                }
+                if (window.modularcms.themeComponents[this.page.themeKey] === undefined) {
+                    window.modularcms.themeComponents[this.page.themeKey] = await this.ccm.component(theme.ccmComponent.url, theme.ccmComponent.config);
                 }
 
                 const themeConfig = {};
-                Object.assign(themeConfig, _theme.ccmComponent.config, this.page.themeConfig, {
+                Object.assign(themeConfig, this.page.themeConfig, {
                     parent: this,
                     contentZones: this.page.contentZones,
                     zoneItem: {type: 'theme', data: {}, config:{}},
                     websiteKey: this.websiteKey,
                     page: this.page,
                     edit: this.edit,
-                    parentZoneName: null
+                    parentZoneName: null,
+                    root: this.element
                 });
-                if (_themeComponent == null || _themeComponentUrl != _theme.ccmComponent.url) {
-                    _themeComponent = await this.ccm.start(_theme.ccmComponent.url, themeConfig);
+                if (window.modularcms.themeKeyBefore !== this.page.themeKey) {
+                    _themeComponent = await window.modularcms.themeComponents[this.page.themeKey].start(themeConfig);
+                    window.modularcms.themeKeyBefore = this.page.themeKey;
                 } else {
                     Object.assign(_themeComponent, themeConfig);
                     _themeComponent.update();
                 }
-                $.setContent(this.element, _themeComponent.root);
             }
 
             this.getContentZones = () => {
