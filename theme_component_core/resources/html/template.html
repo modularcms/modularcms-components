@@ -84,6 +84,11 @@
             opacity: 0.5;
         }
 
+        *[contenteditable="true"][data-type="paragraph"]:not(.focus):not(.has-content)::before {
+            content: 'Click to edit';
+            opacity: 0.5;
+        }
+
         *[contenteditable="true"][data-type="paragraph"].focus:not(.has-content) + .define-content-block-type {
             display: inline-flex;
         }
