@@ -70,6 +70,8 @@
                                     this.setMeta('keywords', page.meta.keywords);
                                     this.setMeta('robots', page.meta.robots ? 'index, follow' : 'noindex, nofollow');
 
+                                    $.setContent(this.element, $.html(this.html.main, {}));
+
                                     // render page
                                     const config = {
                                         parent: this,
@@ -84,7 +86,6 @@
                                         await _pageRenderer.update();
                                     }
 
-                                    $.setContent(this.element, $.html(this.html.main, {}));
                                     $.setContent(this.element.querySelector('#page-renderer-container'), _pageRenderer.root);
                                 }
                             } else {
