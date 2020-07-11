@@ -210,6 +210,7 @@
              */
             this.checkIfZoneComponentAtIndexIsEqual = (zone, zoneComponent, index) => {
                 if (_contentZonesBefore[zone] !== undefined && _contentZonesBefore[zone][index] !== undefined) {
+                    // let instance = window.modularcms.themeComponents
                     let getZoneComponentComparableData = (zoneComponent) => {
                         console.log(zoneComponent);
                         let zoneComponentCopy = $.clone(zoneComponent);
@@ -290,6 +291,27 @@
                         paragraph.innerHTML += translateDiv.innerHTML;
                     }
                 });
+            }
+
+            /**
+             * Return an content zone componente
+             * @param themeDefinitionKey
+             * @returns {Promise<*>}
+             */
+            this.getContentZoneComponentInstance = async (themeDefinitionKey) => {
+                const page = this.parent.page;
+
+                if (window.modularcms._themeDefinitionComponents === undefined) {
+                    window.modularcms._themeDefinitionComponents = {};
+                }
+                if (window.modularcms._themeDefinitionComponents[page.themeKey] === undefined) {
+                    window.modularcms._themeDefinitionComponents[page.themeKey] = {};
+                }
+                if (window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey] === undefined) {
+                    const themeDefinition = await this.getThemeDefinition(themeDefinitionKey);
+                    window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey] = await this.ccm.component(themeDefinition.ccmComponent.url, themeDefinition.ccmComponent.config);
+                }
+                return window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey];
             }
 
             /**
