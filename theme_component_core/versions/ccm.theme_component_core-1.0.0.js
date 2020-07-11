@@ -392,6 +392,7 @@
                         Object.assign(_contentZoneInstances[contentZoneName][i], config);
                         instance.updateChildren();
                     }
+                    console.log(instance);
                     element.contentZoneItem = contentZoneItem;
                     element.ccmInstance = instance;
                     element.themeDefinitionType = themeDefinition.type;
