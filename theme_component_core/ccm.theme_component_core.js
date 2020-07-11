@@ -118,7 +118,7 @@
                             _contentZoneElements[contentZoneName][i] = appendElement;
 
                             if (appendElement.ccmInstance !== undefined) {
-                                _contentZoneInstances[cappendElement.ccmInstance][i]
+                                _contentZoneInstances[contentZoneName][i] = appendElement.ccmInstance;
                             }
 
                             if (appendElement != null) {
