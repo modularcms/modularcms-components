@@ -1125,7 +1125,6 @@
             }
 
             this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, component, config) => {
-                console.log(element);
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
                 let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));

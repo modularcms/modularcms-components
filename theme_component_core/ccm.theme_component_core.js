@@ -183,7 +183,7 @@
                     let updateConfig = async (config) => {
                         let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
                             configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
-                            configParent.root,
+                            configParent.root.parentNode,
                             configParent.zoneItem,
                             parentZoneName,
                             configParent,
@@ -395,9 +395,9 @@
 
                     if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
                         element.contentEditable = "true";
-                        component.root.contentEditable = "false";
-                        component.element.style.pointerEvents = "none !important";
-                        component.root.classList.add('content-component');
+                        instance.root.contentEditable = "false";
+                        instance.element.style.pointerEvents = "none !important";
+                        instance.root.classList.add('content-component');
 
                         element.addEventListener('click', () => {
                             element.focus();
@@ -1126,7 +1126,7 @@
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
                 let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
-                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                this.addContentZoneItemBefore(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
                         let newElementContentZoneName = item.getAttribute('data-content-zone-name')
