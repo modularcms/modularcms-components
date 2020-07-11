@@ -82,6 +82,7 @@
                                     } else {
                                         Object.assign(pageRenderer, config);
                                         pageRenderer.updateChildren();
+                                        $.setContent(this.element.querySelector('#page-renderer-container'), pageRenderer.root);
                                     }
                                 }
                             } else {
