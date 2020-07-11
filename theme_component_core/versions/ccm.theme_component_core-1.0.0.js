@@ -174,7 +174,7 @@
                             detail: {}
                         });
                         window.dispatchEvent(event);
-                        this.parent.parent.core.removeZoneItem(element, parentZoneName);
+                        this.parent.parent.core.removeZoneItem(this.parent.root.parentNode, parentZoneName);
                     }
                 });
 
