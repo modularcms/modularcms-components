@@ -32,11 +32,8 @@
 
             let _contentZonesBefore = {};
 
-            let _contentZoneComponents = {};
+            let _contentZoneInstances = {};
             let _contentZoneElements = {};
-
-            let _themeDefinitions = {};
-            let _themeDefinitionComponents = {};
 
             /**
              *
@@ -72,7 +69,7 @@
                     const contentZoneElement = element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]');
 
                     if (_contentZoneElements[contentZoneName] === undefined) {
-                        _contentZoneComponents[contentZoneName] = [];
+                        _contentZoneInstances[contentZoneName] = [];
                         _contentZoneElements[contentZoneName] = [];
                     }
                     if (contentZoneElement) {
@@ -283,13 +280,58 @@
                 });
             }
 
+            /**
+             * Return an theme definition and caches the theme definition and all of its theme siblings
+             * @param themeDefinitionKey
+             * @returns {Promise<*>}
+             */
+            this.getThemeDefinition = async (themeDefinitionKey) => {
+                const page = this.parent.page;
+
+                if (window.modularcms === undefined) {
+                    window.modularcms = {};
+                }
+                if (window.modularcms._themeDefinitions === undefined) {
+                    window.modularcms._themeDefinitions = {};
+                }
+                if (window.modularcms._themeDefinitions[page.themeKey] === undefined) {
+                    window.modularcms._themeDefinitions[page.themeKey] = {};
+                }
+                if (window.modularcms._themeDefinitions[page.themeKey].keys().length == 0) {
+                    let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, page.themeKey);
+                    for (let themeDefinition of themeDefinitions) {
+                        window.modularcms._themeDefinitions[page.themeKey][themeDefinition.themeDefinitionKey] = themeDefinition;
+                    }
+                }
+                if (window.modularcms._themeDefinitions[page.themeKey][themeDefinitionKey] === undefined) {
+                    window.modularcms._themeDefinitions[page.themeKey][themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, themeDefinitionKey);
+                }
+                return window.modularcms._themeDefinitions[page.themeKey][themeDefinitionKey];
+            }
+
+            /**
+             * Return an theme definition instance and caches the theme definition components in the background
+             * @param themeDefinitionKey
+             * @returns {Promise<*>}
+             */
+            this.getThemeDefinitionInstance = async (themeDefinitionKey) => {
+                if (window.modularcms._themeDefinitionComponents === undefined) {
+                    window.modularcms._themeDefinitionComponents = {};
+                }
+                if (window.modularcms._themeDefinitionComponents[page.themeKey] === undefined) {
+                    window.modularcms._themeDefinitionComponents[page.themeKey] = {};
+                }
+                if (window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey] === undefined) {
+                    const themeDefinition = await this.getThemeDefinition(themeDefinitionKey);
+                    window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey] = await this.ccm.component(themeDefinition.ccmComponent.url, themeDefinition.ccmComponent.config);
+                }
+                return window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey];
+            }
+
             this.getNewThemeDefinitionElement = async (contentZoneName, themeDefinitionKey) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
 
-                if (_themeDefinitions[themeDefinitionKey] === undefined) {
-                    _themeDefinitions[themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, themeDefinitionKey);
-                }
                 return await this.getThemeDefinitionElement(contentZoneName, {
                     type: 'themeDefinition',
                     data: {
@@ -305,14 +347,7 @@
                 const page = this.parent.page;
                 const edit = this.parent.edit;
 
-                // init theme definition
-                if (_themeDefinitions[contentZoneItem.data.themeDefinitionKey] === undefined) {
-                    _themeDefinitions[contentZoneItem.data.themeDefinitionKey] = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, contentZoneItem.data.themeDefinitionKey);
-                }
-                if (_themeDefinitionComponents[contentZoneItem.data.themeDefinitionKey] === undefined) {
-                    _themeDefinitionComponents[contentZoneItem.data.themeDefinitionKey] = await this.ccm.component(_themeDefinitions[contentZoneItem.data.themeDefinitionKey].ccmComponent.url, _themeDefinitions[contentZoneItem.data.themeDefinitionKey].ccmComponent.config);
-                }
-                const themeDefinition = _themeDefinitions[contentZoneItem.data.themeDefinitionKey];
+                const themeDefinition = await this.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
                 if (themeDefinition) {
                     let config = {};
                     Object.assign(config, contentZoneItem.data.config, {
@@ -324,8 +359,9 @@
                         edit: edit,
                         parentZoneName: contentZoneName
                     });
-                    const component = await _themeDefinitionComponents[contentZoneItem.data.themeDefinitionKey].start(config);
-                    //let element = _contentZoneComponents[contentZoneName][i].root;
+                    const instance = await this.getThemeDefinitionInstance();
+                    const component = await instance.start(config);
+                    //let element = _contentZoneInstances[contentZoneName][i].root;
                     let element = component.root;
                     element.contentZoneItem = contentZoneItem;
                     element.ccmInstance = component;
@@ -363,14 +399,14 @@
                 });
                 if (!this.checkIfZoneComponentAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                     // Start component
-                    const component = await this.ccm.start(contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
-                    _contentZoneComponents[contentZoneName][i] = component;
+                    const instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
+                    _contentZoneInstances[contentZoneName][i] = instance;
                 } else {
                     // Update existing component
-                    Object.assign(_contentZoneComponents[contentZoneName][i], config);
-                    _contentZoneComponents[contentZoneName][i].update();
+                    Object.assign(_contentZoneInstances[contentZoneName][i], config);
+                    _contentZoneInstances[contentZoneName][i].update();
                 }
-                let element = _contentZoneComponents[contentZoneName][i].root;
+                let element = _contentZoneInstances[contentZoneName][i].root;
                 element.contentZoneItem = contentZoneItem;
                 element.setAttribute('data-type', contentZoneItem.type);
                 return element;
@@ -486,36 +522,36 @@
                 parentNode.insertBefore(addBlock, null);
             }
 
-            this.addContentZoneItemAfter = (parentNode, element, newElement, contentZoneName, component = null) => {
+            this.addContentZoneItemAfter = (parentNode, element, newElement, contentZoneName, instance = null) => {
                 if (_contentZoneElements[contentZoneName] === undefined) {
                     _contentZoneElements[contentZoneName] = [];
-                    _contentZoneComponents[contentZoneName] = [];
+                    _contentZoneInstances[contentZoneName] = [];
                 }
                 let elementIndex = element == null ? -1 : _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex + 1, 0, newElement);
-                    _contentZoneComponents[contentZoneName].splice(elementIndex + 1, 0, component);
+                    _contentZoneInstances[contentZoneName].splice(elementIndex + 1, 0, instance);
                 } else {
                     _contentZoneElements[contentZoneName].push(newElement);
-                    _contentZoneComponents[contentZoneName].push(component);
+                    _contentZoneInstances[contentZoneName].push(instance);
                 }
 
                 parentNode.insertBefore(newElement, element == null ? null : (element.nextSibling?element.nextSibling.nextSibling:null));
                 parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
             }
 
-            this.addContentZoneItemBefore = (parentNode, element, newElement, contentZoneName, component = null) => {
+            this.addContentZoneItemBefore = (parentNode, element, newElement, contentZoneName, instance = null) => {
                 if (_contentZoneElements[contentZoneName] === undefined) {
                     _contentZoneElements[contentZoneName] = [];
-                    _contentZoneComponents[contentZoneName] = [];
+                    _contentZoneInstances[contentZoneName] = [];
                 }
                 let elementIndex = element == null ? -1 : _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex, 0, newElement);
-                    _contentZoneComponents[contentZoneName].splice(elementIndex, 0, component);
+                    _contentZoneInstances[contentZoneName].splice(elementIndex, 0, instance);
                 } else {
                     _contentZoneElements[contentZoneName].splice(0, 0, newElement);
-                    _contentZoneComponents[contentZoneName].splice(0, 0, component);
+                    _contentZoneInstances[contentZoneName].splice(0, 0, instance);
                 }
 
                 parentNode.insertBefore(newElement, element == null ? null : element);
@@ -526,7 +562,7 @@
                 let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex, 1);
-                    _contentZoneComponents[contentZoneName].splice(elementIndex, 1);
+                    _contentZoneInstances[contentZoneName].splice(elementIndex, 1);
                 } else {
                     console.warn('Check zone management implementation!');
                 }
