@@ -337,11 +337,13 @@
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
 
+                const themeDefinition = await this.getThemeDefinition(themeDefinitionKey);
+
                 return await this.getThemeDefinitionElement(contentZoneName, {
                     type: 'themeDefinition',
                     data: {
                         themeDefinitionKey: themeDefinitionKey,
-                        themeDefinitionType: _themeDefinitions[themeDefinitionKey].type
+                        themeDefinitionType: themeDefinition.type
                     },
                     config: {}
                 })
@@ -367,10 +369,61 @@
                     const instance = await this.getThemeDefinitionInstance(contentZoneItem.data.themeDefinitionKey);
                     const component = await instance.start(config);
                     //let element = _contentZoneInstances[contentZoneName][i].root;
-                    let element = component.root;
+                    let element = document.createElement('div');
                     element.contentZoneItem = contentZoneItem;
                     element.ccmInstance = component;
                     element.themeDefinitionType = themeDefinition.type;
+
+                    $.append(element, component.root);
+
+                    if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
+                        element.contentEditable = "true";
+                        component.root.contentEditable = "false";
+                        component.root.style.pointerEvents = "none !important";
+                        component.root.classList.add('content-component');
+
+                        element.addEventListener('click', () => {
+                            element.focus();
+                        });
+
+                        element.addEventListener('keydown', (e) => {
+                            if (e.key == 'Backspace') {
+                                const selection = this.parent.element.parentNode.getSelection();
+                                const range = selection.getRangeAt(0);
+                                e.preventDefault();
+                                if (range.collapsed) {
+                                    if (range.startOffset == 0) {
+                                        if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
+                                            this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
+                                        }
+                                    } else {
+                                        if (element.previousSibling && element.previousSibling.previousSibling) {
+                                            this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                        } else {
+                                            this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                        }
+                                        this.removeZoneItem(element, contentZoneName);
+                                    }
+                                }
+                            }
+                        });
+                        element.addEventListener('keypress', (e) => {
+                            if (e.key === 'Enter') {
+                                const selection = this.parent.element.parentNode.getSelection();
+                                const range = selection.getRangeAt(0);
+                                e.preventDefault();
+                                $.remove(element.querySelector('div:last-child:not(.content-component)'));
+
+                                if (range.collapsed) {
+                                    if (range.startOffset == 0) {
+                                        this.addParagraphBefore(element.parentNode, element, contentZoneName);
+                                    } else {
+                                        this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                    }
+                                }
+                            }
+                        });
+                    }
 
                     // define content get method
                     element.getDataContent = () => {
@@ -832,8 +885,8 @@
                 componentButton.addEventListener('click', () => {
                     const event = new CustomEvent("pageRendererAddComponent", {
                         detail: {
-                            addThemeDefinition: (themeDefinitionKey) => {
-                                replaceWith(this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey))
+                            addThemeDefinition: async (themeDefinitionKey) => {
+                                replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey))
                             }
                         }
                     });
