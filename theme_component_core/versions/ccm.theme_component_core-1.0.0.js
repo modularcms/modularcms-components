@@ -640,12 +640,11 @@
                 if (elementIndex >= 0) {
                     _contentZoneElements[contentZoneName].splice(elementIndex, 1);
                     _contentZoneInstances[contentZoneName].splice(elementIndex, 1);
+                    $.remove(element.nextSibling);
+                    $.remove(element);
                 } else {
                     console.warn('Check zone management implementation!');
                 }
-
-                $.remove(element.nextSibling);
-                $.remove(element);
             }
 
             this.addContentEditing = (element, contentZoneName) => {
@@ -696,7 +695,7 @@
                             }
                         } else if (element.innerHTML == '') {
                             this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                            this.removeZoneItem(element.parentNode, element, contentZoneName);
+                            this.removeZoneItem(element, contentZoneName);
                         }
                     }
                 });
