@@ -64,7 +64,7 @@
                     $.setContent(element.querySelector('#' + elementId), htmlPlaceholders[elementId]);
                 }
 
-                this.updateContent();
+                await this.updateContent();
 
                 // handle block config
                 if (edit && zoneItem.type == 'themeDefinition' && ['block', 'contentComponent'].indexOf(zoneItem.data.themeDefinitionType) >= 0) {
