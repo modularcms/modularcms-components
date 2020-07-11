@@ -405,6 +405,31 @@
                             element.focus();
                         });
 
+                        let configParent = this.parent;
+                        const parentZoneName = this.parent.parentZoneName;
+                        element.addEventListener('dblclick', () => {
+                            let updateConfig = async (config) => {
+                                let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
+                                    configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
+                                    configParent.root.parentNode,
+                                    configParent.zoneItem,
+                                    parentZoneName,
+                                    configParent,
+                                    config
+                                );
+                                return newElement.ccmInstance;
+                            };
+                            const event = new CustomEvent("pageRendererEditBlockConfig", {
+                                detail: {
+                                    zoneItem: this.parent.zoneItem,
+                                    updateConfig: async (config) => {
+                                        configParent = await updateConfig(config);
+                                    }
+                                }
+                            });
+                            window.dispatchEvent(event);
+                        });
+
                         element.addEventListener('keydown', (e) => {
                             if (e.key == 'Backspace') {
                                 const selection = this.parent.element.parentNode.getSelection();
