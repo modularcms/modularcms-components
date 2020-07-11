@@ -76,7 +76,7 @@
                     _themeConfigHashBefore = this.page.themeConfig;
                 } else {
                     Object.assign(_themeComponent, themeConfig);
-                    _themeComponent.updateChilds();
+                    _themeComponent.updateChildren();
                 }
             }
 
