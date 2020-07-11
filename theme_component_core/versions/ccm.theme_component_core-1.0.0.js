@@ -185,7 +185,7 @@
                     let updateConfig = async (config) => {
                         let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
                             configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
-                            configParent.root,
+                            configParent.root.parentNode,
                             configParent.zoneItem,
                             parentZoneName,
                             configParent,
