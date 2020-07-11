@@ -289,6 +289,7 @@
              */
             this.getThemeDefinition = async (themeDefinitionKey) => {
                 const page = this.parent.page;
+                const websiteKey = this.parent.websiteKey;
 
                 if (window.modularcms === undefined) {
                     window.modularcms = {};
