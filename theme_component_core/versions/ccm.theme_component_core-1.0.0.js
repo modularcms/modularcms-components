@@ -390,7 +390,7 @@
                         // Update existing component
                         instance = _contentZoneInstances[contentZoneName][i];
                         Object.assign(_contentZoneInstances[contentZoneName][i], config);
-                        instance.updateChildren !== undefined && instance.updateChildren();
+                        instance.updateChildren();
                     }
                     element.contentZoneItem = contentZoneItem;
                     element.ccmInstance = instance;
