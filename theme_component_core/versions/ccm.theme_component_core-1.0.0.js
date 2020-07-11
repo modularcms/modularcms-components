@@ -1125,10 +1125,11 @@
             }
 
             this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, component, config) => {
+                console.log(element);
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
                 let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
-                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                this.addContentZoneItemBefore(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
                         let newElementContentZoneName = item.getAttribute('data-content-zone-name')

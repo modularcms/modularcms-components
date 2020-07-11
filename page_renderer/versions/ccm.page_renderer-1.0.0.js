@@ -33,6 +33,7 @@
             };
 
             this.start = async () => {
+                window.modularcms = {};
                 await this.updateChildren();
             };
 
