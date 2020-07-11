@@ -297,7 +297,7 @@
                 if (window.modularcms._themeDefinitions[page.themeKey] === undefined) {
                     window.modularcms._themeDefinitions[page.themeKey] = {};
                 }
-                if (window.modularcms._themeDefinitions[page.themeKey].keys().length == 0) {
+                if (Object.keys(window.modularcms._themeDefinitions[page.themeKey]).length == 0) {
                     let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, page.themeKey);
                     for (let themeDefinition of themeDefinitions) {
                         window.modularcms._themeDefinitions[page.themeKey][themeDefinition.themeDefinitionKey] = themeDefinition;
