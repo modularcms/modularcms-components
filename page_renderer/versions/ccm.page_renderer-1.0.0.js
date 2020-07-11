@@ -70,7 +70,7 @@
                 if (_themeKeyBefore !== this.page.themeKey || _themeConfigHashBefore != configHash) {
                     _themeComponent = await window.modularcms.themeComponents[this.page.themeKey].start(themeConfig);
                     _themeKeyBefore = this.page.themeKey;
-                    _themeConfigHashBefore = this.page.themeConfig;
+                    _themeConfigHashBefore = configHash;
                 } else {
                     Object.assign(_themeComponent, themeConfig);
                     _themeComponent.updateChildren();
