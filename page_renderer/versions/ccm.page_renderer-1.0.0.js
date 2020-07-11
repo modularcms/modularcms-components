@@ -15,6 +15,7 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.js',
 
         config: {
+            "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "data_controller": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/data_controller/versions/ccm.data_controller-1.0.0.js" ],
             "edit": false
@@ -24,6 +25,8 @@
             let $;
 
             let _themeComponent = null;
+            let _themeConfigHashBefore = null;
+            let _themeKeyBefore = null;
 
             this.ready = async () => {
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
@@ -66,12 +69,14 @@
                     parentZoneName: null,
                     root: this.element
                 });
-                if (window.modularcms.themeKeyBefore !== this.page.themeKey) {
+                let configHash = this.hash.md5(JSON.stringify(this.page.themeConfig));
+                if (_themeKeyBefore !== this.page.themeKey || _themeConfigHashBefore != configHash) {
                     _themeComponent = await window.modularcms.themeComponents[this.page.themeKey].start(themeConfig);
-                    window.modularcms.themeKeyBefore = this.page.themeKey;
+                    _themeKeyBefore = this.page.themeKey;
+                    _themeConfigHashBefore = this.page.themeConfig;
                 } else {
                     Object.assign(_themeComponent, themeConfig);
-                    _themeComponent.update();
+                    _themeComponent.updateChilds();
                 }
             }
 
