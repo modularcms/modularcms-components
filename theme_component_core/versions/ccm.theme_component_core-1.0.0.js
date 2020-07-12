@@ -186,22 +186,26 @@
                 const configButton = editThemeDefinition.querySelector('img[data-action="config"');
                 let configParent = this.parent;
                 configButton.addEventListener('click', () => {
-                    let updateConfig = async (config) => {
+                    let updateConfig = async (config, scope) => {
+                        let configSet = config;
+                        if (scope == 'data') {
+                            configSet = Object.assign($.clone(contentZoneItem.data.config), {data: config});
+                        }
                         let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
                             configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
                             configParent.root.parentNode,
                             configParent.zoneItem,
                             parentZoneName,
                             configParent,
-                            config
+                            configSet
                         );
                         return newElement.ccmInstance;
                     };
                     const event = new CustomEvent("pageRendererEditBlockConfig", {
                         detail: {
                             zoneItem: this.parent.zoneItem,
-                            updateConfig: async (config) => {
-                                configParent = await updateConfig(config);
+                            updateConfig: async (config, scope) => {
+                                configParent = await updateConfig(config, scope);
                             }
                         }
                     });
