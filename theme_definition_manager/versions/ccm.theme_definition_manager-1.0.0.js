@@ -271,6 +271,7 @@
                         nameInput.value = theme.name;
                         ccmUrlInput.value = theme.ccmComponent.url;
                         this.json_builder.data = {json: theme.ccmComponent.config};
+                        ccmBuilderUrlInput.value = theme.ccmBuilder !== undefined ? (theme.ccmBuilder.url == null ? '' : theme.ccmBuilder.url) : '';
                         this.json_builder_builder.data = {json: theme.ccmBuilder !== undefined ? theme.ccmBuilder.config : {}};
                     } else {
                         nameInput.value = themeDefinition.name;
