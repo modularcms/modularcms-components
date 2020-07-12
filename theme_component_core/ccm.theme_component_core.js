@@ -156,6 +156,10 @@
                 this.parent.parent.element.addEventListener('click', (e) => {
                     if (e.target != this.parent.root && element) {
                         element.classList.remove('edit-focus');
+                        let contentComponentEditFocus = element.querySelector('.content-component-edit-focus');
+                        if (contentComponentEditFocus != null) {
+                            contentComponentEditFocus.classList.remove('content-component-edit-focus')
+                        }
                     }
                 });
                 element.addEventListener('click', () => {
@@ -405,6 +409,7 @@
 
                         let configParent = this.parent;
                         const parentZoneName = this.parent.parentZoneName;
+                        configParent.root.parentNode.classList.add('content-component-edit-focus');
                         element.addEventListener('dblclick', () => {
                             let updateConfig = async (config) => {
                                 let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
