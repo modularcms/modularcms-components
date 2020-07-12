@@ -244,7 +244,7 @@
                             let component_submit_builder = await this.ccm.component(themeDefinition.ccmBuilder.url, themeDefinition.ccmBuilder.config);
                             await component_submit_builder.start({
                                 root: this.element.querySelector('#edit-component-builder'),
-                                data: zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {},
+                                data: zoneItem.data.config !== undefined ? (zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {}) : {},
                                 onchange: e => {
                                     updateTheConfig(e.instance.getValue(), 'data');
                                 }

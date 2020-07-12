@@ -416,7 +416,7 @@
                             let updateConfig = async (config, scope) => {
                                 let configSet = config;
                                 if (scope == 'data') {
-                                    configSet = Object.assign($.clone(config), {data: config});
+                                    configSet = Object.assign($.clone(contentZoneItem.data.config), {data: config});
                                 }
                                 let newElement = await this.updateThemeDefinitionElementConfig(
                                     element.parentNode,
