@@ -435,7 +435,7 @@
                                 detail: {
                                     zoneItem: contentZoneItem,
                                     updateConfig: async (config, scope) => {
-                                        configParent = await updateConfig(config, scope);
+                                        await updateConfig(config, scope);
                                     }
                                 }
                             });
