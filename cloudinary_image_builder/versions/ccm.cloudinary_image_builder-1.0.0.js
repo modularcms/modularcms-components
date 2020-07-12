@@ -17,10 +17,13 @@
 
         config: {
             "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/default.css" ],
-            "data": "https://res.cloudinary.com/dyhjqgkca/image/upload/v1594499974/cms/a8xtbzcxelldugfz82i5.svg",
+            "data": {},
             "directly": true,
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-4.1.1.mjs" ],
-            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/templates.html" ]
+            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/templates.html" ],
+            "ignore": {
+                "imageSrc": "https://res.cloudinary.com/dyhjqgkca/image/upload/v1594499974/cms/a8xtbzcxelldugfz82i5.svg"
+            }
         },
 
         Instance: function () {
@@ -28,7 +31,6 @@
             let $;
 
             this.ready = async () => {
-
                 // set shortcut to help functions
                 $ = Object.assign( {}, this.ccm.helper, this.helper );
 
@@ -39,6 +41,7 @@
 
             this.start = async () => {
                 $.setContent(this.element, $.html(this.html, {}));
+                if ( typeof this.data != "string" ) this.data = this.ignore.imageSrc;
 
                 // Create cloudinary widget
                 const cloudinaryWidget = cloudinary.createUploadWidget(
