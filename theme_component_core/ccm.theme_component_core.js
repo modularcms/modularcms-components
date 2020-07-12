@@ -392,7 +392,7 @@
                     } else {
                         // Update existing component
                         instance = _contentZoneInstances[contentZoneName][i];
-                        Object.assign(_contentZoneInstances[contentZoneName][i], config);
+                        Object.assign(_contentZoneInstances[contentZoneName][i], config, {root: element});
                         instance.updateChildren();
                     }
                     element.contentZoneItem = contentZoneItem;
