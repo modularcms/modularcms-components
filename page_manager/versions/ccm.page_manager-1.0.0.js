@@ -30,7 +30,6 @@
             "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "component_manager": ["ccm.component", "https://modularcms.github.io/modularcms-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","component_manager"]],
-            "component_submit_builder": ["ccm.component", "https://ccmjs.github.io/akless-components/submit/versions/ccm.submit-8.1.3.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","submit_builder"]]
         },
 
         Instance: function () {
@@ -228,16 +227,13 @@
                             }
                         }
 
-                        let data = zoneItem.data.config;
-
-                        let openJsonBuilder = async () => {
-                            this.component_json_builder.data.json = data;
+                        let openJsonBuilder = async (zoneItem) => {
+                            this.component_json_builder.data.json = zoneItem.data.config;
                             this.component_json_builder.onchange = (event) => {
                                 // handle json change
                                 let value = event.instance.getValue();
                                 if (value.valid) {
-                                    data = value.json;
-                                    updateTheConfig(data);
+                                    updateTheConfig(value.json, 'full');
                                 }
                             }
                             this.element.querySelector('#builder').classList.add('has-builder-content');
@@ -245,32 +241,14 @@
                             $.setContent(this.element.querySelector('#edit-component-builder'), this.component_json_builder.root);
                         }
 
-                        let openSubmitBuilder = async () => {
+                        let openSubmitBuilder = async (zoneItem) => {
                             this.element.querySelector('#builder').classList.add('has-builder-content');
-                            await this.component_submit_builder.start({
+                            let component_submit_builder = await this.ccm.component(themeDefinition.ccmBuilder.url, themeDefinition.ccmBuilder.config);
+                            await component_submit_builder.start({
                                 root: this.element.querySelector('#edit-component-builder'),
-                                entries: [
-                                    {
-                                        "label": "Columns count",
-                                        "name": "columns",
-                                        "type": "number",
-                                        "info": "The count of columns",
-                                        "min": 1,
-                                        "max": 4
-                                    },
-                                    {
-                                        "label": "Split of the two columns",
-                                        "name": "range",
-                                        "type": "range",
-                                        "min": 1,
-                                        "max": 3,
-                                        "info": "The split"
-                                    }
-                                ],
-                                data: data,
+                                data: zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {},
                                 onchange: e => {
-                                    data = e.instance.getValue();
-                                    updateTheConfig(data);
+                                    updateTheConfig(e.instance.getValue(), 'data');
                                 }
                             });
                         }
@@ -281,14 +259,21 @@
                                 item.classList.add('active');
                                 let action = item.getAttribute('data-builder');
                                 if (action == 'submit_builder') {
-                                    openSubmitBuilder();
+                                    openSubmitBuilder(zoneItem);
                                 } else {
-                                    openJsonBuilder();
+                                    openJsonBuilder(zoneItem);
                                 }
                             });
                         });
 
-                        openSubmitBuilder();
+                        let themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, zoneItem.data.themeDefinitionKey);
+                        if (themeDefinition.ccmBuilder !== undefined && themeDefinition.ccmBuilder.url != null) {
+                            openSubmitBuilder(zoneItem);
+                        } else {
+                            this.element.querySelector('#builder .edit-menu .menu-item[data-builder="submit_builder"]').style.display = 'none';
+                            this.element.querySelector('#builder .edit-menu .menu-item[data-builder="json_builder"]').classList.add('active');
+                            openJsonBuilder(zoneItem);
+                        }
 
                         // Handle close
                         let hideHandler = () => {

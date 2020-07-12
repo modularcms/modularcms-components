@@ -25,7 +25,8 @@
             "routing": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing/versions/ccm.routing-1.0.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/cms/resources/resources.js", "routing" ] ],
             "routing_sensor": [ "ccm.instance", "https://modularcms.github.io/modularcms-components/routing_sensor/versions/ccm.routing_sensor-1.0.0.js" ],
             "userAvatarPlaceholder": "https://modularcms.github.io/modularcms-components/cms/resources/img/no-user-image.svg",
-            "json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_definition_manager/resources/resources.js", "json_builder" ] ]
+            "json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_definition_manager/resources/resources.js", "json_builder" ] ],
+            "json_builder_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/theme_definition_manager/resources/resources.js", "json_builder" ] ]
         },
 
         Instance: function () {
@@ -263,6 +264,8 @@
                     const nameInput = content.querySelector('#theme-definition-edit-name');
                     const ccmUrlInput = content.querySelector('#theme-definition-edit-ccm-component-url');
                     const ccmConfigWrapper = content.querySelector('#theme-definition-edit-ccm-component-config');
+                    const ccmBuilderUrlInput = content.querySelector('#theme-definition-edit-ccm-builder-component-url');
+                    const ccmBuilderConfigWrapper = content.querySelector('#theme-definition-edit-ccm-builder-component-config');
 
                     if (type == 'theme') {
                         nameInput.value = theme.name;
@@ -272,6 +275,10 @@
                         nameInput.value = themeDefinition.name;
                         ccmUrlInput.value = themeDefinition.ccmComponent.url;
                         this.json_builder.data = {json: themeDefinition.ccmComponent.config};
+                        ccmBuilderUrlInput.value = themeDefinition.ccmBuilder !== undefined ? (themeDefinition.ccmBuilder.url == null ? '' : themeDefinition.ccmBuilder.url) : '';
+                        this.json_builder_builder.data = {json: themeDefinition.ccmBuilder !== undefined ? themeDefinition.ccmBuilder.config : {}};
+                        await this.json_builder_builder.start();
+                        $.setContent(ccmBuilderConfigWrapper, this.json_builder_builder.root, {});
                     }
                     await this.json_builder.start();
                     $.setContent(ccmConfigWrapper, this.json_builder.root, {});
@@ -326,6 +333,8 @@
                         const name = nameInput.value;
                         const ccmUrl = ccmUrlInput.value;
                         const ccmConfig = this.json_builder.getValue().json;
+                        const ccmBuilderUrl = ccmBuilderUrlInput.value == '' ? null : ccmBuilderUrlInput.value;
+                        const ccmBuilderConfig = this.json_builder_builder.getValue().json;
 
                         let themeSet = {};
                         let themeDefinitionSet = {};
@@ -334,6 +343,10 @@
                             ccmComponent: {
                                 url: ccmUrl,
                                 config: ccmConfig
+                            },
+                            ccmBuilder: {
+                                url: ccmBuilderUrl,
+                                config: ccmBuilderConfig
                             }
                         };
                         if (type == 'theme') {
@@ -355,7 +368,7 @@
                             }, 1500);
                         };
                         if (form.checkValidity()) {
-                            if (this.json_builder.isValid()) {
+                            if (this.json_builder.isValid() && this.json_builder_builder.isValid()) {
                                 if (type == 'theme') {
                                     // Assign theme values
                                     await this.data_controller.setThemeObject(websiteKey, themeKey, themeSet);
@@ -572,7 +585,10 @@
                                 url: ccmUrl,
                                 config: ccmConfig
                             },
-                            custom: null
+                            ccmBuilder: {
+                                url: ccmUrl,
+                                config: ccmConfig
+                            }
                         });
                         this.routing.navigateTo('/theme-definitions/edit/' + type + '/' + selectedParentThemeKey + '/' + layoutKey);
                     } else {
@@ -629,12 +645,14 @@
                     && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
                     && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
                     && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
-                    && object.custom !== undefined
+                    && object.ccmBuilder !== undefined && typeof object.ccmBuilder == 'object'
+                    && object.ccmBuilder.url !== undefined && typeof object.ccmBuilder.url == 'string'
+                    && object.ccmBuilder.config !== undefined && typeof object.ccmBuilder.config == 'object'
                 ) {
                     const re = {
                         name: object.name,
                         ccmComponent: object.ccmComponent,
-                        custom: object.custom
+                        ccmBuilder: object.ccmBuilder
                     };
                     if (type != 'theme') {
                         re.type = object.type;
@@ -803,6 +821,10 @@
                             ccmComponent: {
                                 url: ccmUrl,
                                 config: ccmConfig
+                            },
+                            ccmBuilder: {
+                                url: null,
+                                config: {}
                             },
                             custom: null
                         });

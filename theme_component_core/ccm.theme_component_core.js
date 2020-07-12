@@ -411,22 +411,26 @@
                         const parentZoneName = this.parent.parentZoneName;
                         element.addEventListener('dblclick', () => {
                             element.classList.add('content-component-edit-focus');
-                            let updateConfig = async (config) => {
+                            let updateConfig = async (config, scope) => {
+                                let configSet = config;
+                                if (scope == 'data') {
+                                    configSet = Object.assign($.clone(config), {data: config});
+                                }
                                 let newElement = await this.updateThemeDefinitionElementConfig(
                                     element.parentNode,
                                     element,
                                     contentZoneItem,
                                     contentZoneName,
                                     configParent,
-                                    config
+                                    configSet
                                 );
                                 return newElement.ccmInstance;
                             };
                             const event = new CustomEvent("pageRendererEditBlockConfig", {
                                 detail: {
                                     zoneItem: this.parent.zoneItem,
-                                    updateConfig: async (config) => {
-                                        configParent = await updateConfig(config);
+                                    updateConfig: async (config, scope) => {
+                                        configParent = await updateConfig(config, scope);
                                     }
                                 }
                             });
