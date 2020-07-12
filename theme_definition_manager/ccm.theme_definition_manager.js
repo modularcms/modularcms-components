@@ -432,10 +432,10 @@
                         if (showThemeDefinitions) {
                             let themeDefinitions = await this.data_controller.getAllThemeDefinitionsOfTheme(websiteKey, theme.themeKey);
                             themeDefinitions.sort((a, b) => {
-                                if (themeDefinitionsTypeNames[a.type] < themeDefinitionsTypeNames[b.type] && a.name < b.name) {
+                                if (a.name < b.name) {
                                     return -1;
                                 }
-                                if (themeDefinitionsTypeNames[a.type] > themeDefinitionsTypeNames[b.type] && a.name > b.name) {
+                                if (a.name > b.name) {
                                     return 1;
                                 }
                                 return 0;

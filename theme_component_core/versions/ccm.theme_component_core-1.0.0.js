@@ -374,7 +374,7 @@
                 const themeDefinition = await this.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
                 if (themeDefinition) {
                     let config = {};
-                    Object.assign(config, $.clone(contentZoneItem.data.config), {
+                    Object.assign(config, {data: {config: $.clone(contentZoneItem.data.config)}}, {
                         parent: this.parent,
                         zoneItem: contentZoneItem,
                         contentZones: contentZoneItem.contentZones,
@@ -430,7 +430,7 @@
                             };
                             const event = new CustomEvent("pageRendererEditBlockConfig", {
                                 detail: {
-                                    zoneItem: this.parent.zoneItem,
+                                    zoneItem: contentZoneItem,
                                     updateConfig: async (config, scope) => {
                                         configParent = await updateConfig(config, scope);
                                     }
