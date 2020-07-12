@@ -414,7 +414,7 @@
                             element.classList.add('content-component-edit-focus');
                             let updateConfig = async (config, scope) => {
                                 let configSet = {};
-                                Object.assign(configParent.zoneItem.data.config === undefined ? {} : $.clone(configParent.zoneItem.data.config), {data: config});
+                                Object.assign(contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), {data: config});
                                 let newElement = await this.updateThemeDefinitionElementConfig(
                                     configElement.parentNode,
                                     configElement,
