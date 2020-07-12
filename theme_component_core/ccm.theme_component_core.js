@@ -393,7 +393,7 @@
                         // Update existing component
                         Object.assign(_contentZoneInstances[contentZoneName][i], config, {root: element});
                         instance = _contentZoneInstances[contentZoneName][i];
-                        $.append(element, _contentZoneInstances[contentZoneName][i]);
+                        $.append(element, _contentZoneInstances[contentZoneName][i].root);
                         instance.updateChildren();
                     }
                     element.contentZoneItem = contentZoneItem;
