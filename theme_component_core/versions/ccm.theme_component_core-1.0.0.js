@@ -1163,7 +1163,6 @@
             this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, component, config) => {
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
-                console.log(parentNode, element, zoneItem, contentZoneName, component, config);
                 let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
