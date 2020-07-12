@@ -231,16 +231,19 @@
                         }
 
                         let openSubmitBuilder = async (zoneItem, updateConfig) => {
+                            console.log(zoneItem);
                             this.element.querySelector('#builder').classList.add('has-builder-content');
                             let component_submit_builder = await this.ccm.component(themeDefinition.ccmBuilder.url, themeDefinition.ccmBuilder.config);
-                            await component_submit_builder.start({
+                            console.log(component_submit_builder, zoneItem.data.config !== undefined ? (zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {}) : {});
+                            console.log(await component_submit_builder.start({
                                 root: this.element.querySelector('#edit-component-builder'),
                                 data: zoneItem.data.config !== undefined ? (zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {}) : {},
                                 onchange: e => {
+                                    console.log(zoneItem);
                                     updateConfig(e.instance.getValue(), 'data');
                                     onDataChange();
                                 }
-                            });
+                            }));
                         }
 
                         this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach((item) => {

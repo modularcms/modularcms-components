@@ -572,6 +572,7 @@ div.checkbox-wrapper label {
     margin-top: 10px;
     border: 1px solid #c4c4c4;
     position: relative;
+    overflow: auto;
 }
 
 .edit-head-title input[type="text"] {

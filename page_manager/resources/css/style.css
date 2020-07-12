@@ -123,9 +123,3 @@
     width: 100%;
     position: relative;
 }
-
-#edit-component-builder, #builder > div {
-    height: 100%;
-    position: relative;
-
-}
