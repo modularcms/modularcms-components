@@ -269,17 +269,18 @@
                         nameInput.value = theme.name;
                         ccmUrlInput.value = theme.ccmComponent.url;
                         this.json_builder.data = {json: theme.ccmComponent.config};
+                        this.json_builder_builder.data = {json: theme.ccmBuilder !== undefined ? theme.ccmBuilder.config : {}};
                     } else {
                         nameInput.value = themeDefinition.name;
                         ccmUrlInput.value = themeDefinition.ccmComponent.url;
                         this.json_builder.data = {json: themeDefinition.ccmComponent.config};
                         ccmBuilderUrlInput.value = themeDefinition.ccmBuilder !== undefined ? (themeDefinition.ccmBuilder.url == null ? '' : themeDefinition.ccmBuilder.url) : '';
                         this.json_builder_builder.data = {json: themeDefinition.ccmBuilder !== undefined ? themeDefinition.ccmBuilder.config : {}};
-                        await this.json_builder_builder.start();
-                        $.setContent(ccmBuilderConfigWrapper, this.json_builder_builder.root, {});
                     }
                     await this.json_builder.start();
                     $.setContent(ccmConfigWrapper, this.json_builder.root, {});
+                    await this.json_builder_builder.start();
+                    $.setContent(ccmBuilderConfigWrapper, this.json_builder_builder.root, {});
 
 
                     $.setContent(this.element, content);
