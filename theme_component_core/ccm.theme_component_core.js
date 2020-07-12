@@ -411,7 +411,7 @@
                             element.focus();
                         });
 
-                        let configParent = this.parent;
+                        let configElement = element;
                         element.addEventListener('dblclick', () => {
                             element.classList.add('content-component-edit-focus');
                             let updateConfig = async (config, scope) => {
@@ -419,21 +419,21 @@
                                 if (scope == 'data') {
                                     configSet = Object.assign(contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), {data: config});
                                 }
-                                let newElement = await configParent.core.updateThemeDefinitionElementConfig(
-                                    element.parentNode,
-                                    element,
+                                let newElement = await this.updateThemeDefinitionElementConfig(
+                                    configElement.parentNode,
+                                    configElement,
                                     contentZoneItem,
                                     contentZoneName,
-                                    configParent,
+                                    this.parent,
                                     configSet
                                 );
-                                return newElement.ccmInstance;
+                                return newElement;
                             };
                             const event = new CustomEvent("pageRendererEditBlockConfig", {
                                 detail: {
                                     zoneItem: contentZoneItem,
                                     updateConfig: async (config, scope) => {
-                                        await updateConfig(config, scope);
+                                        configElement = await updateConfig(config, scope);
                                     }
                                 }
                             });
