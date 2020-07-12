@@ -1318,8 +1318,8 @@
                     if (page.parentKey) {
                         const publishedParentPage = await this.getPage(websiteKey, page.parentKey);
                         if (!publishedParentPage) {
-                            reject('THe page can only be published if the parent page was published');
-                            return
+                            reject('The page can only be published if the parent page was published');
+                            return;
                         }
                     }
 

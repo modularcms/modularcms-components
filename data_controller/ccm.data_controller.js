@@ -1316,8 +1316,8 @@
                     if (page.parentKey) {
                         const publishedParentPage = await this.getPage(websiteKey, page.parentKey);
                         if (!publishedParentPage) {
-                            reject('THe page can only be published if the parent page was published');
-                            return
+                            reject('The page can only be published if the parent page was published');
+                            return;
                         }
                     }
 
@@ -1414,7 +1414,6 @@
                     page.pageKey !== undefined && delete page['pageKey'];
                 }
                 const pageHash = page == null || this.hash.md5(JSON.stringify(page));
-                console.log(page, pageHash);
 
                 const publishedPage = await this.getPage(websiteKey, pageKey + '_live');
                 if (publishedPage != null) {
@@ -1426,7 +1425,6 @@
                     }
                 }
                 const publishedPageHash = publishedPage == null || this.hash.md5(JSON.stringify(publishedPage));
-                console.log(publishedPage, publishedPageHash);
 
                 return pageHash == publishedPageHash;
             };
