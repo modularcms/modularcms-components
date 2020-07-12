@@ -1,0 +1,85 @@
+/**
+ * @overview default layout of ccm component for submitting data
+ * @author André Kless <andre.kless@web.de.de> 2020 Edited by Felix Bröhl<broehl@everoo.io> 2020
+ * @license The MIT License (MIT)
+ */
+.main {
+    padding-top: 10px;
+    background-color: white;
+}
+
+legend {
+    margin: 20px 0;
+    display: block;
+    width: 100%;
+    padding: 0;
+    font-size: 21px;
+    line-height: inherit;
+    color: #333;
+    border: 0;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+label.item-label {
+    font-weight: bold;
+}
+
+.info > .alert-info {
+    display: none;
+}
+
+.info > input[type=checkbox] {
+    position: absolute;
+    display: none;
+}
+
+.info > label {
+    cursor: pointer;
+}
+
+.info > input[type=checkbox]:checked ~ .alert-info {
+    display: block;
+}
+
+.info-icon {
+    color: #428bca;
+    padding-left: 0.3em;
+}
+
+.alert {
+    margin-bottom: 0 !important;
+    font-weight: normal;
+}
+
+.callout, .checkbox, .radio {
+    margin-top: 0 !important;
+}
+
+/*
+.unchanged {
+  background-color: rgba( 0, 255, 0, 0.1 );
+}
+*/
+
+.changed {
+    background-color: rgba( 255, 255, 0, 0.1 );
+}
+
+.material-icons {
+    vertical-align: middle;
+}
+
+.callout {
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #eee;
+    border-left-width: 5px;
+    border-radius: 3px;
+}
+.callout-info {
+    border-left-color: #17a2b8;
+}
+
+input[type=checkbox], input[type=radio] {
+    margin: .5rem .5rem;
+}
