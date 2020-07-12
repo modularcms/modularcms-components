@@ -411,14 +411,14 @@
 
                         let configParent = this.parent;
                         const parentZoneName = this.parent.parentZoneName;
-                        configParent.root.parentNode.classList.add('content-component-edit-focus');
+                        element.classList.add('content-component-edit-focus');
                         element.addEventListener('dblclick', () => {
                             let updateConfig = async (config) => {
-                                let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
-                                    configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
-                                    configParent.root.parentNode,
-                                    configParent.zoneItem,
-                                    parentZoneName,
+                                let newElement = await this.updateThemeDefinitionElementConfig(
+                                    element.parentNode,
+                                    element,
+                                    contentZoneItem,
+                                    contentZoneName,
                                     configParent,
                                     config
                                 );
