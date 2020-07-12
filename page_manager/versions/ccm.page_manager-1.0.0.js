@@ -29,7 +29,6 @@
             "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
-            "component_manager": ["ccm.component", "https://modularcms.github.io/modularcms-components/component_manager/versions/ccm.component_manager-4.0.0.js", ["ccm.get","https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js","component_manager"]],
         },
 
         Instance: function () {
@@ -223,7 +222,7 @@
                                 // handle json change
                                 let value = event.instance.getValue();
                                 if (value.valid) {
-                                    updateConfig(value.json, 'full');
+                                    updateConfig(value.json);
                                     onDataChange();
                                 }
                             }
@@ -233,16 +232,15 @@
                         }
 
                         let openSubmitBuilder = async (zoneItem, updateConfig) => {
-                            console.log(zoneItem);
                             this.element.querySelector('#builder').classList.add('has-builder-content');
                             let component_submit_builder = await this.ccm.component(themeDefinition.ccmBuilder.url, themeDefinition.ccmBuilder.config);
-                            console.log(component_submit_builder, zoneItem.data.config !== undefined ? (zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {}) : {});
+                            console.log(component_submit_builder, zoneItem.data.config !== undefined ? zoneItem.data.config : {});
                             console.log(await component_submit_builder.start({
                                 root: this.element.querySelector('#edit-component-builder'),
-                                data: zoneItem.data.config !== undefined ? (zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {}) : {},
+                                data: zoneItem.data.config !== undefined ? zoneItem.data.config : {},
                                 onchange: e => {
-                                    console.log(zoneItem);
-                                    updateConfig(e.instance.getValue(), 'data');
+                                    console.log(zoneItem, e);
+                                    updateConfig(e.getValue !== undefined ? e.getValue() : (e.instance !== undefined ? e.instance.getValue() : console.error('Could not update')));
                                     onDataChange();
                                 }
                             }));
@@ -268,6 +266,7 @@
                             this.element.querySelector('#builder .edit-menu .menu-item[data-builder="submit_builder"]').style.display = 'none';
                             this.element.querySelector('#builder .edit-menu .menu-item[data-builder="json_builder"]').classList.add('active');
                             await openJsonBuilder(zoneItem, updateConfig);
+                            // TODO Read base config
                         }
 
                         // Handle close
@@ -423,13 +422,6 @@
                     this.routing.navigateTo('/pages');
                 }
             };
-
-            this.openDMSModal = async () => {
-                $.append(this.element, $.html(this.html.dmsComponentModal, {}));
-                await this.component_manager.start();
-                console.log(this.component_manager);
-                $.setContent(this.element.querySelector('#component-manager-wrapper'), this.component_manager.root);
-            }
 
             this.openAddComponentModal = async (page, addFunction, onDataChange, type) => {
                 const modal = $.html(this.html.addComponentModal, {typeName: type});
@@ -619,7 +611,7 @@
 
                     // Closure for adding a page item
                     const addPageListItem = async (page, element, depth = 0, parentUrl = '/') => {
-                        let item = await getPageListItemElement(page, depth);
+                        let item = await getPageListItemElement(page, depth, parentUrl);
                         $.append(element, item);
                         return item;
                     };
