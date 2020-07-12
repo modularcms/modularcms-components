@@ -410,7 +410,6 @@
                         });
 
                         let configParent = this.parent;
-                        const parentZoneName = this.parent.parentZoneName;
                         element.addEventListener('dblclick', () => {
                             element.classList.add('content-component-edit-focus');
                             let updateConfig = async (config, scope) => {
@@ -418,7 +417,7 @@
                                 if (scope == 'data') {
                                     configSet = Object.assign($.clone(contentZoneItem.data.config), {data: config});
                                 }
-                                let newElement = await this.updateThemeDefinitionElementConfig(
+                                let newElement = await configParent.core.updateThemeDefinitionElementConfig(
                                     element.parentNode,
                                     element,
                                     contentZoneItem,
