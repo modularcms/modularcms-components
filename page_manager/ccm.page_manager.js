@@ -27,6 +27,7 @@
             "layout_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "theme_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
             "component_json_builder": [ "ccm.instance", "https://ccmjs.github.io/akless-components/json_builder/versions/ccm.json_builder-2.1.0.js", [ "ccm.get", "https://modularcms.github.io/modularcms-components/page_manager/resources/resources.js", "json_builder" ] ],
+            "js": [ "ccm.load", {"context": "head", "url": "https://widget.cloudinary.com/v2.0/global/all.js"} ]
         },
 
         Instance: function () {
@@ -238,7 +239,7 @@
                                 data: zoneItem.data.config !== undefined ? zoneItem.data.config : {},
                                 onchange: e => {
                                     console.log(zoneItem, e);
-                                    updateConfig(e.getValue !== undefined ? e.getValue() : (e.instance !== undefined ? e.instance.getValue() : console.error('Could not update')));
+                                    updateConfig(e.instance !== undefined ? e.instance.getValue() : (e.getValue !== undefined ? e.getValue() : console.error('Could not update')));
                                     onDataChange();
                                 }
                             }));

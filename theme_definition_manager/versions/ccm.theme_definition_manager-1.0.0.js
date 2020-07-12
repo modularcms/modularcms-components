@@ -249,6 +249,7 @@
             this.renderEdit = async (themeKey, type = 'theme', themeDefinitionKey = null) => {
                 const loader = $.html(this.html.loader, {});
                 $.append(this.element.querySelector('.edit-container'), loader);
+
                 const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                 let theme = null;
                 let themeDefinition = null;
@@ -261,30 +262,61 @@
                 if (theme != null || themeDefinition != null) {
                     let content = $.html(this.html.editThemeDefinition, {});
 
+                    //handle content switcher
+                    let editMenuItems = content.querySelectorAll('.edit-menu .menu-item');
+                    editMenuItems.forEach(item => item.addEventListener('click', () => {
+                        editMenuItems.forEach(item => item.classList.remove('active'));
+                        item.classList.add('active');
+                        this.element.querySelectorAll('.edit-content').forEach(item => item.classList.remove('active'));
+                        this.element.querySelector('.edit-content[data-content-name="' + item.getAttribute('data-content-name') + '"]').classList.add('active');
+                    }));
+
+                    const builderWrapper = content.querySelector('#theme-definition-edit-builder');
                     const nameInput = content.querySelector('#theme-definition-edit-name');
                     const ccmUrlInput = content.querySelector('#theme-definition-edit-ccm-component-url');
                     const ccmConfigWrapper = content.querySelector('#theme-definition-edit-ccm-component-config');
                     const ccmBuilderUrlInput = content.querySelector('#theme-definition-edit-ccm-builder-component-url');
                     const ccmBuilderConfigWrapper = content.querySelector('#theme-definition-edit-ccm-builder-component-config');
 
-                    if (type == 'theme') {
-                        nameInput.value = theme.name;
-                        ccmUrlInput.value = theme.ccmComponent.url;
-                        this.json_builder.data = {json: theme.ccmComponent.config};
-                        ccmBuilderUrlInput.value = theme.ccmBuilder !== undefined ? (theme.ccmBuilder.url == null ? '' : theme.ccmBuilder.url) : '';
-                        this.json_builder_builder.data = {json: theme.ccmBuilder !== undefined ? theme.ccmBuilder.config : {}};
-                    } else {
-                        nameInput.value = themeDefinition.name;
-                        ccmUrlInput.value = themeDefinition.ccmComponent.url;
-                        this.json_builder.data = {json: themeDefinition.ccmComponent.config};
-                        ccmBuilderUrlInput.value = themeDefinition.ccmBuilder !== undefined ? (themeDefinition.ccmBuilder.url == null ? '' : themeDefinition.ccmBuilder.url) : '';
-                        this.json_builder_builder.data = {json: themeDefinition.ccmBuilder !== undefined ? themeDefinition.ccmBuilder.config : {}};
+                    let ccmBuilder = (type == 'theme') ? theme.ccmBuilder: themeDefinition.ccmBuilder;
+                    let name = (type == 'theme') ? theme.name : themeDefinition.name;
+                    let ccmComponent = (type == 'theme') ? theme.ccmComponent : themeDefinition.ccmComponent;
+
+                    nameInput.value = name;
+                    ccmUrlInput.value = ccmComponent.url;
+                    this.json_builder.data = {json: ccmComponent.config};
+                    ccmBuilderUrlInput.value = ccmBuilder !== undefined ? (ccmBuilder.url == null ? '' : ccmBuilder.url) : '';
+                    this.json_builder_builder.data = {json: ccmBuilder !== undefined ? ccmBuilder.config : {}};
+
+                    let startBuilder = (data) => {
+                        if (ccmBuilder.url !== undefined && ccmBuilder.url != null && ccmBuilder.url != '') {
+                            content.querySelector('.edit-menu .menu-item[data-content-name="builder"]').style.display = 'block';
+                            this.ccm.start(ccmBuilder.url, Object.assign({}, ccmBuilder.config, {
+                                root: builderWrapper,
+                                data: data,
+                                onchange: async (e) => {
+                                    let value = e.instance !== undefined ? e.instance.getValue() : (e.getValue !== undefined ? e.getValue() : console.error('Could not update'));
+                                    Object.assign(this.json_builder.data.json, value);
+                                    await this.json_builder.start();
+                                }
+                            }))
+                        } else {
+                            content.querySelector('.edit-menu .menu-item[data-content-name="builder"]').style.display = 'none';
+                            content.querySelector('.edit-menu .menu-item[data-content-name="component"]').click();
+                        }
+                    }
+
+                    this.json_builder.onchange = (e) => {
+                        if (e.instance.isValid()) {
+                            startBuilder(e.instance.getValue().json)
+                        }
                     }
                     await this.json_builder.start();
                     $.setContent(ccmConfigWrapper, this.json_builder.root, {});
                     await this.json_builder_builder.start();
                     $.setContent(ccmBuilderConfigWrapper, this.json_builder_builder.root, {});
 
+                    startBuilder(ccmComponent.config);
 
                     $.setContent(this.element, content);
 

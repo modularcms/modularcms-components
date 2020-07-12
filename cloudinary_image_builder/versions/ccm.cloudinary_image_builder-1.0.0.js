@@ -20,7 +20,8 @@
             "data": {},
             "directly": true,
             "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-4.1.1.mjs" ],
-            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/templates.html" ]
+            "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/templates.html" ],
+            "js": [ "ccm.load", {"context": "head", "url": "https://widget.cloudinary.com/v2.0/global/all.js"} ]
         },
 
         Instance: function () {
