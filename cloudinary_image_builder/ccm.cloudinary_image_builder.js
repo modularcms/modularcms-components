@@ -16,7 +16,7 @@
     config: {
       "css": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/default.css" ],
       "data": "https://res.cloudinary.com/dyhjqgkca/image/upload/v1594499974/cms/a8xtbzcxelldugfz82i5.svg",
-      //  "directly": true,
+      "directly": true,
       "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-4.1.1.mjs" ],
       "html": [ "ccm.load", "https://modularcms.github.io/modularcms-components/cloudinary_image_builder/resources/templates.html" ]
     },
@@ -36,7 +36,7 @@
       };
 
       this.start = async () => {
-        $.setContent(this.element, $.html(this.html.main, {}));
+        $.setContent(this.element, $.html(this.html, {}));
 
         // Create cloudinary widget
         const cloudinaryWidget = cloudinary.createUploadWidget(
@@ -55,6 +55,7 @@
               if (!error && result && result.event === "success") {
                 const imgData = result.info;
                 this.data = imgData.secure_url;
+                this.logger && this.logger.log( 'change', this.getValue() );
                 this.onchange && await this.onchange( { instance: this } );
               }
             }
@@ -66,7 +67,7 @@
 
       this.isValid = () => true;
 
-      this.getValue = () => {json: this.data};
+      this.getValue = () => this.data;
 
     }
 
