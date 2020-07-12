@@ -186,11 +186,9 @@
                 const configButton = editThemeDefinition.querySelector('img[data-action="config"');
                 let configParent = this.parent;
                 configButton.addEventListener('click', () => {
-                    let updateConfig = async (config, scope) => {
-                        let configSet = config;
-                        if (scope == 'data') {
-                            configSet = Object.assign(configParent.zoneItem.data.config === undefined ? {} : $.clone(configParent.zoneItem.data.config), {data: config});
-                        }
+                    let updateConfig = async (config) => {
+                        let configSet = {};
+                        Object.assign(configParent.zoneItem.data.config === undefined ? {} : $.clone(configParent.zoneItem.data.config), {data: config});
                         let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
                             configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
                             configParent.root.parentNode,
@@ -204,8 +202,8 @@
                     const event = new CustomEvent("pageRendererEditBlockConfig", {
                         detail: {
                             zoneItem: this.parent.zoneItem,
-                            updateConfig: async (config, scope) => {
-                                configParent = await updateConfig(config, scope);
+                            updateConfig: async (config) => {
+                                configParent = await updateConfig(config);
                             }
                         }
                     });
@@ -417,10 +415,8 @@
                         element.addEventListener('dblclick', () => {
                             element.classList.add('content-component-edit-focus');
                             let updateConfig = async (config, scope) => {
-                                let configSet = config;
-                                if (scope == 'data') {
-                                    configSet = Object.assign(contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), {data: config});
-                                }
+                                let configSet = {};
+                                Object.assign(configParent.zoneItem.data.config === undefined ? {} : $.clone(configParent.zoneItem.data.config), {data: config});
                                 let newElement = await this.updateThemeDefinitionElementConfig(
                                     configElement.parentNode,
                                     configElement,
@@ -942,6 +938,9 @@
                         detail: {
                             addThemeDefinition: async (themeDefinitionKey) => {
                                 replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
+                            },
+                            addCcmComponent: async (ccmComponentUrl, ccmComponentConfig) => {
+                                replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
                             }
                         }
                     });
@@ -1164,7 +1163,7 @@
                 zoneItem.data.config = config;
                 zoneItem.contentZones = component.core.getContentZones();
                 let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
-                this.addContentZoneItemBefore(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
                         let newElementContentZoneName = item.getAttribute('data-content-zone-name')
