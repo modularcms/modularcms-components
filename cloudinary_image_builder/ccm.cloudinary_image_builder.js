@@ -23,7 +23,7 @@
 
     Instance: function () {
 
-      let $, dataset, tmp;
+      let $;
 
       this.ready = async () => {
 
