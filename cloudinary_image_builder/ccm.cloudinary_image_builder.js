@@ -60,9 +60,9 @@
               }
             }
         );
-        this.element.querySelector('open').addEventListener(() => {
+        this.element.querySelector('#open').addEventListener('click', () => {
           cloudinaryWidget.open();
-        })
+        });
       };
 
       this.isValid = () => true;
