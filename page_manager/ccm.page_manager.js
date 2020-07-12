@@ -207,31 +207,22 @@
                         window.removeEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler)
                     }
                     window.pageManagerEditBlockConfigEventHandler = async (e) => {
-                        const zoneItem = e.detail.zoneItem;
+                        let zoneItem = e.detail.zoneItem;
                         let updateConfig = e.detail.updateConfig;
                         const builder = $.html(this.html.editComponentBuilder, {typeName: 'block'});
 
                         $.setContent(this.element.querySelector('#builder'), builder);
                         builder.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
 
-                        //Handle config change
-                        let currentConfigHash = this.hash.md5(JSON.stringify(zoneItem.data.config));
-                        let updateTheConfig = (value) => {
-                            let configHash = this.hash.md5(JSON.stringify(value));
-                            if (configHash != currentConfigHash) {
-                                currentConfigHash = configHash;
-                                updateConfig(value);
-                                onDataChange();
-                            }
-                        }
 
-                        let openJsonBuilder = async (zoneItem) => {
+                        let openJsonBuilder = async (zoneItem, updateConfig) => {
                             this.component_json_builder.data.json = zoneItem.data.config;
                             this.component_json_builder.onchange = (event) => {
                                 // handle json change
                                 let value = event.instance.getValue();
                                 if (value.valid) {
-                                    updateTheConfig(value.json, 'full');
+                                    updateConfig(value.json, 'full');
+                                    onDataChange();
                                 }
                             }
                             this.element.querySelector('#builder').classList.add('has-builder-content');
@@ -239,14 +230,15 @@
                             $.setContent(this.element.querySelector('#edit-component-builder'), this.component_json_builder.root);
                         }
 
-                        let openSubmitBuilder = async (zoneItem) => {
+                        let openSubmitBuilder = async (zoneItem, updateConfig) => {
                             this.element.querySelector('#builder').classList.add('has-builder-content');
                             let component_submit_builder = await this.ccm.component(themeDefinition.ccmBuilder.url, themeDefinition.ccmBuilder.config);
                             await component_submit_builder.start({
                                 root: this.element.querySelector('#edit-component-builder'),
                                 data: zoneItem.data.config !== undefined ? (zoneItem.data.config.data !== undefined ? zoneItem.data.config.data : {}) : {},
                                 onchange: e => {
-                                    updateTheConfig(e.instance.getValue(), 'data');
+                                    updateConfig(e.instance.getValue(), 'data');
+                                    onDataChange();
                                 }
                             });
                         }
@@ -257,20 +249,20 @@
                                 item.classList.add('active');
                                 let action = item.getAttribute('data-builder');
                                 if (action == 'submit_builder') {
-                                    openSubmitBuilder(zoneItem);
+                                    openSubmitBuilder(zoneItem, updateConfig);
                                 } else {
-                                    openJsonBuilder(zoneItem);
+                                    openJsonBuilder(zoneItem, updateConfig);
                                 }
                             });
                         });
 
                         let themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, zoneItem.data.themeDefinitionKey);
                         if (themeDefinition.ccmBuilder !== undefined && themeDefinition.ccmBuilder.url != null) {
-                            openSubmitBuilder(zoneItem);
+                            await openSubmitBuilder(zoneItem, updateConfig);
                         } else {
                             this.element.querySelector('#builder .edit-menu .menu-item[data-builder="submit_builder"]').style.display = 'none';
                             this.element.querySelector('#builder .edit-menu .menu-item[data-builder="json_builder"]').classList.add('active');
-                            openJsonBuilder(zoneItem);
+                            await openJsonBuilder(zoneItem, updateConfig);
                         }
 
                         // Handle close

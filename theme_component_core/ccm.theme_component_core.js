@@ -187,7 +187,7 @@
                     let updateConfig = async (config, scope) => {
                         let configSet = config;
                         if (scope == 'data') {
-                            configSet = Object.assign($.clone(contentZoneItem.data.config), {data: config});
+                            configSet = Object.assign($.clone(configParent.zoneItem.data.config), {data: config});
                         }
                         let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
                             configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
