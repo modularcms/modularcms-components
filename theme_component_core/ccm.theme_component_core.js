@@ -391,7 +391,7 @@
                         instance = await component.start(Object.assign(config, {root: element}));
                     } else {
                         // Update existing component
-                        Object.assign(_contentZoneInstances[contentZoneName][i], config, {root: element});
+                        Object.assign(_contentZoneInstances[contentZoneName][i], config);
                         instance = _contentZoneInstances[contentZoneName][i];
                         $.append(element, _contentZoneInstances[contentZoneName][i].root);
                         instance.updateChildren();
