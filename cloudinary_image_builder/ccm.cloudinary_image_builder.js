@@ -66,7 +66,7 @@
 
       this.isValid = () => true;
 
-      this.getValue = () => this.data;
+      this.getValue = () => {json: this.data};
 
     }
 
