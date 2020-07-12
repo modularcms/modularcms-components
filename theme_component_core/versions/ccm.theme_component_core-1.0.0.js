@@ -188,7 +188,7 @@
                 configButton.addEventListener('click', () => {
                     let updateConfig = async (config) => {
                         let configSet = {};
-                        Object.assign(configSet, contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), config);
+                        Object.assign(configSet, configParent.zoneItem.data.config === undefined ? {} : $.clone(configParent.zoneItem.data.config), config);
                         let newElement = await configParent.parent.core.updateThemeDefinitionElementConfig(
                             configParent.parent.element.querySelector('.content-zone[data-content-zone-name="' + parentZoneName + '"]'),
                             configParent.root.parentNode,
