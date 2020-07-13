@@ -598,7 +598,7 @@
                     $.append(this.element.querySelector('#create-modal-step-2'), loader);
                     const addButton = this.element.querySelector('#modal-create-button');
                     addButton.classList.add('button-disabled');
-                    addButton.value = 'Creating layout...';
+                    addButton.value = 'Creating ' + typeNameInsert + '...';
 
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const layoutName = this.element.querySelector('#create-modal-theme-definition-name').value;
@@ -609,7 +609,7 @@
                         $.remove(loader);
                         this.element.querySelector('#create-modal-step-2').classList.remove('loading');
                         addButton.classList.remove('button-disabled');
-                        addButton.value = 'Create layout';
+                        addButton.value = 'Create ' + typeNameInsert;
                     };
                     if (this.json_builder.isValid()) {
                         const layoutKey = await this.data_controller.createThemeDefinition(websiteKey, selectedParentThemeKey, {
@@ -620,8 +620,8 @@
                                 config: ccmConfig
                             },
                             ccmBuilder: {
-                                url: ccmUrl,
-                                config: ccmConfig
+                                url: null,
+                                config: {}
                             }
                         });
                         this.routing.navigateTo('/theme-definitions/edit/' + type + '/' + selectedParentThemeKey + '/' + layoutKey);
