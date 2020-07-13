@@ -173,7 +173,7 @@
                         }
                     }
                 });
-                element.addEventListener('click', () => {
+                this.parent.root.addEventListener('click', () => {
                     element.classList.add('edit-focus');
                 });
                 let editThemeDefinition = $.html(this.html.editThemeDefinition, {});
