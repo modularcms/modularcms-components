@@ -36,7 +36,7 @@
             let _contentZoneElements = {};
 
             /**
-             *
+             * Initializes the content of a parent at first start
              * @param html              The input html
              * @param htmlOptions       The input html Options for ccm
              * @param htmlPlaceholders  The input html placeholder elements
@@ -71,6 +71,10 @@
 
             };
 
+            /**
+             * Updates the content after the content was initialized
+             * @returns {Promise<void>}
+             */
             this.updateContent = async () => {
                 const element = this.parent.element;
                 const zoneItem = this.parent.zoneItem;
@@ -151,6 +155,11 @@
                 _contentZonesBefore = contentZones;
             }
 
+            /**
+             * Adds the focus handling of theme definition blocks
+             * @param {HTMLElement} element         The element that should be given the focus handling
+             * @param {string}      parentZoneName  The content zone name of the element parent
+             */
             this.addEditFocusHandling = (element, parentZoneName) => {
                 // handle focusing
                 this.parent.parent.element.addEventListener('click', (e) => {
@@ -173,7 +182,8 @@
                 // handle add after
                 const addButton = addThemeDefinitionAfter;
                 addButton.addEventListener('click', () => {
-                    this.parent.parent.core.addItem(parentZoneName);
+                    this.parent.parent.core.addItem(parentZoneName, element);
+                    element.classList.remove('edit-focus');
                 });
 
                 // handle remove button
@@ -218,10 +228,10 @@
             }
 
             /**
-             * Checks if an zone component has changed
-             * @param zone
-             * @param zoneComponent
-             * @param index
+             * Checks if an zone component has changed at an index
+             * @param {string}  contentZoneName
+             * @param {{}}      contentZoneItem
+             * @param {number}  index
              * @returns {boolean}
              */
             this.checkIfZoneItemAtIndexIsEqual = (contentZoneName, contentZoneItem, index) => {
@@ -275,7 +285,13 @@
                 }
             };
 
-            // inspiried by https://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
+            /**
+             * Adds the handling for pasting into a contentEditable element
+             * @param {HTMLElement} element         The element which the handling should be given
+             * @param {string}      contentZoneName The content zone name of the element
+             * @param {boolean}     ownsText        Defines if the element owns an inner text
+             * @see inspiried by https://stackoverflow.com/questions/12027137/javascript-trick-for-paste-as-plain-text-in-execcommand
+             */
             this.addContentPasteHandling = (element, contentZoneName, ownsText = true) => {
                 element.addEventListener("paste", (e) => {
                     e.preventDefault();
@@ -309,7 +325,7 @@
 
             /**
              * Return an theme definition and caches the theme definition and all of its theme siblings
-             * @param themeDefinitionKey
+             * @param {string}  themeDefinitionKey  The key for the theme definition
              * @returns {Promise<*>}
              */
             this.getThemeDefinition = async (themeDefinitionKey) => {
@@ -339,7 +355,7 @@
 
             /**
              * Return an theme definition component and caches the theme definition components in the background
-             * @param themeDefinitionKey
+             * @param {string}  themeDefinitionKey  The key for the theme definition
              * @returns {Promise<*>}
              */
             this.getThemeDefinitionComponent = async (themeDefinitionKey) => {
@@ -358,6 +374,13 @@
                 return window.modularcms._themeDefinitionComponents[page.themeKey][themeDefinitionKey];
             }
 
+            /**
+             * Creates an new theme definition element
+             * @param {string}  contentZoneName     The name of the elements content zone
+             * @param {string}  themeDefinitionKey  The key for the theme definition
+             * @param {number}  i                   The index where the element should be located
+             * @returns {Promise<HTMLDivElement>}
+             */
             this.getNewThemeDefinitionElement = async (contentZoneName, themeDefinitionKey, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
@@ -374,6 +397,13 @@
                 }, i)
             };
 
+            /**
+             * Returns an theme definition element
+             * @param {string}  contentZoneName The name of the elements content zone
+             * @param {{}}      contentZoneItem The content zone item, which is containing the abstract elements specs
+             * @param {number}  i               The index where the element should be located
+             * @returns {Promise<null|HTMLDivElement>}
+             */
             this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
@@ -381,6 +411,7 @@
 
                 const themeDefinition = await this.getThemeDefinition(contentZoneItem.data.themeDefinitionKey);
                 if (themeDefinition) {
+                    // Merge configs
                     let config = {};
                     Object.assign(config, $.clone(contentZoneItem.data.config), {
                         parent: this.parent,
@@ -391,6 +422,8 @@
                         edit: edit,
                         parentZoneName: contentZoneName
                     });
+
+                    // Start new or retrieve existing cached theme component instance
                     const component = await this.getThemeDefinitionComponent(contentZoneItem.data.themeDefinitionKey);
                     let instance = null;
                     let element = document.createElement('div');
@@ -404,10 +437,13 @@
                         $.append(element, _contentZoneInstances[contentZoneName][i].root);
                         instance.updateChildren();
                     }
+
+                    // Set element environment attributes
                     element.contentZoneItem = contentZoneItem;
                     element.ccmInstance = instance;
                     element.themeDefinitionType = themeDefinition.type;
 
+                    // Handle editing for a contentComponent
                     if (edit && contentZoneItem.data.themeDefinitionType == 'contentComponent') {
                         element.contentEditable = "true";
                         instance.root.contentEditable = "false";
@@ -419,6 +455,8 @@
                         });
 
                         let configElement = element;
+
+                        // handle double click
                         element.addEventListener('dblclick', () => {
                             element.classList.add('content-component-edit-focus');
                             let updateConfig = async (config, scope) => {
@@ -445,6 +483,7 @@
                             window.dispatchEvent(event);
                         });
 
+                        // handle backspace key input
                         element.addEventListener('keydown', (e) => {
                             if (e.key == 'Backspace') {
                                 const selection = this.parent.element.parentNode.getSelection();
@@ -466,6 +505,8 @@
                                 }
                             }
                         });
+
+                        // handle enter key input
                         element.addEventListener('keypress', (e) => {
                             if (e.key === 'Enter') {
                                 const selection = this.parent.element.parentNode.getSelection();
@@ -500,6 +541,48 @@
                 return null;
             }
 
+            /**
+             * Adds an new header after an existing element
+             * @param {HTMLElement} parentNode          The parent node of the element
+             * @param {HTMLElement} element             The element where the new element should be inserted after
+             * @param {string}      contentZoneName     The name of the elements content zone
+             * @param {string}      themeDefinitionKey  The key for the theme definition to use
+             * @returns {Promise<HTMLDivElement>}
+             */
+            this.addThemeDefinitionAfter = async (parentNode, element, contentZoneName, themeDefinitionKey) => {
+                let newElement = await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element) + 1);
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                if (newElement.themeDefinitionType == 'block') {
+                    newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
+                        newElement.ccmInstance.core.addParagraphAfter(item, null, item.getAttribute('data-content-zone-name'));
+                    });
+                }
+                newElement.focus();
+                return newElement;
+            };
+
+            /**
+             * Adds an new theme definition block after an existing element or at the and
+             * @param {HTMLElement} parentNode          The parent node of the element
+             * @param {HTMLElement} element             The element where the new element should be inserted after
+             * @param {string}      contentZoneName     The name of the elements content zone
+             * @param {string}      themeDefinitionKey  The key for the theme definition to use
+             * @returns {Promise<void>}
+             */
+            this.createBlock = async (parentNode, element = null, contentZoneName, themeDefinitionKey) => {
+                let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
+                let newElement = await this.addThemeDefinitionAfter(parentNode, null, contentZoneName, themeDefinitionKey);
+                newElement.ccmInstance.element.classList.add('edit-focus');
+                parentNode.insertBefore(addBlock, null);
+            }
+
+            /**
+             * @deprecated Should be removed
+             * @param contentZoneName
+             * @param contentZoneItem
+             * @param i
+             * @returns {Promise<*>}
+             */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
@@ -529,6 +612,12 @@
                 return element;
             }
 
+            /**
+             * Returns an header element
+             * @param {string}  contentZoneName The name of the elements content zone
+             * @param {{}}      contentZoneItem The content zone item, which is containing the abstract elements specs
+             * @returns {HTMLElement}
+             */
             this.getHeaderElement = (contentZoneName, contentZoneItem= {
                 'type': 'header',
                 'data': {
@@ -565,6 +654,26 @@
                 return element;
             }
 
+            /**
+             * Adds an new header after an existing element
+             * @param {HTMLElement} parentNode      The parent node of the element
+             * @param {HTMLElement} element         The element where the new element should be inserted after
+             * @param {string}      contentZoneName The name of the elements content zone
+             * @param {number}      level           The header elements level representing the HTML tags h1, h2, h3
+             * @param {string}      content         The html content of the header
+             */
+            this.addHeaderAfter = (parentNode, element, contentZoneName, level = 2, content='') => {
+                let newElement = this.getHeaderElement(contentZoneName, {contentZones:{}, type: 'header', data: {level: level, text: content}});
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
+                newElement.focus();
+            };
+
+            /**
+             * Returns an paragraph element
+             * @param {string}  contentZoneName The name of the elements content zone
+             * @param {{}}      contentZoneItem The content zone item, which is containing the abstract elements specs
+             * @returns {HTMLParagraphElement}
+             */
             this.getParagraphElement = (contentZoneName, contentZoneItem = {
                 'type': 'paragraph',
                 'data': {
@@ -598,12 +707,14 @@
                 return element;
             }
 
-            this.addHeaderAfter = (parentNode, element, contentZoneName, level = 2, content='') => {
-                let newElement = this.getHeaderElement(contentZoneName, {contentZones:{}, type: 'header', data: {level: level, text: content}});
-                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
-                newElement.focus();
-            };
-
+            /**
+             * Adds an new header after an existing element
+             * @param {HTMLElement} parentNode      The parent node of the element
+             * @param {HTMLElement} element         The element where the new element should be inserted after
+             * @param {string}      contentZoneName The name of the elements content zone
+             * @param {string}      content         The html content of the header
+             * @returns {HTMLParagraphElement}
+             */
             this.addParagraphAfter = (parentNode, element, contentZoneName, content='') => {
                 let newElement = this.getParagraphElement(contentZoneName, {contentZones:{}, type: 'paragraph', data: {text: content}});
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
@@ -614,31 +725,297 @@
                 return newElement;
             };
 
+            /**
+             * Adds an new header before an existing element
+             * @param {HTMLElement} parentNode      The parent node of the element
+             * @param {HTMLElement} element         The element where the new element should be inserted before
+             * @param {string}      contentZoneName The name of the elements content zone
+             * @param {string}      content         The html content of the header
+             * @returns {HTMLParagraphElement}
+             */
             this.addParagraphBefore = (parentNode, element, contentZoneName, content='') => {
                 let newElement = this.getParagraphElement(contentZoneName, {contentZones:{}, type: 'paragraph', data: {text: content}});
                 this.addContentZoneItemBefore(parentNode, element, newElement, contentZoneName)
                 newElement.focus();
             };
 
-            this.addThemeDefinitionAfter = async (parentNode, element, contentZoneName, themeDefinitionKey) => {
-                let newElement = await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element) + 1);
+            /**
+             * Returns an list element
+             * @param {string}  contentZoneName The name of the elements content zone
+             * @param {{}}      contentZoneItem The content zone item, which is containing the abstract elements specs
+             * @returns {HTMLElement}
+             */
+            this.getListElement = (contentZoneName, contentZoneItem = {
+                'type': 'list',
+                'data': {
+                    'style': 'unordered',
+                    'items': ['']
+                },
+                contentZones: {}
+            }) => {
+                const edit = this.parent.edit;
+
+                // init list
+                let element = document.createElement(contentZoneItem.data.style == 'ordered'?'ol':'ul');
+
+                if (edit) {
+                    element.contentEditable = "true";
+
+                    // handle enter key input
+                    element.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            const selection = this.parent.element.parentNode.getSelection();
+                            const range = selection.getRangeAt(0);
+                            let target = range.startContainer;
+                            if (target.nodeType == 3) {
+                                target = target.parentNode;
+                            }
+                            if (element.querySelector('li:last-child') == target && target.innerHTML == '') {
+                                e.preventDefault();
+                                $.remove(target);
+                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                if (element.childElementCount == 0) {
+                                    this.removeZoneItem(element, contentZoneName);
+                                }
+                            }
+                        }
+                    });
+
+                    // handle change
+                    element.addEventListener('change', (e) => {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        let target = range.startContainer;
+                        if (target.nodeType == 3) {
+                            target = target.parentNode;
+                        }
+                        target.querySelectorAll('br').forEach(item => $.remove(item));
+                    });
+
+                    // handle backspace key input
+                    element.addEventListener('keyup', (e) => {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        let target = range.startContainer;
+                        if (target.nodeType == 3) {
+                            target = target.parentNode;
+                        }
+                        target.querySelectorAll('br').forEach(item => $.remove(item));
+                        if (e.key === "Backspace" && (target.innerHTML == '' || target.innerHTML == '')) {
+                            if (element.childElementCount == 0) {
+                                if (element.previousSibling && element.previousSibling.previousSibling) {
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                }
+                                this.removeZoneItem(element, contentZoneName);
+                            }
+                        }
+                    });
+                }
+
+                element.setAttribute('data-list-style', contentZoneItem.data.style);
+
+                // create list items
+                for (let item of contentZoneItem.data.items) {
+                    let createElement = (item) => {
+                        let itemElement = document.createElement('li');
+                        itemElement.innerHTML = item;
+                        return itemElement;
+                    }
+                    element.appendChild(createElement(item));
+                }
+
+                element.setAttribute('data-type', contentZoneItem.type);
+                element.contentZoneItem = contentZoneItem;
+
+                if (edit) {
+                    // handle text selection
+                    this.addContentEditingFormat(element, contentZoneName);
+                }
+
+                // define content get method
+                element.getDataContent = () => {
+                    element.querySelectorAll('br').forEach(item => $.remove(item));
+                    let items = [];
+                    element.querySelectorAll('li').forEach(item => items.push(item.innerHTML));
+                    return {
+                        style: element.tagName == 'ol'?'ordered':'unordered',
+                        items: items
+                    };
+                };
+
+                this.addContentPasteHandling(element, contentZoneName);
+
+                return element;
+            }
+
+            /**
+             * Returns an new image element
+             * @param {string}  contentZoneName The name of the elements content zone
+             * @param {string}  imageUrl        The url of the new image
+             * @returns {HTMLImageElement}
+             */
+            this.getNewImageElement = (contentZoneName, imageUrl) => {
+                return this.getImageElement(contentZoneName, {
+                    'type': 'image',
+                    'data': {
+                        'file': {
+                            'url': imageUrl
+                        },
+                        'caption': null
+                    },
+                    contentZones: {}
+                })
+            }
+
+            /**
+             * Returns an image element
+             * @param {string}  contentZoneName The name of the elements content zone
+             * @param {{}}      contentZoneItem The content zone item, which is containing the abstract elements specs
+             * @returns {HTMLImageElement}
+             */
+            this.getImageElement = (contentZoneName, contentZoneItem = {
+                'type': 'image',
+                'data': {
+                    'file': {
+                        'url': null
+                    },
+                    'caption': null
+                },
+                contentZones: {}
+            }) => {
+                const edit = this.parent.edit;
+
+                // init image
+                let element = document.createElement('div');
+                element.classList.add('image-wrapper');
+
+                if (edit) {
+                    element.contentEditable = "true";
+                }
+
+                // handle backspace key input
+                element.addEventListener('keydown', (e) => {
+                    if (e.key == 'Backspace') {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        e.preventDefault();
+                        if (range.collapsed) {
+                            if (range.startOffset == 0) {
+                                if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
+                                    this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
+                                }
+                            } else {
+                                if (element.previousSibling && element.previousSibling.previousSibling) {
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                }
+                                this.removeZoneItem(element, contentZoneName);
+                            }
+                        }
+                    }
+                });
+
+                // handle enter key input
+                element.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        e.preventDefault();
+                        $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
+
+                        if (range.collapsed) {
+                            if (range.startOffset == 0) {
+                                this.addParagraphBefore(element.parentNode, element, contentZoneName);
+                            } else {
+                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                            }
+                        }
+                    }
+                });
+
+                // create image
+                let img = document.createElement('img');
+                let caption = null;
+
+                // create image caption
+                img.src = contentZoneItem.data.file.url;
+                img.loading = 'lazy';
+                if (contentZoneItem.data.caption) {
+                    caption = document.createElement('div');
+                    caption.classList.add('image-caption');
+                    caption.innerHTML = contentZoneItem.data.caption;
+                }
+
+                // handle image click
+                if (edit) {
+                    img.addEventListener('click', () => {
+                        this.placeCaretAtEnd(element);
+                    });
+                }
+
+                // combine
+                element.appendChild(img);
+                if (caption) {
+                    element.appendChild(caption);
+                }
+
+                // define content get method
+                element.getDataContent = () => {
+                    return {
+                        file: {
+                            url: img.src
+                        },
+                        caption: caption?caption.innerHTML:null
+                    };
+                };
+
+                // add content paste handling
+                this.addContentPasteHandling(element, contentZoneName, false);
+
+                element.setAttribute('data-type', contentZoneItem.type);
+                element.contentZoneItem = contentZoneItem;
+
+                return element;
+            }
+
+            /**
+             * Updates a config of an theme definition element
+             * @param {HTMLElement} parentNode      The elements parent node
+             * @param {HTMLElement} element         The element where the config should be updated
+             * @param {{}}          zoneItem        The content zone item of the element
+             * @param {string}      contentZoneName The content zone name of the element
+             * @param {Instance}    instance        The element instance
+             * @param {{}}          config          The new config
+             * @returns {Promise<null|HTMLDivElement>}
+             */
+            this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, instance, config) => {
+                zoneItem.data.config = config;
+                zoneItem.contentZones = instance.core.getContentZones();
+                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
-                        newElement.ccmInstance.core.addParagraphAfter(item, null, item.getAttribute('data-content-zone-name'));
+                        let newElementContentZoneName = item.getAttribute('data-content-zone-name')
+                        if (newElement.ccmInstance.core.getContentZoneElementCount(newElementContentZoneName) === 0) {
+                            newElement.ccmInstance.core.addParagraphAfter(item, null, newElementContentZoneName);
+                        }
                     });
                 }
-                newElement.focus();
+                this.removeZoneItem(element, contentZoneName);
                 return newElement;
-            };
-
-            this.createBlock = async (parentNode, contentZoneName, themeDefinitionKey) => {
-                let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
-                let newElement = await this.addThemeDefinitionAfter(parentNode, null, contentZoneName, themeDefinitionKey);
-                newElement.ccmInstance.element.classList.add('edit-focus');
-                parentNode.insertBefore(addBlock, null);
             }
 
+            /**
+             * Adds an new content zone item after an existing element
+             * @param {HTMLElement} parentNode      The parent node of the element
+             * @param {HTMLElement} element         The element where the new element should be inserted after
+             * @param {HTMLElement} newElement      The new element
+             * @param {string}      contentZoneName The name of the elements content zone
+             * @param {Instance}    instance        The ccm instance of the new content zone item
+             */
             this.addContentZoneItemAfter = (parentNode, element, newElement, contentZoneName, instance = null) => {
                 if (_contentZoneElements[contentZoneName] === undefined) {
                     _contentZoneElements[contentZoneName] = [];
@@ -657,6 +1034,14 @@
                 parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
             }
 
+            /**
+             * Adds an new content zone item before an existing element
+             * @param {HTMLElement} parentNode      The parent node of the element
+             * @param {HTMLElement} element         The element where the new element should be inserted before
+             * @param {HTMLElement} newElement      The new element
+             * @param {string}      contentZoneName The name of the elements content zone
+             * @param {Instance}    instance        The ccm instance of the new content zone item
+             */
             this.addContentZoneItemBefore = (parentNode, element, newElement, contentZoneName, instance = null) => {
                 if (_contentZoneElements[contentZoneName] === undefined) {
                     _contentZoneElements[contentZoneName] = [];
@@ -675,6 +1060,11 @@
                 parentNode.insertBefore(this.getAddContentBlockTypeElement(newElement, contentZoneName), newElement.nextSibling);
             }
 
+            /**
+             * Removes an element from a content zone
+             * @param {HTMLElement} element         The element that should be removed
+             * @param {string}      contentZoneName The name of the elements content zone
+             */
             this.removeZoneItem = (element, contentZoneName) => {
                 let elementIndex = _contentZoneElements[contentZoneName].indexOf(element);
                 if (elementIndex >= 0) {
@@ -687,12 +1077,13 @@
                 }
             }
 
+            /**
+             * Adds the ability to edit content to an element
+             * @param {HTMLElement} element         The element that should be given the ability
+             * @param {string}      contentZoneName The name of the elements content zone
+             */
             this.addContentEditing = (element, contentZoneName) => {
-                if (element.innerHTML == '') {
-                    element.classList.remove('has-content');
-                } else {
-                    element.classList.add('has-content');
-                }
+                // handle enter key input
                 element.addEventListener('keypress', (e) => {
                     const selection = this.parent.element.parentNode.getSelection();
                     const range = selection.getRangeAt(0);
@@ -713,6 +1104,13 @@
                         }
                     }
                 });
+
+                // handle has-content class
+                if (element.innerHTML == '') {
+                    element.classList.remove('has-content');
+                } else {
+                    element.classList.add('has-content');
+                }
                 element.addEventListener('keyup', (e) => {
                     if (element.innerHTML == '') {
                         element.classList.remove('has-content');
@@ -720,6 +1118,8 @@
                         element.classList.add('has-content');
                     }
                 });
+
+                // handle backspace input
                 element.addEventListener('keydown', (e) => {
                     const selection = this.parent.element.parentNode.getSelection();
                     const range = selection.getRangeAt(0);
@@ -744,7 +1144,14 @@
                 this.addContentEditingFormat(element, contentZoneName);
             }
 
-            // copied from https://dev.to/itsarnavb/how-do-you-split-contenteditable-text-preserving-html-formatting-g9d
+            /**
+             * Splits a node for a given selection
+             * @param selection
+             * @param root
+             * @returns {{next: Range, current: Range, previous: Range}}
+             * @author Arnav Bansal 2019
+             * @see copied from https://dev.to/itsarnavb/how-do-you-split-contenteditable-text-preserving-html-formatting-g9d
+             */
             this.splitNode = (selection, root) => {
                 let range = selection.getRangeAt(0);
                 let {firstChild, lastChild} = root;
@@ -763,6 +1170,11 @@
                 };
             }
 
+            /**
+             * Adds the ability to edit the format of contentEditable elements
+             * @param {HTMLElement} element         The element that should be given the ability
+             * @param {string}      contentZoneName The content zone name of the element
+             */
             this.addContentEditingFormat = (element, contentZoneName) => {
                 let mouseUpHandler = () => {
                     element.removeEventListener('mouseup', mouseUpHandler);
@@ -770,6 +1182,7 @@
                     const range = selection.getRangeAt(0);
                     const rect = range.getBoundingClientRect();
 
+                    // calc offsets
                     let getOffsetTop = (element) => {
                         if (element == null){
                             return 0;
@@ -804,6 +1217,7 @@
                             hint.style.left = '0';
                         }
 
+                        //handle buttons
                         ['bold', 'italic', 'underline', 'strikeThrough', 'removeFormat', 'header'].forEach(item => {
                             hint.querySelectorAll('img[data-action="' + item + '"]').forEach(button => {
                                 if (
@@ -830,6 +1244,7 @@
                             $.remove(hint);
                         };
 
+                        // handle the selection of contents
                         let handler = () => {
                             window.removeEventListener('mousedown', handler);
                             let handler2 = () => {
@@ -861,6 +1276,12 @@
                 });
             };
 
+            /**
+             * Adds the content block type element to switch from an empty paragraph to an other content block type
+             * @param {HTMLElement} element         The element
+             * @param {string}      contentZoneName The elements content zone name
+             * @returns {*}
+             */
             this.getAddContentBlockTypeElement = (element, contentZoneName) => {
                 const definer = $.html(this.html.defineBlockType, {});
 
@@ -945,9 +1366,6 @@
                         detail: {
                             addThemeDefinition: async (themeDefinitionKey) => {
                                 replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
-                            },
-                            addCcmComponent: async (ccmComponentUrl, ccmComponentConfig) => {
-                                replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
                             }
                         }
                     });
@@ -957,232 +1375,11 @@
                 return definer;
             }
 
-            this.getListElement = (contentZoneName, contentZoneItem = {
-                'type': 'list',
-                'data': {
-                    'style': 'unordered',
-                    'items': ['']
-                },
-                contentZones: {}
-            }) => {
-                const edit = this.parent.edit;
-
-                // init list
-                let element = document.createElement(contentZoneItem.data.style == 'ordered'?'ol':'ul');
-
-                if (edit) {
-                    element.contentEditable = "true";
-
-                    element.addEventListener('keypress', (e) => {
-                        if (e.key === 'Enter') {
-                            const selection = this.parent.element.parentNode.getSelection();
-                            const range = selection.getRangeAt(0);
-                            let target = range.startContainer;
-                            if (target.nodeType == 3) {
-                                target = target.parentNode;
-                            }
-                            if (element.querySelector('li:last-child') == target && target.innerHTML == '') {
-                                e.preventDefault();
-                                $.remove(target);
-                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                if (element.childElementCount == 0) {
-                                    this.removeZoneItem(element, contentZoneName);
-                                }
-                            }
-                        }
-                    });
-                    element.addEventListener('change', (e) => {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        let target = range.startContainer;
-                        if (target.nodeType == 3) {
-                            target = target.parentNode;
-                        }
-                        target.querySelectorAll('br').forEach(item => $.remove(item));
-                    });
-                    element.addEventListener('keyup', (e) => {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        let target = range.startContainer;
-                        if (target.nodeType == 3) {
-                            target = target.parentNode;
-                        }
-                        target.querySelectorAll('br').forEach(item => $.remove(item));
-                        if (e.key === "Backspace" && (target.innerHTML == '' || target.innerHTML == '')) {
-                            if (element.childElementCount == 0) {
-                                if (element.previousSibling && element.previousSibling.previousSibling) {
-                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
-                                } else {
-                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                }
-                                this.removeZoneItem(element, contentZoneName);
-                            }
-                        }
-                    });
-                }
-
-                element.setAttribute('data-list-style', contentZoneItem.data.style);
-                for (let item of contentZoneItem.data.items) {
-                    let createElement = (item) => {
-                        let itemElement = document.createElement('li');
-                        itemElement.innerHTML = item;
-                        return itemElement;
-                    }
-                    element.appendChild(createElement(item));
-                }
-
-                element.setAttribute('data-type', contentZoneItem.type);
-                element.contentZoneItem = contentZoneItem;
-
-                if (edit) {
-                    // handle text selection
-                    this.addContentEditingFormat(element, contentZoneName);
-                }
-
-                // define content get method
-                element.getDataContent = () => {
-                    element.querySelectorAll('br').forEach(item => $.remove(item));
-                    let items = [];
-                    element.querySelectorAll('li').forEach(item => items.push(item.innerHTML));
-                    return {
-                        style: element.tagName == 'ol'?'ordered':'unordered',
-                        items: items
-                    };
-                };
-
-                this.addContentPasteHandling(element, contentZoneName);
-
-                return element;
-            }
-
-            this.getNewImageElement = (contentZoneName, imageUrl) => {
-                return this.getImageElement(contentZoneName, {
-                    'type': 'image',
-                    'data': {
-                        'file': {
-                            'url': imageUrl
-                        },
-                        'caption': null
-                    },
-                    contentZones: {}
-                })
-            }
-
-            this.getImageElement = (contentZoneName, contentZoneItem = {
-                'type': 'image',
-                'data': {
-                    'file': {
-                        'url': null
-                    },
-                    'caption': null
-                },
-                contentZones: {}
-            }) => {
-                const edit = this.parent.edit;
-
-                // init image
-                let element = document.createElement('div');
-                element.classList.add('image-wrapper');
-
-                if (edit) {
-                    element.contentEditable = "true";
-                }
-
-                element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace') {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        e.preventDefault();
-                        if (range.collapsed) {
-                            if (range.startOffset == 0) {
-                                if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
-                                    this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
-                                }
-                            } else {
-                                if (element.previousSibling && element.previousSibling.previousSibling) {
-                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
-                                } else {
-                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                }
-                                this.removeZoneItem(element, contentZoneName);
-                            }
-                        }
-                    }
-                });
-                element.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        e.preventDefault();
-                        $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-
-                        if (range.collapsed) {
-                            if (range.startOffset == 0) {
-                                this.addParagraphBefore(element.parentNode, element, contentZoneName);
-                            } else {
-                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                            }
-                        }
-                    }
-                });
-
-                let img = document.createElement('img');
-                let caption = null;
-
-                img.src = contentZoneItem.data.file.url;
-                img.loading = 'lazy';
-                if (contentZoneItem.data.caption) {
-                    caption = document.createElement('div');
-                    caption.classList.add('image-caption');
-                    caption.innerHTML = contentZoneItem.data.caption;
-                }
-
-                if (edit) {
-                    img.addEventListener('click', () => {
-                        this.placeCaretAtEnd(element);
-                    });
-                }
-
-                element.appendChild(img);
-                if (caption) {
-                    element.appendChild(caption);
-                }
-
-                // define content get method
-                element.getDataContent = () => {
-                    return {
-                        file: {
-                            url: img.src
-                        },
-                        caption: caption?caption.innerHTML:null
-                    };
-                };
-
-                this.addContentPasteHandling(element, contentZoneName, false);
-
-                element.setAttribute('data-type', contentZoneItem.type);
-                element.contentZoneItem = contentZoneItem;
-
-                return element;
-            }
-
-            this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, component, config) => {
-                zoneItem.data.config = config;
-                zoneItem.contentZones = component.core.getContentZones();
-                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
-                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
-                if (newElement.themeDefinitionType == 'block') {
-                    newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
-                        let newElementContentZoneName = item.getAttribute('data-content-zone-name')
-                        if (newElement.ccmInstance.core.getContentZoneElementCount(newElementContentZoneName) === 0) {
-                            newElement.ccmInstance.core.addParagraphAfter(item, null, newElementContentZoneName);
-                        }
-                    });
-                }
-                this.removeZoneItem(element, contentZoneName);
-                return newElement;
-            }
-
+            /**
+             * Returns the count of cached zone elements for a zone name
+             * @param {string}  contentZoneName The name of the content zone
+             * @returns {number}
+             */
             this.getContentZoneElementCount = (contentZoneName) => {
                 if (_contentZoneElements[contentZoneName] === undefined) {
                     return 0;
@@ -1190,6 +1387,11 @@
                 return _contentZoneElements[contentZoneName].length;
             }
 
+            /**
+             * Returns an content zone object for an content zone name
+             * @param {string}  contentZoneName
+             * @returns {[]}
+             */
             this.getContentZone = (contentZoneName) => {
                 let re = [];
                 if (_contentZoneElements[contentZoneName] !== undefined) {
@@ -1209,6 +1411,10 @@
                 return re;
             };
 
+            /**
+             * Returns all content zones belonging to parent
+             * @returns {{}}
+             */
             this.getContentZones = () => {
                 let re = {};
                 for (let contentZoneName in _contentZoneElements) {
