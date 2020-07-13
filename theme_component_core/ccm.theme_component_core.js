@@ -254,12 +254,17 @@
                 return false;
             }
 
-            this.addItem = (contentZoneName) => {
+            /**
+             * Calls an window event to add a new block
+             * @param {string}      contentZoneName The element content zone name
+             * @param {HTMLElement} element         The element to create an new block item after
+             */
+            this.addItem = (contentZoneName, element = null) => {
                 //dispatch add block event
                 const event = new CustomEvent("pageRendererAddBlock", {
                     detail: {
                         addFunction: (selectedThemeDefinitionKey) => {
-                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), contentZoneName, selectedThemeDefinitionKey);
+                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), element, contentZoneName, selectedThemeDefinitionKey);
                         }
                     }
                 });
@@ -571,7 +576,7 @@
              */
             this.createBlock = async (parentNode, element = null, contentZoneName, themeDefinitionKey) => {
                 let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
-                let newElement = await this.addThemeDefinitionAfter(parentNode, null, contentZoneName, themeDefinitionKey);
+                let newElement = await this.addThemeDefinitionAfter(parentNode, element, contentZoneName, themeDefinitionKey);
                 newElement.ccmInstance.element.classList.add('edit-focus');
                 parentNode.insertBefore(addBlock, null);
             }
