@@ -169,6 +169,14 @@
                 });
                 let editThemeDefinition = $.html(this.html.editThemeDefinition, {});
                 $.append(element, editThemeDefinition);
+                let addThemeDefinitionAfter = $.html(this.html.addThemeDefinitionAfter, {});
+                $.append(element, addThemeDefinitionAfter);
+
+                // handle add after
+                const addButton = element.querySelector('#add-theme-definition-after');
+                addButton.addEventListener('click', () => {
+                    this.parent.parent.core.addItem(parentZoneName);
+                });
 
                 // handle remove button
                 const removeButton = editThemeDefinition.querySelector('img[data-action="remove"');
