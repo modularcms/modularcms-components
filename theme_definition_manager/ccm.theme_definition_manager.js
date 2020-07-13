@@ -265,8 +265,8 @@
                     editMenuItems.forEach(item => item.addEventListener('click', () => {
                         editMenuItems.forEach(item => item.classList.remove('active'));
                         item.classList.add('active');
-                        this.element.querySelectorAll('.edit-content').forEach(item => item.classList.remove('active'));
-                        this.element.querySelector('.edit-content[data-content-name="' + item.getAttribute('data-content-name') + '"]').classList.add('active');
+                        content.querySelectorAll('.edit-content').forEach(item => item.classList.remove('active'));
+                        content.querySelector('.edit-content[data-content-name="' + item.getAttribute('data-content-name') + '"]').classList.add('active');
                     }));
 
                     const builderWrapper = content.querySelector('#theme-definition-edit-builder');
@@ -287,7 +287,7 @@
                     this.json_builder_builder.data = {json: ccmBuilder !== undefined ? ccmBuilder.config : {}};
 
                     let startBuilder = (data) => {
-                        if (ccmBuilder.url !== undefined && ccmBuilder.url != null && ccmBuilder.url != '') {
+                        if (ccmBuilder !== undefined && ccmBuilder.url !== undefined && ccmBuilder.url != null && ccmBuilder.url != '') {
                             content.querySelector('.edit-menu .menu-item[data-content-name="builder"]').style.display = 'block';
                             this.ccm.start(ccmBuilder.url, Object.assign({}, ccmBuilder.config, {
                                 root: builderWrapper,

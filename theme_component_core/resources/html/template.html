@@ -12,6 +12,12 @@
     </div>
 </ccm-template>
 
+<ccm-template key="addThemeDefinitionAfter">
+    <div class="add-theme-definition-after">
+        <img data-action="config" loading="lazy" src="https://modularcms.github.io/modularcms-components/cms/resources/img/plus-icon.svg" />
+    </div>
+</ccm-template>
+
 <ccm-template key="editInlineTool">
     <div class="edit-inline-text-tool">
         <img data-action="header" data-header-level="1" data-type='["header", "paragraph"]' loading="lazy" src="https://modularcms.github.io/modularcms-components/cms/resources/img/header-1-icon.svg" />
@@ -171,6 +177,37 @@
         .edit-theme-definition img {
             filter: invert(1);
             padding: 4px 0px;
+        }
+
+        .add-theme-definition-after {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translate(-50%, 50%);
+            padding: 5px;
+            height: 30px;
+            width: 30px;
+            cursor: pointer;
+            background-color: #1592e6;
+            border-radius: 50%;
+            transition: background-color .3s ease-in-out;
+            display: none;
+        }
+
+        .edit-focus .add-theme-definition-after {
+            display: block;
+        }
+
+        .add-theme-definition-after, .add-theme-definition-after * {
+            pointer-events: all;
+        }
+
+        .add-theme-definition-after:hover {
+            background-color: #6bb4e4;
+        }
+
+        .add-theme-definition-after:active {
+            background-color: #9ccff1;
         }
 
         .content-zone {
