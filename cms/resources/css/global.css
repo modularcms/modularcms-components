@@ -175,7 +175,7 @@ div.checkbox-wrapper label {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    word-break: break-all;
+    word-break: break-word;
 }
 
 .list .list-item.list-item-with-more-button {
