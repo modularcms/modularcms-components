@@ -182,7 +182,7 @@
                 // handle add after
                 const addButton = addThemeDefinitionAfter;
                 addButton.addEventListener('click', () => {
-                    this.parent.parent.core.addItem(parentZoneName, element);
+                    this.parent.parent.core.addItem(parentZoneName, element.parentNode);
                     element.classList.remove('edit-focus');
                 });
 
