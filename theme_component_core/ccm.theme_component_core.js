@@ -171,7 +171,7 @@
                 $.append(element, addThemeDefinitionAfter);
 
                 // handle add after
-                const addButton = element.querySelector('#add-theme-definition-after');
+                const addButton = addThemeDefinitionAfter;
                 addButton.addEventListener('click', () => {
                     this.parent.parent.core.addItem(parentZoneName);
                 });
