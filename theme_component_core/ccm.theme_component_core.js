@@ -1370,6 +1370,7 @@
                     const event = new CustomEvent("pageRendererAddComponent", {
                         detail: {
                             addThemeDefinition: async (themeDefinitionKey) => {
+                                console.log(element);
                                 replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
                             }
                         }
