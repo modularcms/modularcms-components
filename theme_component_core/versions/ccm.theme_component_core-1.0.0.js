@@ -492,7 +492,7 @@
 
                         // handle backspace key input
                         element.addEventListener('keydown', (e) => {
-                            if (e.key == 'Backspace') {
+                            if (e.key == 'Backspace' || e.key == 'Delete') {
                                 const selection = this.parent.element.parentNode.getSelection();
                                 const range = selection.getRangeAt(0);
                                 e.preventDefault();
@@ -615,6 +615,7 @@
 
                 let instance = null;
                 let element = document.createElement('div');
+                $.append(element, $.loading());
                 instance = await $.action(['ccm.start', contentZoneItem.data.ccmComponent.url, config]);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
@@ -647,7 +648,7 @@
 
                 // handle backspace key input
                 element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace') {
+                    if (e.key == 'Backspace' || e.key == 'Delete') {
                         const selection = this.parent.element.parentNode.getSelection();
                         const range = selection.getRangeAt(0);
                         e.preventDefault();
@@ -984,7 +985,7 @@
 
                 // handle backspace key input
                 element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace') {
+                    if (e.key == 'Backspace' || e.key == 'Delete') {
                         const selection = this.parent.element.parentNode.getSelection();
                         const range = selection.getRangeAt(0);
                         e.preventDefault();

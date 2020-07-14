@@ -70,7 +70,7 @@
                         let type = detail.urlParts[2];
                         let action = detail.urlParts[1];
 
-                        if (detail.urlParts[1] == 'create') {
+                        if (action == 'create') {
                             // Close modal
                             await this.closeImportThemeDefinitionModal();
 
@@ -99,12 +99,9 @@
                         }
 
                         if (type != 'theme') {
-                            if (detail.urlParts[3] == '2') {
-                                this.element.querySelector('#' + action + '-modal-step-1').style.display = 'none';
-                                this.element.querySelector('#' + action + '-modal-step-2').style.display = 'flex';
-                            } else {
-                                this.element.querySelector('#' + action + '-modal-step-1').style.display = 'flex';
-                                this.element.querySelector('#' + action + '-modal-step-2').style.display = 'none';
+                            let modalInners = 4;
+                            for (let i = 1; i <= modalInners; i++) {
+                                this.element.querySelector('#' + action + '-modal-step-' + i).style.display = parseInt(detail.urlParts[3]) == i ? 'flex': 'none';
                             }
                         }
 
