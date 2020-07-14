@@ -101,7 +101,7 @@
             content: '[Click to edit header text]';
         }
 
-        *[contenteditable="true"][data-type="paragraph"]:empty:before, *[contenteditable="true"][data-type="header"]:empty:before {
+        *[contenteditable="true"][data-type="paragraph"]:empty:not(:focus):before, *[contenteditable="true"][data-type="header"]:empty:not(:focus):before {
             opacity: 0.3;
             pointer-events: none;
         }
