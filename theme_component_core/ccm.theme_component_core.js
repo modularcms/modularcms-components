@@ -396,9 +396,9 @@
                     type: 'themeDefinition',
                     data: {
                         themeDefinitionKey: themeDefinitionKey,
-                        themeDefinitionType: themeDefinition.type
-                    },
-                    config: {}
+                        themeDefinitionType: themeDefinition.type,
+                        config: {}
+                    }
                 }, i)
             };
 
@@ -590,14 +590,13 @@
              */
             this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig, i) => {
                 return await this.getCcmComponentElement(contentZoneName, {
-                    type: 'themeDefinition',
+                    type: 'ccmComponent',
                     data: {
                         ccmComponent: {
                             url: ccmUrl,
                             config: ccmConfig
                         }
-                    },
-                    config: {}
+                    }
                 }, i);
             }
 
@@ -623,7 +622,21 @@
                 let element = document.createElement('div');
                 instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, config);
                 _contentZoneInstances[contentZoneName][i] = instance;
+
+                element.contentEditable = "true";
+                instance.root.contentEditable = "false";
+                instance.element.style.pointerEvents = "none !important";
+                instance.root.classList.add('content-component');
+
                 $.append(element, _contentZoneInstances[contentZoneName][i].root);
+
+                // define content get method
+                element.getDataContent = () => {
+                    return {
+                        url: contentZoneItem.data.url,
+                        config: contentZoneItem.data.config
+                    };
+                };
 
                 element.contentZoneItem = contentZoneItem;
                 element.setAttribute('data-type', contentZoneItem.type);
