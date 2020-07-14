@@ -401,7 +401,7 @@
                         themeDefinitionType: themeDefinition.type,
                         config: {}
                     }
-                }, i)
+                }, i, true)
             };
 
             /**
@@ -409,9 +409,10 @@
              * @param {string}  contentZoneName The name of the elements content zone
              * @param {{}}      contentZoneItem The content zone item, which is containing the abstract elements specs
              * @param {number}  i               The index where the element should be located
+             * @param {boolean} forceAdd        Defines if the the element should be forced to add and therefore if the instance caching should be avoided
              * @returns {Promise<null|HTMLDivElement>}
              */
-            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i) => {
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i, forceAdd = false) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
@@ -434,7 +435,7 @@
                     const component = await this.getThemeDefinitionComponent(contentZoneItem.data.themeDefinitionKey);
                     let instance = null;
                     let element = document.createElement('div');
-                    if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                    if (forceAdd || !this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                         // Start component
                         instance = await component.start(Object.assign(config, {root: element}));
                     } else {
