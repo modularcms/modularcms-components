@@ -1069,12 +1069,13 @@
              */
             this.addContentEditing = (element, contentZoneName) => {
                 // handle enter key input
-                element.addEventListener('keypress', (e) => {
+                element.addEventListener('keydown', (e) => {
                     const selection = this.parent.element.parentNode.getSelection();
                     const range = selection.getRangeAt(0);
                     if (e.key === 'Enter' && range.collapsed) {
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
+                        $.remove(element.querySelector('br:nth-child(2)'));
 
                         if (element.innerHTML != '') {
                             const selection = this.parent.element.parentNode.getSelection();
@@ -1308,7 +1309,7 @@
             this.getAddContentBlockTypeElement = (element, contentZoneName) => {
                 const definer = $.html(this.html.defineBlockType, {});
 
-                /*let focused = false;
+                let focused = false;
                 element.addEventListener('focus', () => {
                     focused = true;
                     element.classList.add('focus');
@@ -1330,7 +1331,7 @@
                     if (!mouseDown) {
                         setTimeout(() => element.classList.remove('focus'), 100);
                     }
-                });*/
+                });
 
                 let replaceWith = (newElement) => {
                     let parentNode = element.parentNode;
