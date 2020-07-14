@@ -600,17 +600,19 @@
                         this.parent.element.removeEventListener('click', handler);
                     };
                     this.parent.element.addEventListener('click', handler);
+                    let componentElement = element;
                     let updateCcmComponent = async (config) => {
-                        let configSet = {};
-                        Object.assign(configSet, contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), config);
-                        // TODO let newElement = await this.getNewCcmComponentElement();
+                        contentZoneItem.data.ccmComponent.config = config;
+                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
+                        this.addContentZoneItemAfter(element.parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
+                        this.removeZoneItem(element, contentZoneName);
                         return newElement;
                     };
                     const event = new CustomEvent("pageRendererEditCcmComponentConfig", {
                         detail: {
                             zoneItem: contentZoneItem,
-                            updateConfig: async (config, scope) => {
-                                configElement = await updateConfig(config, scope);
+                            updateCcmComponent: async (config) => {
+                                componentElement = await updateCcmComponent(config);
                             }
                         }
                     });
