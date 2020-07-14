@@ -154,7 +154,7 @@
 
                 _contentZonesBefore = contentZones;
 
-                console.log(_contentZoneElements[contentZoneName][i]);
+                console.log(_contentZoneElements);
             }
 
             /**
