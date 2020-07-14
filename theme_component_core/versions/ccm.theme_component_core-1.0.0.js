@@ -26,6 +26,8 @@
 
             this.ready = async () => {
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
+
+                this.patchGetSelectionOnShadowRoot();
             };
 
             this.start = async () => {
@@ -36,6 +38,18 @@
 
             let _contentZoneInstances = {};
             let _contentZoneElements = {};
+
+            /**
+             * Polyfill for the shadow root to get selection function
+             * @see copied from https://github.com/jsturgill/shadow-root-get-selection-polyfill/blob/master/index.js
+             */
+            this.patchGetSelectionOnShadowRoot = () => {
+                if (typeof ShadowRoot !== 'undefined') {
+                    ShadowRoot.prototype.getSelection = ShadowRoot.prototype.getSelection || function() {
+                        return document.getSelection();
+                    };
+                }
+            }
 
             /**
              * Initializes the content of a parent at first start
