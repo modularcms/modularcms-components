@@ -13,6 +13,7 @@
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
+            "helper": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/versions/helper-5.1.0.mjs" ],
             "hash": [ "ccm.load", "https://ccmjs.github.io/akless-components/modules/md5.mjs" ],
             "domains_websites_mapping": ["ccm.store", { "name": "fbroeh2s_domains_websites_mapping", "url": "https://ccm2.inf.h-brs.de" } ],
             "websites": ["ccm.store", { "name": "fbroeh2s_websites", "url": "https://ccm2.inf.h-brs.de" } ],
@@ -20,6 +21,12 @@
         },
 
         Instance: function () {
+            let $;
+
+            this.ready = async () => {
+                $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
+            };
+
             this.start = async () => {
 
             };
@@ -100,6 +107,16 @@
              */
             this.getWebsitePageUrlMappingDataStore = async (websiteKey, live = false) => {
                 let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_pages_url_mapping' + (live?'_live':''), url: 'https://ccm2.inf.h-brs.de', parent: this});
+                return re;
+            }
+
+            /**
+             * Returns the data store for website apps
+             * @param {string}  websiteKey  The website key
+             * @returns {Promise<Credential>}
+             */
+            this.getWebsiteAppsDataStore = async (websiteKey) => {
+                let re = await this.ccm.store({name: 'fbroeh2s_website_' + websiteKey + '_apps', url: 'https://ccm2.inf.h-brs.de', parent: this});
                 return re;
             }
 
@@ -1428,6 +1445,65 @@
 
                 return pageHash == publishedPageHash;
             };
+
+
+            /**
+             * ---------
+             *  A P P S
+             * ---------
+             */
+
+            /**
+             * Creates an new app from an app demo
+             * @param websiteKey
+             * @param path
+             * @param demoApp
+             * @returns {Promise<[string, {name: string, url: string}, *]>}
+             */
+            this.createWebsiteAppFromDemo = async (websiteKey, path, demoApp) => {
+                let dataset = await $.dataset( await $.action(demoApp[2]) );
+                return await this.createWebsiteApp(websiteKey, path, dataset);
+            }
+
+            /**
+             * Creates an app with empty configuration
+             * @param websiteKey
+             * @param path
+             * @returns {Promise<[string, {name: string, url: string}, *]>}
+             */
+            this.createWebsiteAppEmpty = async (websiteKey, path) => {
+                let dataset = await $.dataset( {} );
+                return await this.createWebsiteApp(websiteKey, path, dataset);
+            }
+
+            /**
+             * Creates an website app from an dataset
+             * @param websiteKey
+             * @param path
+             * @param dataset
+             * @returns {Promise<(string|{name: string, url: string}|*)[]>}
+             */
+            this.createWebsiteApp = async (websiteKey, path, dataset) => {
+                let store = await this.getWebsiteAppsDataStore(websiteKey);
+                delete dataset.key;
+                dataset._ = { access: { get: 'all', set: 'creator', del: 'creator' } };
+                let app_id = await store.set( dataset ); delete dataset.key;
+
+                return ['ccm.get', {url: "https://ccm2.inf.h-brs.de", name: "fbroeh2s_website_" + websiteKey + "_apps"}, app_id];
+            }
+
+            /**
+             * Returns an website app
+             * @param websiteKey
+             * @param appKey
+             * @returns {Promise<*>}
+             */
+            this.getWebsiteApp = async (websiteKey, appKey) => {
+                let store = await this.getWebsiteAppsDataStore(websiteKey);
+                let dataset = await store.get(appKey);
+                return dataset;
+            }
+
 
 
             /**

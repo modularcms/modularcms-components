@@ -611,10 +611,6 @@
              * @returns {Promise<*>}
              */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
-                const websiteKey = this.parent.websiteKey;
-                const page = this.parent.page;
-                const edit = this.parent.edit;
-
                 // init ccm component
                 let config = {};
                 let ccmComponentConfig = contentZoneItem.data.ccmComponent.config;
@@ -628,6 +624,7 @@
                 let instance = null;
                 let element = document.createElement('div');
                 instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, config);
+                _contentZoneInstances[contentZoneName][i] = instance;
                 $.append(element, _contentZoneInstances[contentZoneName][i].root);
 
                 element.contentZoneItem = contentZoneItem;
