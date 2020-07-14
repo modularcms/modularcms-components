@@ -584,14 +584,23 @@
             }
 
             /**
-             * @deprecated Should be removed
+             * Get a new element for an external ccm component
              * @param contentZoneName
              * @param contentZoneItem
              * @param i
              * @returns {Promise<*>}
              */
             this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig, i) => {
-
+                return await this.getCcmComponentElement(contentZoneName, {
+                    type: 'themeDefinition',
+                    data: {
+                        ccmComponent: {
+                            url: ccmUrl,
+                            config: ccmConfig
+                        }
+                    },
+                    config: {}
+                }, i);
             }
 
             /**
@@ -608,23 +617,19 @@
 
                 // init ccm component
                 let config = {};
-                Object.assign(config, contentZoneItem.data.config, {
-                    parent: this.parent,
-                    contentZones: contentZoneItem.contentZones,
-                    websiteKey: websiteKey,
-                    page: page,
-                    edit: edit
-                });
-                if (!this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                    // Start component
-                    const instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
-                    _contentZoneInstances[contentZoneName][i] = instance;
-                } else {
-                    // Update existing component
-                    Object.assign(_contentZoneInstances[contentZoneName][i], config);
-                    _contentZoneInstances[contentZoneName][i].updateChildren && _contentZoneInstances[contentZoneName][i].updateChildren();
+                let ccmComponentConfig = contentZoneItem.data.ccmComponent.config;
+                if (typeof ccmComponentConfig === 'array') {
+                    ccmComponentConfig = await $.action(ccmComponentConfig);
                 }
-                let element = _contentZoneInstances[contentZoneName][i].root;
+                Object.assign(config, ccmComponentConfig, {
+                    parent: this.parent,
+                });
+
+                let instance = null;
+                let element = document.createElement('div');
+                instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, config);
+                $.append(element, _contentZoneInstances[contentZoneName][i].root);
+
                 element.contentZoneItem = contentZoneItem;
                 element.setAttribute('data-type', contentZoneItem.type);
                 return element;
