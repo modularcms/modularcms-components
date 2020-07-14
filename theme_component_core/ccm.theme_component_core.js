@@ -10,8 +10,6 @@
 
         name: 'theme_component_core',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -155,6 +153,8 @@
                 }
 
                 _contentZonesBefore = contentZones;
+
+                console.log(_contentZoneElements[contentZoneName][i]);
             }
 
             /**
@@ -265,8 +265,8 @@
                 //dispatch add block event
                 const event = new CustomEvent("pageRendererAddBlock", {
                     detail: {
-                        addFunction: (selectedThemeDefinitionKey) => {
-                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), element, contentZoneName, selectedThemeDefinitionKey);
+                        addThemeDefinitionFunction: async (themeDefinitionKey) => {
+                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), element, contentZoneName, themeDefinitionKey);
                         }
                     }
                 });
@@ -492,7 +492,7 @@
 
                         // handle backspace key input
                         element.addEventListener('keydown', (e) => {
-                            if (e.key == 'Backspace') {
+                            if (e.key == 'Backspace' || e.key == 'Delete') {
                                 const selection = this.parent.element.parentNode.getSelection();
                                 const range = selection.getRangeAt(0);
                                 e.preventDefault();
@@ -615,6 +615,7 @@
 
                 let instance = null;
                 let element = document.createElement('div');
+                $.append(element, $.loading());
                 instance = await $.action(['ccm.start', contentZoneItem.data.ccmComponent.url, config]);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
@@ -634,7 +635,7 @@
                         // TODO let newElement = await this.getNewCcmComponentElement();
                         return newElement;
                     };
-                    const event = new CustomEvent("pageRendererEditBlockConfig", {
+                    const event = new CustomEvent("pageRendererEditCcmComponentConfig", {
                         detail: {
                             zoneItem: contentZoneItem,
                             updateConfig: async (config, scope) => {
@@ -647,7 +648,7 @@
 
                 // handle backspace key input
                 element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace') {
+                    if (e.key == 'Backspace' || e.key == 'Delete') {
                         const selection = this.parent.element.parentNode.getSelection();
                         const range = selection.getRangeAt(0);
                         e.preventDefault();
@@ -984,7 +985,7 @@
 
                 // handle backspace key input
                 element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace') {
+                    if (e.key == 'Backspace' || e.key == 'Delete') {
                         const selection = this.parent.element.parentNode.getSelection();
                         const range = selection.getRangeAt(0);
                         e.preventDefault();

@@ -155,6 +155,8 @@
                 }
 
                 _contentZonesBefore = contentZones;
+
+                console.log(_contentZoneElements[contentZoneName][i]);
             }
 
             /**
