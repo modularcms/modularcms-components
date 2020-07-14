@@ -551,10 +551,9 @@
              * Get a new element for an external ccm component
              * @param contentZoneName
              * @param contentZoneItem
-             * @param i
              * @returns {Promise<*>}
              */
-            this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig, i) => {
+            this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig) => {
                 return await this.getCcmComponentElement(contentZoneName, {
                     type: 'ccmComponent',
                     data: {
@@ -563,17 +562,16 @@
                             config: ccmConfig
                         }
                     }
-                }, i);
+                });
             }
 
             /**
              * Get a element for a ccm component
              * @param contentZoneName
              * @param contentZoneItem
-             * @param i
              * @returns {Promise<*>}
              */
-            this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
+            this.getCcmComponentElement = async (contentZoneName, contentZoneItem) => {
                 // init ccm component
                 let config = contentZoneItem.data.ccmComponent.config;
 
@@ -603,9 +601,9 @@
                     let componentElement = element;
                     let updateCcmComponent = async (config) => {
                         contentZoneItem.data.ccmComponent.config = config;
-                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
-                        this.addContentZoneItemAfter(element.parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
-                        this.removeZoneItem(element, contentZoneName);
+                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
+                        this.addContentZoneItemAfter(componentElement.parentNode, componentElement, newElement, contentZoneName, newElement.ccmInstance);
+                        this.removeZoneItem(componentElement, contentZoneName);
                         return newElement;
                     };
                     const event = new CustomEvent("pageRendererEditCcmComponentConfig", {
@@ -1389,7 +1387,7 @@
                                 replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
                             },
                             addDmsContentComponentFunction: async (ccmUrl, ccmConfig) => {
-                                replaceWith(await this.getNewCcmComponentElement(contentZoneName, ccmUrl, ccmConfig, _contentZoneElements[contentZoneName].indexOf(element)))
+                                replaceWith(await this.getNewCcmComponentElement(contentZoneName, ccmUrl, ccmConfig))
                             }
                         }
                     });
