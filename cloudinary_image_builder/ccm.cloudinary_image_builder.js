@@ -55,7 +55,7 @@
                     async (error, result) => {
                         if (!error && result && result.event === "success") {
                             const imgData = result.info;
-                            this.data = imgData.secure_url;
+                            this.data = imgData.secure_url.replace('/image/upload/', '/image/upload/q_auto,w_auto,dpr_auto,c_scale/c_limit,w_2048/');
                             this.logger && this.logger.log( 'change', this.getValue() );
                             this.onchange && await this.onchange( { instance: this } );
                         }
