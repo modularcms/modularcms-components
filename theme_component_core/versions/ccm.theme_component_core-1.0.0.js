@@ -741,8 +741,9 @@
              */
             this.addParagraphAfter = (parentNode, element, contentZoneName, content='') => {
                 let newElement = this.getParagraphElement(contentZoneName, {contentZones:{}, type: 'paragraph', data: {text: content}});
-                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName)
+                this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
                 newElement.focus();
+                newElement.innerHTML = newElement.innerHTML + ''; // Focus workaround for firefox
                 if (content != '') {
                     newElement.classList.add('has-content');
                 }
