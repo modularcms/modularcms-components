@@ -139,7 +139,7 @@
                             $.append(contentZoneElement, appendElement);
 
                             if (edit) {
-                                appendElement.parentNode.insertBefore(this.getAddContentBlockTypeElement(appendElement), appendElement.nextSibling, contentZoneName);
+                                appendElement.parentNode.insertBefore(this.getAddContentBlockTypeElement(appendElement, contentZoneName), appendElement.nextSibling, contentZoneName);
                             }
                         }
 
@@ -155,8 +155,6 @@
                 }
 
                 _contentZonesBefore = contentZones;
-
-                console.log(_contentZoneElements);
             }
 
             /**
