@@ -611,18 +611,11 @@
              */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
-                let config = {};
-                let ccmComponentConfig = contentZoneItem.data.ccmComponent.config;
-                if (typeof ccmComponentConfig === 'array') {
-                    ccmComponentConfig = await $.action(ccmComponentConfig);
-                }
-                Object.assign(config, ccmComponentConfig, {
-                    parent: this.parent,
-                });
+                let config = contentZoneItem.data.ccmComponent.config;
 
                 let instance = null;
                 let element = document.createElement('div');
-                instance = await this.ccm.start(contentZoneItem.data.ccmComponent.url, config);
+                instance = await $.action(['ccm.start', contentZoneItem.data.ccmComponent.url, config]);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 element.contentEditable = "true";
