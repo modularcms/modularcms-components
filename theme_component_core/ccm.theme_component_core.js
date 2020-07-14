@@ -708,7 +708,7 @@
                 // init paragraph
                 let element = document.createElement('p');
                 element.contentZoneItem = contentZoneItem;
-                element.innerHTML = contentZoneItem.data.text + '<br/>';
+                element.innerHTML = contentZoneItem.data.text;
 
                 if (edit) {
                     element.contentEditable = "true";
