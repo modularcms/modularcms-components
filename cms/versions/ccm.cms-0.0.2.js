@@ -56,6 +56,14 @@
        * @returns {Promise<void>}
        */
       this.start = async () => {
+        if (!ShadowRoot.prototype.getSelection) {
+          let error = 'This system will not function properly in your browser, because it does not support the experimental "ShadowRoot.getSelection()" JavaScript API.\n\nPlease use Google Chrome instead for editing content.';
+          alert(error)
+          $.setContent(this.element, error);
+          throw new Error(error);
+        }
+
+
         // logging of 'start' event
         this.logger && this.logger.log('start');
 
