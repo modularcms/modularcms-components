@@ -555,7 +555,7 @@
              * @param contentZoneItem
              * @returns {Promise<*>}
              */
-            this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig) => {
+            this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig, i) => {
                 return await this.getCcmComponentElement(contentZoneName, {
                     type: 'ccmComponent',
                     data: {
@@ -564,7 +564,7 @@
                             config: ccmConfig
                         }
                     }
-                });
+                }, i);
             }
 
             /**
@@ -573,7 +573,7 @@
              * @param contentZoneItem
              * @returns {Promise<*>}
              */
-            this.getCcmComponentElement = async (contentZoneName, contentZoneItem) => {
+            this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
                 let config = contentZoneItem.data.ccmComponent.config;
 
@@ -603,7 +603,7 @@
                     let componentElement = element;
                     let updateCcmComponent = async (config) => {
                         contentZoneItem.data.ccmComponent.config = config;
-                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config);
+                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
                         this.addContentZoneItemAfter(componentElement.parentNode, componentElement, newElement, contentZoneName, newElement.ccmInstance);
                         this.removeZoneItem(componentElement, contentZoneName);
                         return newElement;
@@ -1389,7 +1389,7 @@
                                 replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
                             },
                             addDmsContentComponentFunction: async (ccmUrl, ccmConfig) => {
-                                replaceWith(await this.getNewCcmComponentElement(contentZoneName, ccmUrl, ccmConfig))
+                                replaceWith(await this.getNewCcmComponentElement(contentZoneName, ccmUrl, ccmConfig, _contentZoneElements[contentZoneName].indexOf(element)))
                             }
                         }
                     });
