@@ -10,6 +10,8 @@
 
         name: 'theme_component_core',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -622,6 +624,67 @@
                 instance.root.classList.add('content-component');
 
                 $.append(element, _contentZoneInstances[contentZoneName][i].root);
+
+                // handle double click
+                element.addEventListener('dblclick', () => {
+                    element.classList.add('content-component-edit-focus');
+                    let updateCcmComponent = async (config) => {
+                        let configSet = {};
+                        Object.assign(configSet, contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), config);
+                        // TODO let newElement = await this.getNewCcmComponentElement();
+                        return newElement;
+                    };
+                    const event = new CustomEvent("pageRendererEditBlockConfig", {
+                        detail: {
+                            zoneItem: contentZoneItem,
+                            updateConfig: async (config, scope) => {
+                                configElement = await updateConfig(config, scope);
+                            }
+                        }
+                    });
+                    window.dispatchEvent(event);
+                });
+
+                // handle backspace key input
+                element.addEventListener('keydown', (e) => {
+                    if (e.key == 'Backspace') {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        e.preventDefault();
+                        if (range.collapsed) {
+                            if (range.startOffset == 0) {
+                                if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
+                                    this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
+                                }
+                            } else {
+                                if (element.previousSibling && element.previousSibling.previousSibling) {
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                }
+                                this.removeZoneItem(element, contentZoneName);
+                            }
+                        }
+                    }
+                });
+
+                // handle enter key input
+                element.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        e.preventDefault();
+                        $.remove(element.querySelector('div:last-child:not(.content-component)'));
+
+                        if (range.collapsed) {
+                            if (range.startOffset == 0) {
+                                this.addParagraphBefore(element.parentNode, element, contentZoneName);
+                            } else {
+                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                            }
+                        }
+                    }
+                });
 
                 // define content get method
                 element.getDataContent = () => {
