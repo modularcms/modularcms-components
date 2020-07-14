@@ -589,11 +589,18 @@
                 instance.element.style.pointerEvents = "none !important";
                 instance.root.classList.add('content-component');
 
-                $.append(element, _contentZoneInstances[contentZoneName][i].root);
+                $.setContent(element, _contentZoneInstances[contentZoneName][i].root);
 
                 // handle double click
                 element.addEventListener('dblclick', () => {
                     element.classList.add('content-component-edit-focus');
+                    let handler = () => {
+                        if (element) {
+                            element.classList.remove('content-component-edit-focus');
+                        }
+                        this.parent.element.removeEventListener('click', handler);
+                    };
+                    this.parent.element.addEventListener('click', handler);
                     let updateCcmComponent = async (config) => {
                         let configSet = {};
                         Object.assign(configSet, contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), config);
