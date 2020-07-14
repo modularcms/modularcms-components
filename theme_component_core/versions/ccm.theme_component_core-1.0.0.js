@@ -590,6 +590,17 @@
              * @param i
              * @returns {Promise<*>}
              */
+            this.getNewCcmComponentElement = async (contentZoneName, ccmUrl, ccmConfig, i) => {
+
+            }
+
+            /**
+             * Get a element for a ccm component
+             * @param contentZoneName
+             * @param contentZoneItem
+             * @param i
+             * @returns {Promise<*>}
+             */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
@@ -1371,9 +1382,11 @@
                 componentButton.addEventListener('click', () => {
                     const event = new CustomEvent("pageRendererAddComponent", {
                         detail: {
-                            addThemeDefinition: async (themeDefinitionKey) => {
-                                console.log(element);
+                            addThemeDefinitionFunction: async (themeDefinitionKey) => {
                                 replaceWith(await this.getNewThemeDefinitionElement(contentZoneName, themeDefinitionKey, _contentZoneElements[contentZoneName].indexOf(element)))
+                            },
+                            addDmsContentComponentFunction: async (ccmUrl, ccmConfig) => {
+                                replaceWith(await this.getNewCcmComponentElement(contentZoneName, ccmUrl, ccmConfig, _contentZoneElements[contentZoneName].indexOf(element)))
                             }
                         }
                     });
