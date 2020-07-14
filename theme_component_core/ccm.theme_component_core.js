@@ -539,8 +539,10 @@
                 let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
                 let newElement = await this.addThemeDefinitionAfter(parentNode, element, contentZoneName, themeDefinitionKey);
                 newElement.ccmInstance.element.classList.add('edit-focus');
-                element.classList.remove('edit-focus');
-                element.querySelectorAll('.edit-focus').forEach(item => item.classList.remove('edit-focus'));
+                if (element != null) {
+                    element.ccmInstance.element.classList.remove('edit-focus');
+                    element.ccmInstance.element.querySelectorAll('.edit-focus').forEach(item => item.classList.remove('edit-focus'));
+                }
                 parentNode.insertBefore(addBlock, null);
             }
 
