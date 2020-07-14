@@ -24,8 +24,6 @@
 
             this.ready = async () => {
                 $ = Object.assign( {}, this.ccm.helper, this.helper );                 // set shortcut to help functions
-
-                this.patchGetSelectionOnShadowRoot();
             };
 
             this.start = async () => {
@@ -36,18 +34,6 @@
 
             let _contentZoneInstances = {};
             let _contentZoneElements = {};
-
-            /**
-             * Polyfill for the shadow root to get selection function
-             * @see copied from https://github.com/jsturgill/shadow-root-get-selection-polyfill/blob/master/index.js
-             */
-            this.patchGetSelectionOnShadowRoot = () => {
-                if (typeof ShadowRoot !== 'undefined') {
-                    ShadowRoot.prototype.getSelection = ShadowRoot.prototype.getSelection || function() {
-                        return document.getSelection();
-                    };
-                }
-            }
 
             /**
              * Initializes the content of a parent at first start
@@ -553,6 +539,8 @@
                 let addBlock = this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"] .add-block');
                 let newElement = await this.addThemeDefinitionAfter(parentNode, element, contentZoneName, themeDefinitionKey);
                 newElement.ccmInstance.element.classList.add('edit-focus');
+                element.classList.remove('edit-focus');
+                element.querySelectorAll('.edit-focus').forEach(item => item.classList.remove('edit-focus'));
                 parentNode.insertBefore(addBlock, null);
             }
 
@@ -741,7 +729,6 @@
                 let newElement = this.getParagraphElement(contentZoneName, {contentZones:{}, type: 'paragraph', data: {text: content}});
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
                 newElement.focus();
-                newElement.innerHTML = newElement.innerHTML + ''; // Focus workaround for firefox
                 return newElement;
             };
 
