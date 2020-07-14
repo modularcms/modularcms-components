@@ -1464,6 +1464,7 @@
              */
             this.createWebsiteAppFromDemo = async (websiteKey, path, demoApp) => {
                 let dataset = await $.dataset( await $.action(demoApp[2]) );
+                console.log(dataset);
                 return await this.createWebsiteApp(websiteKey, path, dataset);
             }
 
