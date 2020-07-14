@@ -708,7 +708,7 @@
                 // init paragraph
                 let element = document.createElement('p');
                 element.contentZoneItem = contentZoneItem;
-                element.innerHTML = contentZoneItem.data.text;
+                element.innerHTML = contentZoneItem.data.text + '<br/>';
 
                 if (edit) {
                     element.contentEditable = "true";
@@ -718,7 +718,7 @@
                 // define content get method
                 element.getDataContent = () => {
                     return {
-                        text: element.innerHTML
+                        text: element.innerHTML.replace(/<br\/>/g, '')
                     };
                 };
 
@@ -1090,20 +1090,6 @@
                     }
                 });
 
-                // handle has-content class
-                if (element.innerHTML == '') {
-                    element.classList.remove('has-content');
-                } else {
-                    element.classList.add('has-content');
-                }
-                element.addEventListener('keyup', (e) => {
-                    if (element.innerHTML == '') {
-                        element.classList.remove('has-content');
-                    } else {
-                        element.classList.add('has-content');
-                    }
-                });
-
                 // handle backspace input
                 element.addEventListener('keydown', (e) => {
                     const selection = this.parent.element.parentNode.getSelection();
@@ -1300,6 +1286,7 @@
                         const range = selection.getRangeAt(0);
                         e.preventDefault();
                         $.remove(element.querySelector('div:last-child:not(.content-component)'));
+                        $.remove(element.querySelector('br'));
 
                         if (range.collapsed) {
                             if (range.startOffset == 0) {
@@ -1321,7 +1308,7 @@
             this.getAddContentBlockTypeElement = (element, contentZoneName) => {
                 const definer = $.html(this.html.defineBlockType, {});
 
-                let focused = false;
+                /*let focused = false;
                 element.addEventListener('focus', () => {
                     focused = true;
                     element.classList.add('focus');
@@ -1343,7 +1330,7 @@
                     if (!mouseDown) {
                         setTimeout(() => element.classList.remove('focus'), 100);
                     }
-                });
+                });*/
 
                 let replaceWith = (newElement) => {
                     let parentNode = element.parentNode;
