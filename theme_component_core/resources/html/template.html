@@ -103,6 +103,7 @@
 
         *[contenteditable="true"][data-type="paragraph"]:empty:before, *[contenteditable="true"][data-type="header"]:empty:before {
             opacity: 0.3;
+            pointer-events: none;
         }
 
         *[contenteditable="true"][data-type="paragraph"].focus:not(.has-content) + .define-content-block-type {
