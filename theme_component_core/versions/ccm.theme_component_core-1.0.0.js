@@ -265,8 +265,8 @@
                 //dispatch add block event
                 const event = new CustomEvent("pageRendererAddBlock", {
                     detail: {
-                        addFunction: (selectedThemeDefinitionKey) => {
-                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), element, contentZoneName, selectedThemeDefinitionKey);
+                        addThemeDefinitionFunction: async (themeDefinitionKey) => {
+                            this.createBlock(this.parent.element.querySelector('.content-zone[data-content-zone-name="' + contentZoneName + '"]'), element, contentZoneName, themeDefinitionKey);
                         }
                     }
                 });
@@ -634,7 +634,7 @@
                         // TODO let newElement = await this.getNewCcmComponentElement();
                         return newElement;
                     };
-                    const event = new CustomEvent("pageRendererEditBlockConfig", {
+                    const event = new CustomEvent("pageRendererEditCcmComponentConfig", {
                         detail: {
                             zoneItem: contentZoneItem,
                             updateConfig: async (config, scope) => {
