@@ -488,46 +488,7 @@
                             window.dispatchEvent(event);
                         });
 
-                        // handle backspace key input
-                        element.addEventListener('keydown', (e) => {
-                            if (e.key == 'Backspace' || e.key == 'Delete') {
-                                const selection = this.parent.element.parentNode.getSelection();
-                                const range = selection.getRangeAt(0);
-                                e.preventDefault();
-                                if (range.collapsed) {
-                                    if (range.startOffset == 0) {
-                                        if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
-                                            this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
-                                        }
-                                    } else {
-                                        if (element.previousSibling && element.previousSibling.previousSibling) {
-                                            this.placeCaretAtEnd(element.previousSibling.previousSibling);
-                                        } else {
-                                            this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                        }
-                                        this.removeZoneItem(element, contentZoneName);
-                                    }
-                                }
-                            }
-                        });
-
-                        // handle enter key input
-                        element.addEventListener('keypress', (e) => {
-                            if (e.key === 'Enter') {
-                                const selection = this.parent.element.parentNode.getSelection();
-                                const range = selection.getRangeAt(0);
-                                e.preventDefault();
-                                $.remove(element.querySelector('div:last-child:not(.content-component)'));
-
-                                if (range.collapsed) {
-                                    if (range.startOffset == 0) {
-                                        this.addParagraphBefore(element.parentNode, element, contentZoneName);
-                                    } else {
-                                        this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                    }
-                                }
-                            }
-                        });
+                        this.addContentRemoveAndEnterHandling(element, contentZoneName);
                     }
 
                     // define content get method
@@ -644,46 +605,7 @@
                     window.dispatchEvent(event);
                 });
 
-                // handle backspace key input
-                element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace' || e.key == 'Delete') {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        e.preventDefault();
-                        if (range.collapsed) {
-                            if (range.startOffset == 0) {
-                                if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
-                                    this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
-                                }
-                            } else {
-                                if (element.previousSibling && element.previousSibling.previousSibling) {
-                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
-                                } else {
-                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                }
-                                this.removeZoneItem(element, contentZoneName);
-                            }
-                        }
-                    }
-                });
-
-                // handle enter key input
-                element.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        e.preventDefault();
-                        $.remove(element.querySelector('div:last-child:not(.content-component)'));
-
-                        if (range.collapsed) {
-                            if (range.startOffset == 0) {
-                                this.addParagraphBefore(element.parentNode, element, contentZoneName);
-                            } else {
-                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                            }
-                        }
-                    }
-                });
+                this.addContentRemoveAndEnterHandling(element, contentZoneName);
 
                 // define content get method
                 element.getDataContent = () => {
@@ -887,10 +809,12 @@
                             target = target.parentNode;
                         }
                         target.querySelectorAll('br').forEach(item => $.remove(item));
-                        if (e.key === "Backspace" && (target.innerHTML == '' || target.innerHTML == '')) {
+                        if ((e.key == 'Backspace' || e.key == 'Delete') && (target.innerHTML == '' || target.innerHTML == '')) {
                             if (element.childElementCount == 0) {
-                                if (element.previousSibling && element.previousSibling.previousSibling) {
+                                if (e.key == 'Backspace' && element.previousSibling && element.previousSibling.previousSibling) {
                                     this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else if (e.key == 'Delete' && element.nextSibling && element.nextSibling.nextSibling) {
+                                    element.nextSibling.nextSibling.focus();
                                 } else {
                                     this.addParagraphAfter(element.parentNode, element, contentZoneName);
                                 }
@@ -981,46 +905,7 @@
                     element.contentEditable = "true";
                 }
 
-                // handle backspace key input
-                element.addEventListener('keydown', (e) => {
-                    if (e.key == 'Backspace' || e.key == 'Delete') {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        e.preventDefault();
-                        if (range.collapsed) {
-                            if (range.startOffset == 0) {
-                                if (element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
-                                    this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
-                                }
-                            } else {
-                                if (element.previousSibling && element.previousSibling.previousSibling) {
-                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
-                                } else {
-                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                                }
-                                this.removeZoneItem(element, contentZoneName);
-                            }
-                        }
-                    }
-                });
-
-                // handle enter key input
-                element.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        const selection = this.parent.element.parentNode.getSelection();
-                        const range = selection.getRangeAt(0);
-                        e.preventDefault();
-                        $.remove(element.querySelector('div:last-child:not(.define-content-block-type)'));
-
-                        if (range.collapsed) {
-                            if (range.startOffset == 0) {
-                                this.addParagraphBefore(element.parentNode, element, contentZoneName);
-                            } else {
-                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
-                            }
-                        }
-                    }
-                });
+                this.addContentRemoveAndEnterHandling(element, contentZoneName);
 
                 // create image
                 let img = document.createElement('img');
@@ -1359,6 +1244,57 @@
                 };
                 element.addEventListener('selectstart', () => {
                     element.addEventListener('mouseup', mouseUpHandler);
+                });
+            };
+
+            /**
+             * Add the the remove and enter handling for content
+             * @param {HTMLElement} element The element
+             * @param {string}      contentZoneName The content zone name
+             */
+            this.addContentRemoveAndEnterHandling = (element, contentZoneName) => {
+                // handle backspace key input
+                element.addEventListener('keydown', (e) => {
+                    if (e.key == 'Backspace' || e.key == 'Delete') {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        e.preventDefault();
+                        if (range.collapsed) {
+                            if (range.startOffset == 0 && e.key != 'Delete') {
+                                if (element.previousSibling && element.previousSibling.previousSibling && element.previousSibling.previousSibling.innerHTML == '') {
+                                    this.removeZoneItem(element.previousSibling.previousSibling, contentZoneName);
+                                }
+                            } else {
+                                if (e.key == 'Delete' && element.nextSibling && element.nextSibling.nextSibling) {
+                                    element.nextSibling.nextSibling.focus();
+                                } else if (e.key == 'Backspace' && element.previousSibling && element.previousSibling.previousSibling) {
+                                    this.placeCaretAtEnd(element.previousSibling.previousSibling);
+                                } else {
+                                    this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                                }
+
+                                this.removeZoneItem(element, contentZoneName);
+                            }
+                        }
+                    }
+                });
+
+                // handle enter key input
+                element.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const selection = this.parent.element.parentNode.getSelection();
+                        const range = selection.getRangeAt(0);
+                        e.preventDefault();
+                        $.remove(element.querySelector('div:last-child:not(.content-component)'));
+
+                        if (range.collapsed) {
+                            if (range.startOffset == 0) {
+                                this.addParagraphBefore(element.parentNode, element, contentZoneName);
+                            } else {
+                                this.addParagraphAfter(element.parentNode, element, contentZoneName);
+                            }
+                        }
+                    }
                 });
             };
 
