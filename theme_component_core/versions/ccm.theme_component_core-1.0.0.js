@@ -744,9 +744,6 @@
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName);
                 newElement.focus();
                 newElement.innerHTML = newElement.innerHTML + ''; // Focus workaround for firefox
-                if (content != '') {
-                    newElement.classList.add('has-content');
-                }
                 return newElement;
             };
 
