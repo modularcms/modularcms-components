@@ -10,8 +10,6 @@
 
         name: 'theme_component_core',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -559,10 +557,8 @@
                 return await this.getCcmComponentElement(contentZoneName, {
                     type: 'ccmComponent',
                     data: {
-                        ccmComponent: {
-                            url: ccmUrl,
-                            config: ccmConfig
-                        }
+                        url: ccmUrl,
+                        config: ccmConfig
                     }
                 }, i);
             }
@@ -575,12 +571,12 @@
              */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
-                let config = contentZoneItem.data.ccmComponent.config;
+                let config = contentZoneItem.data.config;
 
                 let instance = null;
                 let element = document.createElement('div');
                 $.append(element, $.loading());
-                instance = await $.action(['ccm.start', contentZoneItem.data.ccmComponent.url, config]);
+                instance = await $.action(['ccm.start', contentZoneItem.data.url, config]);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 element.contentEditable = "true";
@@ -602,8 +598,8 @@
                     this.parent.element.addEventListener('click', handler);
                     let componentElement = element;
                     let updateCcmComponent = async (config) => {
-                        contentZoneItem.data.ccmComponent.config = config;
-                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.ccmComponent.url, contentZoneItem.data.ccmComponent.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
+                        contentZoneItem.data.config = config;
+                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.url, contentZoneItem.data.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
                         this.addContentZoneItemAfter(componentElement.parentNode, componentElement, newElement, contentZoneName, newElement.ccmInstance);
                         this.removeZoneItem(componentElement, contentZoneName);
                         return newElement;
