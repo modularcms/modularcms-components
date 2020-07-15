@@ -10,6 +10,8 @@
 
         name: 'theme_component_core',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -103,9 +105,9 @@
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
-                                appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i, true);
+                                appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
-                                appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i, true);
+                                appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
                             } else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
@@ -434,13 +436,14 @@
                     let instance = null;
                     let element = document.createElement('div');
                     if (forceAdd || !this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                        console.log('NEW')
                         // Start component
                         instance = await component.start(Object.assign(config, {root: element}));
                     } else {
                         // Update existing component
-                        Object.assign(_contentZoneInstances[contentZoneName][i], config);
                         instance = _contentZoneInstances[contentZoneName][i];
-                        $.append(element, _contentZoneInstances[contentZoneName][i].root);
+                        Object.assign(instance, config);
+                        $.append(element, instance.root);
                         instance.updateChildren();
                     }
 
