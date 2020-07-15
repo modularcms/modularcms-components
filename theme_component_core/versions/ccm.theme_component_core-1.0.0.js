@@ -581,10 +581,12 @@
                 instance = await $.action(['ccm.start', contentZoneItem.data.url, config]);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
-                element.contentEditable = "true";
-                instance.root.contentEditable = "false";
-                instance.element.style.pointerEvents = "none !important";
-                instance.root.classList.add('content-component');
+                if (edit) {
+                    element.contentEditable = "true";
+                    instance.root.contentEditable = "false";
+                    instance.element.style.pointerEvents = "none !important";
+                    instance.root.classList.add('content-component');
+                }
 
                 $.setContent(element, instance.root);
 
@@ -601,7 +603,6 @@
                     let componentElement = element;
                     let updateCcmComponent = async (config) => {
                         contentZoneItem.data.config = config;
-                        $.remove(componentElement.root);
                         let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.url, contentZoneItem.data.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
                         this.addContentZoneItemAfter(componentElement.parentNode, componentElement, newElement, contentZoneName, newElement.ccmInstance);
                         this.removeZoneItem(componentElement, contentZoneName);
