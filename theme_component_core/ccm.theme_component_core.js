@@ -584,7 +584,7 @@
                 instance.element.style.pointerEvents = "none !important";
                 instance.root.classList.add('content-component');
 
-                $.setContent(element, _contentZoneInstances[contentZoneName][i].root);
+                $.setContent(element, instance.root);
 
                 // handle double click
                 element.addEventListener('dblclick', () => {
