@@ -436,7 +436,6 @@
                     let instance = null;
                     let element = document.createElement('div');
                     if (forceAdd || !this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
-                        console.log('NEW')
                         // Start component
                         instance = await component.start(Object.assign(config, {root: element}));
                     } else {
