@@ -972,7 +972,7 @@
             this.updateThemeDefinitionElementConfig = async (parentNode, element, zoneItem, contentZoneName, instance, config) => {
                 zoneItem.data.config = config;
                 zoneItem.contentZones = instance.core.getContentZones();
-                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element));
+                let newElement = await this.getThemeDefinitionElement(contentZoneName, zoneItem, _contentZoneElements[contentZoneName].indexOf(element), true);
                 this.addContentZoneItemAfter(parentNode, element, newElement, contentZoneName, newElement.ccmInstance);
                 if (newElement.themeDefinitionType == 'block') {
                     newElement.ccmInstance.element.querySelectorAll('.content-zone').forEach(item => {
