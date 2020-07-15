@@ -37,7 +37,6 @@
 
             this.start = async () => {
                 $.setContent(this.element, $.html(this.html, {}));
-                if ( typeof this.data != "string" ) this.data = this.parent.data.imageSrc;
 
                 // Create cloudinary widget
                 const cloudinaryWidget = cloudinary.createUploadWidget(
