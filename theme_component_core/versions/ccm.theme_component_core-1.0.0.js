@@ -105,9 +105,9 @@
                         for (let contentZoneItem of contentZoneItems) {
                             let appendElement = null;
                             if (contentZoneItem.type == 'themeDefinition') {
-                                appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
+                                appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i, true);
                             } else if (contentZoneItem.type == 'ccmComponent') {
-                                appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
+                                appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i, true);
                             } else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
                             } else if (contentZoneItem.type == 'header') {
