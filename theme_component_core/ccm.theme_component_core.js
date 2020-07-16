@@ -572,6 +572,7 @@
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
                 let config = contentZoneItem.data.config;
+                const edit = this.parent.edit;
 
                 let instance = null;
                 let element = document.createElement('div');
