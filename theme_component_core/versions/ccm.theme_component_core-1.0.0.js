@@ -412,7 +412,7 @@
              * @param {boolean} forceAdd        Defines if the the element should be forced to add and therefore if the instance caching should be avoided
              * @returns {Promise<null|HTMLDivElement>}
              */
-            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i, forceAdd = true) => {
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i, forceAdd = false) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
