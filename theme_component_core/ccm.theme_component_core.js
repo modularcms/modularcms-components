@@ -105,7 +105,7 @@
                             if (contentZoneItem.type == 'themeDefinition') {
                                 appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
-                                console.log("updateContent:ccmComponent", contentZoneName, contentZoneItem, i)
+                                console.log("updateContent:ccmComponent", contentZoneName, JSON.stringify(contentZoneItem), i);
                                 appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
                             } else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
