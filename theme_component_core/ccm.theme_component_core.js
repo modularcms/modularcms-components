@@ -634,6 +634,7 @@
                 };
 
                 element.contentZoneItem = contentZoneItem;
+                element.ccmInstance = instance;
                 element.setAttribute('data-type', contentZoneItem.type);
                 return element;
             }
