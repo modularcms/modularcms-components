@@ -108,9 +108,9 @@
                                 appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
                                 appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
-                            } else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
+                            } /*else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
-                            } else if (contentZoneItem.type == 'header') {
+                            } */else if (contentZoneItem.type == 'header') {
                                 appendElement = this.getHeaderElement(contentZoneName, contentZoneItem);
                             } else if (contentZoneItem.type == 'paragraph') {
                                 appendElement = this.getParagraphElement(contentZoneName, contentZoneItem);
@@ -412,7 +412,7 @@
              * @param {boolean} forceAdd        Defines if the the element should be forced to add and therefore if the instance caching should be avoided
              * @returns {Promise<null|HTMLDivElement>}
              */
-            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i, forceAdd = false) => {
+            this.getThemeDefinitionElement = async (contentZoneName, contentZoneItem, i, forceAdd = true) => {
                 const websiteKey = this.parent.websiteKey;
                 const page = this.parent.page;
                 const edit = this.parent.edit;
