@@ -107,6 +107,7 @@
                             if (contentZoneItem.type == 'themeDefinition') {
                                 appendElement = await this.getThemeDefinitionElement(contentZoneName, contentZoneItem, i);
                             } else if (contentZoneItem.type == 'ccmComponent') {
+                                console.log("updateContent:ccmComponent", contentZoneName, contentZoneItem, i)
                                 appendElement = await this.getCcmComponentElement(contentZoneName, contentZoneItem, i);
                             } else if (this.checkIfZoneItemAtIndexIsEqual(contentZoneName, contentZoneItem, i)) {
                                 appendElement = _contentZoneElements[contentZoneName][i];
@@ -579,16 +580,16 @@
                 let instance = null;
                 let element = document.createElement('div');
                 $.append(element, $.loading());
-                console.log(config);
+                console.log("ccmComponentConfig", config);
                 let configStore = await this.ccm.store(config[1]);
-                console.log(configStore);
+                console.log("ccmComponentConfigStore", configStore);
                 let configGet = await configStore.get(config[2]);
-                console.log(configGet);
+                console.log("ccmComponentConfigGet", configGet);
                 instance = await this.ccm.start(contentZoneItem.data.url, Object.assign({}, configGet, {
                     root: element,
                     parent: this.parent
                 }));
-                console.log(instance);
+                console.log("ccmComponentInstance", instance);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 if (edit) {
