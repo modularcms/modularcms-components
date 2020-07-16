@@ -856,8 +856,7 @@
                             ccmBuilder: {
                                 url: null,
                                 config: {}
-                            },
-                            custom: null
+                            }
                         });
                         this.routing.navigateTo('/theme-definitions/edit/theme/' + themeKey);
                     } else {
