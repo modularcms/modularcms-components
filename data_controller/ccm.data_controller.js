@@ -285,7 +285,9 @@
                                     'data': {
                                         'themeDefinitionType': 'layout',
                                         'themeDefinitionKey': plainLayoutDefinitionKey,
-                                        'config': {}
+                                        'ignore': {
+                                            'config': {}
+                                        }
                                     },
                                     contentZones: {
                                         'main': [
@@ -294,7 +296,9 @@
                                                 'data': {
                                                     'themeDefinitionType': 'block',
                                                     'themeDefinitionKey': rowWithColumnsLayoutDefinitionKey,
-                                                    'config': {}
+                                                    'ignore': {
+                                                        'config': {}
+                                                    }
                                                 },
                                                 contentZones: {
                                                     'column1': [
