@@ -1439,6 +1439,8 @@
                 if (page != null) {
                     page.changeLog !== undefined && delete page['changeLog'];
                     page._ !== undefined && delete page['_'];
+                    page.created_at !== undefined && delete page['created_at'];
+                    page.updated_at !== undefined && delete page['updated_at'];
                     page.pageKey !== undefined && delete page['pageKey'];
                 }
                 const pageHash = page == null || this.hash.md5(JSON.stringify(page));
@@ -1447,12 +1449,16 @@
                 if (publishedPage != null) {
                     publishedPage.changeLog !== undefined && delete publishedPage['changeLog'];
                     publishedPage._ !== undefined && delete publishedPage['_'];
+                    publishedPage.created_at !== undefined && delete publishedPage['created_at'];
+                    publishedPage.updated_at !== undefined && delete publishedPage['updated_at'];
                     publishedPage.pageKey !== undefined && delete publishedPage['pageKey'];
                     if (publishedPage.parentKey != null) {
                         publishedPage.parentKey = publishedPage.parentKey.replace('_live', '');
                     }
                 }
                 const publishedPageHash = publishedPage == null || this.hash.md5(JSON.stringify(publishedPage));
+
+                console.log(page, publishedPage);
 
                 return pageHash == publishedPageHash;
             };
