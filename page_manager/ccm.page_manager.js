@@ -1141,7 +1141,9 @@
                                     'data': {
                                         'themeDefinitionType': 'layout',
                                         'themeDefinitionKey': layoutDefinitionKey,
-                                        'config': {}
+                                        'ignore': {
+                                            'config': {}
+                                        }
                                     },
                                     contentZones: {
                                         'main': []
