@@ -573,7 +573,7 @@
              */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
-                let config = contentZoneItem.data.config;
+                let config = $.clone(contentZoneItem.data.config);
                 const edit = this.parent.edit;
 
                 let instance = null;
@@ -582,7 +582,9 @@
                 let configStore = this.ccm.store.get(config[1]);
                 let configGet = await configStore.get(config[2]);
                 let component = this.ccm.component(contentZoneItem.data.url, configGet);
-                instance = await component.start();
+                instance = await component.start({
+                    parent: this.parent
+                });
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 if (edit) {
