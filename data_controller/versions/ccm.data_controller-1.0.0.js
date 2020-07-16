@@ -236,12 +236,10 @@
                             && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
                             && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
                             && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
-                            && object.custom !== undefined
                         ) {
                             let themeDefinitionObject = {
                                 name: object.name,
-                                ccmComponent: object.ccmComponent,
-                                custom: object.custom
+                                ccmComponent: object.ccmComponent
                             };
                             if (object.type != 'theme') {
                                 themeDefinitionObject.type = object.type;

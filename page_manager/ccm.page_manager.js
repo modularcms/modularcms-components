@@ -207,7 +207,6 @@
                         window.removeEventListener('pageRendererEditBlockConfig', window.pageManagerEditBlockConfigEventHandler)
                     }
                     window.pageManagerEditBlockConfigEventHandler = async (e) => {
-                        console.log(e);
                         let component_submit_builder_instance = null;
                         let zoneItem = e.detail.zoneItem;
                         let updateConfig = e.detail.updateConfig;
@@ -218,9 +217,8 @@
 
 
                         let openJsonBuilder = async (zoneItem, updateConfig) => {
-                            this.component_json_builder.data.json = zoneItem.data.config;
+                            this.component_json_builder.data.json = zoneItem.data.ignore.config;
                             this.component_json_builder.onchange = (event) => {
-                                console.log(this.component_json_builder)
                                 // handle json change
                                 let value = event.instance.getValue();
                                 if (value.valid) {
@@ -238,13 +236,12 @@
                             let component_submit_builder = await this.ccm.component(themeDefinition.ccmBuilder.url, themeDefinition.ccmBuilder.config);
                             let div = document.createElement('div');
                             component_submit_builder_instance = await component_submit_builder.start({
-                                data: zoneItem.data.config !== undefined ? $.clone(zoneItem.data.config) : {},
+                                data: zoneItem.data.ignore.config !== undefined ? $.clone(zoneItem.data.ignore.config) : {},
                                 onchange: e => {
                                     let config = e.instance !== undefined ? e.instance.getValue() : (e.getValue !== undefined ? e.getValue() : console.error('Could not update'));
                                     if (config.imageSrc !== undefined && typeof config.imageSrc != 'string') {
                                         delete config.imageSrc;
                                     }
-                                    console.log(config);
                                     updateConfig(config);
                                     onDataChange();
                                 }
@@ -254,6 +251,13 @@
 
                         let builderMenu = this.element.querySelector('#builder .edit-menu');
                         let builderMenuJsonItem = this.element.querySelector('#builder .edit-menu .menu-item[data-builder="json_builder"]');
+                        let builderMenuItem = $.html(this.html.editComponentBuilderItem, {title: builder.title});
+                        builderMenuItem.addEventListener('click', () => {
+                            this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach(i => i.classList.remove('active'));
+                            builderMenuItem.classList.add('active');
+                            openBuilder(builder, $.clone(appConfig), updateConfig);
+                        })
+                        builderMenu.insertBefore(builderMenuItem, builderMenuJsonItem);
 
                         let themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, zoneItem.data.themeDefinitionKey);
                         if (themeDefinition.ccmBuilder !== undefined && themeDefinition.ccmBuilder.url != null) {
@@ -296,14 +300,12 @@
 
                         // get app
                         const appPath = zoneItem.data.url;
-                        const appStore = await this.ccm.store(zoneItem.data.config[1])
-                        const appConfig = await appStore.get(zoneItem.data.config[2]);
-                        console.log(appConfig);
+                        const appStore = await this.ccm.store(zoneItem.data.ignore.config[1])
+                        const appConfig = await appStore.get(zoneItem.data.ignore.config[2]);
 
                         // get builders
                         const appMeta = await $.action($.clone(appConfig.meta));
                         const appBuilders = appMeta.ignore.builders;
-                        console.log(appBuilders);
 
                         $.setContent(this.element.querySelector('#builder'), builder);
                         builder.querySelectorAll('.modal-close, .modal-bg').forEach(item => item.addEventListener('click', () => $.remove(modal)));
@@ -328,7 +330,6 @@
                         }
 
                         let openBuilder = async (builder, appConfig, updateConfig) => {
-                            console.log('openBuilder', builder, appConfig, updateConfig);
                             this.element.querySelector('#builder').classList.add('has-builder-content');
                             let component_builder = await $.action(builder.app);
                             let component_builder_instance = await component_builder.start({
@@ -338,6 +339,7 @@
                                     key: 'app'
                                 },
                                 onchange: async e => {
+                                    console.log(appConfig);
                                     let config = Object.assign({}, appConfig, e.instance.getValue !== undefined ? e.instance.getValue() : console.error('Could not update'));
                                     // previewConfig(configSet);
                                     let appConfigSet = await this.data_controller.createWebsiteApp(websiteKey, appPath, config, appConfig.meta);
@@ -345,7 +347,6 @@
                                     onDataChange();
                                 }
                             });
-                            console.log('component_builder_instance', component_builder_instance);
                         }
 
                         let builderMenu = this.element.querySelector('#builder .edit-menu');
@@ -359,8 +360,14 @@
                             })
                             builderMenu.insertBefore(builderMenuItem, builderMenuJsonItem);
                         }
+                        builderMenuJsonItem.addEventListener('click', () => {
+                            this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach(i => i.classList.remove('active'));
+                            builderMenuJsonItem.classList.add('active');
+                            openJsonBuilder($.clone(appConfig), updateConfig);
+                        })
 
                         if (appBuilders.length > 0) {
+                            builderMenu.children[0].classList.add('active');
                             await openBuilder(appBuilders[0], $.clone(appConfig), updateConfig);
                         } else {
                             builderMenuJsonItem.classList.add('active');
@@ -464,7 +471,7 @@
                                 // contentZones
                                 // themeKey
                             });
-                            pageSet.contentZones.layout[0].data.config = this.layout_json_builder.getValue().json;
+                            pageSet.contentZones.layout[0].data.ignore.config = this.layout_json_builder.getValue().json;
                             let end = () => {
                                 saveButton.querySelector('.button-text').innerHTML = 'Saved';
                                 saveButton.querySelector('.icon').src = 'https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg';
@@ -510,7 +517,7 @@
                     await this.loadLayoutSelectOptions(websiteKey, layoutSelect, page.contentZones.layout[0].data.themeDefinitionKey);
 
                     // init layout config json_build
-                    this.layout_json_builder.data = {json: page.contentZones.layout[0].data.config};
+                    this.layout_json_builder.data = {json: page.contentZones.layout[0].data.ignore.config};
                     this.layout_json_builder.onchange = () => {onDataChange()};
                     await this.layout_json_builder.start();
                     $.setContent(this.element.querySelector('#edit-page-layout-config'), this.layout_json_builder.root);
@@ -664,7 +671,7 @@
                         demoPreviewDiv.style.display = 'block';
                         demoApp = selectedDmsComponent.ignore.demos[i].app;
                         if (demoApp[0] == 'ccm.instance') {
-                            demoPreview = await this.ccm.start(demoApp[1], $.action(demoApp[2]));
+                            demoPreview = await this.ccm.start(demoApp[1], await $.action($.clone(demoApp[2])));
                         }
                     } else {
                         demoApp = null;
@@ -696,7 +703,6 @@
                     createButton.classList.add('button-disabled');
                     createButton.querySelector('.button-text').innerText = 'Creating app instance...';
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
-                    console.log(selectedDmsComponent);
                     let meta = ['ccm.get', {name: 'dms-components', url: 'https://ccm2.inf.h-brs.de'}, selectedDmsComponent.key]
                     let app = demoApp != null
                         ? await this.data_controller.createWebsiteAppFromDemo(websiteKey, selectedDmsComponent.path, demoApp, meta)

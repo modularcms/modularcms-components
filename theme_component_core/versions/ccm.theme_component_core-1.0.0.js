@@ -401,7 +401,9 @@
                     data: {
                         themeDefinitionKey: themeDefinitionKey,
                         themeDefinitionType: themeDefinition.type,
-                        config: {}
+                        ignore: {
+                            config: {}
+                        }
                     }
                 }, i, true)
             };
@@ -423,7 +425,7 @@
                 if (themeDefinition) {
                     // Merge configs
                     let config = {};
-                    Object.assign(config, $.clone(contentZoneItem.data.config), {
+                    Object.assign(config, $.clone(contentZoneItem.data.ignore.config), {
                         parent: this.parent,
                         zoneItem: contentZoneItem,
                         contentZones: contentZoneItem.contentZones,
@@ -471,7 +473,7 @@
                             element.classList.add('content-component-edit-focus');
                             let updateConfig = async (config, scope) => {
                                 let configSet = {};
-                                Object.assign(configSet, contentZoneItem.data.config === undefined ? {} : $.clone(contentZoneItem.data.config), config);
+                                Object.assign(configSet, contentZoneItem.data.ignore.config === undefined ? {} : $.clone(contentZoneItem.data.ignore.config), config);
                                 let newElement = await this.updateThemeDefinitionElementConfig(
                                     configElement.parentNode,
                                     configElement,
@@ -501,7 +503,9 @@
                         return {
                             themeDefinitionKey: themeDefinition.themeDefinitionKey,
                             themeDefinitionType: themeDefinition.type,
-                            config: contentZoneItem.data.config
+                            ignore: {
+                                config: contentZoneItem.data.ignore.config
+                            }
                         };
                     };
 
@@ -562,7 +566,9 @@
                     type: 'ccmComponent',
                     data: {
                         url: ccmUrl,
-                        config: ccmConfig
+                        ignore: {
+                            config: ccmConfig
+                        }
                     }
                 }, i);
             }
@@ -575,7 +581,7 @@
              */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
-                let config = $.clone(contentZoneItem.data.config);
+                let config = $.clone(contentZoneItem.data.ignore.config);
                 const edit = this.parent.edit;
 
                 let instance = null;
@@ -614,8 +620,8 @@
                     this.parent.element.addEventListener('click', handler);
                     let componentElement = element;
                     let updateCcmComponent = async (config) => {
-                        contentZoneItem.data.config = config;
-                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.url, contentZoneItem.data.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
+                        contentZoneItem.data.ignore.config = config;
+                        let newElement = await this.getNewCcmComponentElement(contentZoneName, contentZoneItem.data.url, contentZoneItem.data.ignore.config, _contentZoneElements[contentZoneName].indexOf(componentElement));
                         this.addContentZoneItemAfter(componentElement.parentNode, componentElement, newElement, contentZoneName, newElement.ccmInstance);
                         this.removeZoneItem(componentElement, contentZoneName);
                         return newElement;
@@ -637,7 +643,9 @@
                 element.getDataContent = () => {
                     return {
                         url: contentZoneItem.data.url,
-                        config: contentZoneItem.data.config
+                        ignore: {
+                            config: contentZoneItem.data.ignore.config
+                        }
                     };
                 };
 

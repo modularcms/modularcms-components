@@ -10,8 +10,6 @@
 
         name: 'data_controller',
 
-        version: [1,0,0],
-
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -236,12 +234,10 @@
                             && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
                             && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
                             && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
-                            && object.custom !== undefined
                         ) {
                             let themeDefinitionObject = {
                                 name: object.name,
-                                ccmComponent: object.ccmComponent,
-                                custom: object.custom
+                                ccmComponent: object.ccmComponent
                             };
                             if (object.type != 'theme') {
                                 themeDefinitionObject.type = object.type;
