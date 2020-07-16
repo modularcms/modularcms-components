@@ -10,6 +10,8 @@
 
         name: 'theme_component_core',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -579,7 +581,7 @@
                 $.append(element, $.loading());
                 let configStore = await this.ccm.store(config[1]);
                 let configGet = await configStore.get(config[2]);
-                let component = this.ccm.component(contentZoneItem.data.url, configGet);
+                let component = await this.ccm.component(contentZoneItem.data.url, configGet);
                 instance = await component.start({
                     parent: this.parent
                 });

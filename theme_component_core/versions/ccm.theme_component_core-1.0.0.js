@@ -581,7 +581,7 @@
                 $.append(element, $.loading());
                 let configStore = await this.ccm.store(config[1]);
                 let configGet = await configStore.get(config[2]);
-                let component = this.ccm.component(contentZoneItem.data.url, configGet);
+                let component = await this.ccm.component(contentZoneItem.data.url, configGet);
                 instance = await component.start({
                     parent: this.parent
                 });
