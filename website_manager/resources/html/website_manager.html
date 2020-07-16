@@ -42,8 +42,8 @@
                     <form id="website-create-form" role="form">
                         <label for="website-create-domain">Enter a domain e.g. mydomain.com or subdomain.mydomain.com</label>
                         <input id="website-create-domain" type="text" name="user" placeholder="Enter a domain" value="" required="" pattern="(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]">
-                        <label for="website-create-base-url">Enter a base url (default is '/' representing the entry point on your website e.g. mydomain.com<b>/</b>)</label>
-                        <input id="website-create-base-url" type="text" name="user" placeholder="Enter a base url" value="/" required="" pattern="/([A-Za-z0-9-_]/)*">
+                        <label for="website-create-base-url" style="display: none">Enter a base url (default is '/' representing the entry point on your website e.g. mydomain.com<b>/</b>)</label>
+                        <input id="website-create-base-url" style="display: none" type="text" name="user" placeholder="Enter a base url" value="/" required="" pattern="/([A-Za-z0-9-_]/)*">
                         <input type="submit" value="Create website">
                     </form>
                 </div>
@@ -111,7 +111,7 @@
                     <label for="edit-modal-website-domain">Website domain</label>
                     <input type="text" id="edit-modal-website-domain" required="" pattern="(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9]"/>
                 </div>
-                <div>
+                <div style="display: none">
                     <label for="edit-modal-website-base-url">Base url</label>
                     <input type="text" id="edit-modal-website-base-url" required="" pattern="/([A-Za-z0-9-_]/)*" />
                 </div>

@@ -15,7 +15,7 @@
     max-height: calc(100% - 25px);
 }
 
-#list-modal, #add-component-grid-modal {
+#list-modal, #add-system-component-grid-modal {
     margin-bottom: 10px;
 }
 
@@ -98,28 +98,41 @@
 }
 
 #add-component-grid-modal img {
-    opacity: 0.2;
-    height: 50px;
-    width: 50px;
+    height: 60px;
+    width: 60px;
     margin: 0 auto 7px auto;
-    opacity: 0.2;
     height: 50px;
     width: 50px;
     border-radius: 3px;
 }
 
-#add-component-grid-modal > div {
+#add-component-grid-modal > div > div {
     display: flex;
     flex-wrap: wrap;
 }
 
-#dms-component-modal-inner {
-    width: 80% !important;
+#add-component-grid-modal label {
+    font-weight: 600;
 }
 
-#component-manager-wrapper {
-    overflow: auto;
-    max-width: 100%;
-    width: 100%;
-    position: relative;
+#add-component-demo-wrapper {
+    border: 1px solid #ddd;
+}
+
+#add-component-details-head {
+    display: flex;
+    align-items: center;
+}
+
+#add-component-details-head img {
+    width: 75px;
+    height: 75px;
+}
+
+#add-component-details-head h3 {
+    margin-left: 10px;
+}
+
+#add-component-modal .modal-footer {
+    margin-top: 10px;
 }

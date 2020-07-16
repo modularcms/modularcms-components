@@ -196,7 +196,7 @@
 <ccm-template key="themeDefinitionListItem">
     <div class="list-item-wrapper">
         <div class="list-item list-item-with-more-button" data-type="%themeDefinitionType%" data-theme-key="%themeKey%" data-theme-definition-key="%themeDefinitionKey%" data-theme-definition-type-name="%themeDefinitionTypeName%" data-title="%themeDefinitionName%">
-            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/module-icon.svg" loading="lazy" />
+            <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/module-app-icon.svg" loading="lazy" />
             <div class="list-item-title">%themeDefinitionName%</div>
             <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
         </div>
@@ -216,7 +216,13 @@
                 <input type="text" id="add-component-modal-list-search" />
                 <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/search-icon.svg" />
             </div>
-            <div id="add-component-grid-modal" class="list list-without-more-button"></div>
+
+            <div id="add-component-grid-modal" class="list list-without-more-button">
+                <label for="add-system-component-grid-modal" style="display: none">Own components</label>
+                <div id="add-system-component-grid-modal"></div>
+                <label for="add-dms-component-grid-modal" style="display: none">Market place components (<a href="https://ccmjs.github.io/digital-maker-space/" target="_blank">Digital Maker Space</a>)</label>
+                <div id="add-dms-component-grid-modal"></div>
+            </div>
             <div class="modal-footer">
                 <div id="add-component-modal-select-button" class="button button-primary button-disabled">
                     <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
@@ -224,24 +230,75 @@
                 </div>
             </div>
         </div>
+        <div class="modal-inner" id="add-component-modal-step-2" style="display: none">
+            <div class="modal-head">
+                <div class="modal-back">
+                    <img src="https://modularcms.github.io/modularcms-components/cms/resources/img/back-icon.svg" />
+                    <div class="modal-back-text">Back</div>
+                </div>
+                <h2>Add from market place</h2>
+                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
+            </div>
+            <div id="add-component-detail-modal"></div>
+            <div class="modal-footer">
+                <div id="modal-create-from-market" class="button button-primary">
+                    <img class="icon" src="https://modularcms.github.io/modularcms-components/cms/resources/img/checkmark-icon.svg" />
+                    <div class="button-text">Create content component</div>
+                </div>
+            </div>
+        </div>
     </div>
 </ccm-template>
 <ccm-template key="editComponentBuilder">
     <div class="edit-menu">
-        <div class="menu-item active" data-builder="submit_builder">Builder</div>
-        <div class="menu-item" data-builder="json_builder">Advanced config</div>
+        <div class="menu-item active" data-builder="json_builder">Advanced config</div>
     </div>
     <div id="edit-component-builder"></div>
 </ccm-template>
-<ccm-template key="dmsComponentModal">
-    <div id=dms-component-modal" class="modal">
-        <div class="modal-bg"></div>
-        <div class="modal-inner" id="dms-component-modal-inner">
-            <div class="modal-head">
-                <h2>Add component</h2>
-                <img class="modal-close" src="https://modularcms.github.io/modularcms-components/cms/resources/img/close-icon.svg" />
-            </div>
-            <div id="component-manager-wrapper"></div>
+<ccm-template key="editComponentBuilderItem">
+    <div class="menu-item" data-builder="builder">%title%</div>
+</ccm-template>
+<ccm-template key="dmsComponentListItem">
+    <div class="list-item-wrapper">
+        <div class="list-item list-item-with-more-button" data-index="%i%" data-title="%title%" data-is-dms-component="true" data-dms-component-identifier="%identifier%">
+            <img src="%icon%" loading="lazy" />
+            <div class="list-item-title">%title%</div>
+            <div class="list-item-subline">%version% by %creator%</div>
+            <img class="list-item-more-button" src="https://modularcms.github.io/modularcms-components/cms/resources/img/more-icon.svg" />
         </div>
+        <div class="list-item-children"></div>
     </div>
+</ccm-template>
+<ccm-template key="dmsComponentDetails">
+    <div id="add-component-details-head">
+        <img src="%icon%" loading="lazy" />
+        <h3>%title%</h3>
+    </div>
+    <p>%description%</p>
+    <p>Version %version% by %creator%. <i>%license%.</i></p>
+    <p>Tags: %tags%</p>
+    <p></p>
+    <h3>Create options</h3>
+    <div>
+        <label for="add-component-demo-select">The demo that should be used to initialize your component</label>
+        <select id="add-component-demo-select"></select>
+    </div>
+    <div id="add-component-demo-preview" style="display: none">
+        <label for="add-component-demo-wrapper">Preview</label>
+        <div id="add-component-demo-wrapper"></div>
+    </div>
+<!--    <div>-->
+<!--        <label for="add-component-builder-select">The used builder component</label>-->
+<!--        <select id="add-component-builder-select"></select>-->
+<!--    </div>-->
+<!--    <div>-->
+<!--        <label for="add-component-builder-wrapper">Default settings by the builder (no need to edit something here)</label>-->
+<!--        <div id="add-component-builder-wrapper"></div>-->
+<!--    </div>-->
+</ccm-template>
+<ccm-template key="dmsComponentDemoSelectItem">
+    <option value="%i%">%title%</option>
+</ccm-template>
+<ccm-template key="dmsComponentDemoNoneSelectItem">
+    <option value="-1">None</option>
 </ccm-template>

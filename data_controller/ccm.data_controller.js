@@ -1190,7 +1190,8 @@
                 const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                 let pageUrl = '/';
                 if (pageObject.parentKey != null) {
-                    pageUrl = await this.getFullPageUrl(websiteKey, pageObject.parentKey) + pageObject.urlPart;
+                    const parentPageUrl = await this.getFullPageUrl(websiteKey, pageObject.parentKey);
+                    pageUrl = (parentPageUrl == '/' ? '' : parentPageUrl) + pageObject.urlPart;
                 }
 
                 const mappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
@@ -1245,7 +1246,7 @@
                     const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey);
                     let pageUrl = '/';
                     if (pageObject.parentKey != null) {
-                        const parentPageUrl =  await this.getFullPageUrl(websiteKey, pageObject.parentKey);
+                        const parentPageUrl = await this.getFullPageUrl(websiteKey, pageObject.parentKey);
                         pageUrl = (parentPageUrl == '/' ? '' : parentPageUrl) + pageObject.urlPart;
                     }
 
@@ -1458,23 +1459,24 @@
              * @param websiteKey
              * @param path
              * @param demoApp
+             * @param appMeta
              * @returns {Promise<[string, {name: string, url: string}, *]>}
              */
-            this.createWebsiteAppFromDemo = async (websiteKey, path, demoApp) => {
-                let dataset = await $.dataset( await $.action(demoApp[2]) );
-                console.log(dataset);
-                return await this.createWebsiteApp(websiteKey, path, dataset);
+            this.createWebsiteAppFromDemo = async (websiteKey, path, demoApp, appMeta) => {
+                let dataset = await $.dataset(await $.action(demoApp[2]));
+                return await this.createWebsiteApp(websiteKey, path, dataset, appMeta);
             }
 
             /**
              * Creates an app with empty configuration
              * @param websiteKey
              * @param path
+             * @param appMeta
              * @returns {Promise<[string, {name: string, url: string}, *]>}
              */
-            this.createWebsiteAppEmpty = async (websiteKey, path) => {
+            this.createWebsiteAppEmpty = async (websiteKey, path, appMeta) => {
                 let dataset = await $.dataset( {} );
-                return await this.createWebsiteApp(websiteKey, path, dataset);
+                return await this.createWebsiteApp(websiteKey, path, dataset, appMeta);
             }
 
             /**
@@ -1482,11 +1484,14 @@
              * @param websiteKey
              * @param path
              * @param dataset
+             * @param appMeta
              * @returns {Promise<(string|{name: string, url: string}|*)[]>}
              */
-            this.createWebsiteApp = async (websiteKey, path, dataset) => {
+            this.createWebsiteApp = async (websiteKey, path, dataset, appMeta) => {
+                console.log(websiteKey, path, dataset, appMeta);
                 let store = await this.getWebsiteAppsDataStore(websiteKey);
                 delete dataset.key;
+                dataset.meta = appMeta;
                 dataset._ = { access: { get: 'all', set: 'creator', del: 'creator' } };
                 let app_id = await store.set( dataset ); delete dataset.key;
 
