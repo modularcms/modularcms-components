@@ -577,7 +577,7 @@
                 let instance = null;
                 let element = document.createElement('div');
                 $.append(element, $.loading());
-                let component = await this.ccm.component(contentZoneItem.data.url, await $.dataset(config));
+                let component = await $.action(['ccm.component', contentZoneItem.data.url, config]);
                 instance = await component.start({
                     parent: this.parent,
                     root: element
