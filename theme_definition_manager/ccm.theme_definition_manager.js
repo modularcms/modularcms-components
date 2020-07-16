@@ -668,6 +668,7 @@
              * @returns {Promise<unknown>}
              */
             this.getImportFileObject = (object, type = null) => new Promise((resolve, reject) => {
+                console.log(object);
                 if (
                     ((type == null && object.type) || object.type === type)
                     && object.name !== undefined && typeof object.name == 'string'
@@ -675,7 +676,7 @@
                     && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
                     && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
                     && object.ccmBuilder !== undefined && typeof object.ccmBuilder == 'object'
-                    && object.ccmBuilder.url !== undefined && typeof object.ccmBuilder.url == 'string'
+                    && object.ccmBuilder.url !== undefined && (object.ccmBuilder.url == null || typeof object.ccmBuilder.url == 'string')
                     && object.ccmBuilder.config !== undefined && typeof object.ccmBuilder.config == 'object'
                 ) {
                     const re = {
