@@ -578,11 +578,14 @@
                 let element = document.createElement('div');
                 $.append(element, $.loading());
                 let configStore = await this.ccm.store(config[1]);
+                console.log(configStore);
                 let configGet = await configStore.get(config[2]);
+                console.log(configGet);
                 instance = await this.ccm.start(contentZoneItem.data.url, Object.assign({}, configGet, {
                     root: element,
                     parent: this.parent
                 }));
+                console.log(instance);
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 if (edit) {
@@ -592,7 +595,7 @@
                     instance.root.classList.add('content-component');
                 }
 
-                $.setContent(element, instance.root);
+                //$.setContent(element, instance.root);
 
                 // handle double click
                 element.addEventListener('dblclick', () => {
