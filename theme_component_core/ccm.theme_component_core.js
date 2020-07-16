@@ -577,7 +577,10 @@
                 let instance = null;
                 let element = document.createElement('div');
                 $.append(element, $.loading());
-                instance = await $.action(['ccm.start', contentZoneItem.data.url, config]);
+                let component = await $.action(['ccm.component', contentZoneItem.data.url, config]);
+                instance = component.start({
+                    parent: this.parent
+                });
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 if (edit) {
