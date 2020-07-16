@@ -10,6 +10,8 @@
 
         name: 'data_controller',
 
+        version: [1,0,0],
+
         ccm: 'https://ccmjs.github.io/ccm/versions/ccm-25.5.3.min.js',
 
         config: {
@@ -145,7 +147,7 @@
             this.getWebsite = async (key) => {
                 let storeGet = await this.websites.get(key);
                 if (storeGet != null) {
-                    let re = storeGet.value;
+                    let re = storeGet.ignore;
                     re.websiteKey = key;
                     return re;
                 }
@@ -160,7 +162,7 @@
             this.getWebsiteFromDomain = async (domain) => {
                 let storeGet = await this.domains_websites_mapping.get(this.hash.md5(domain));
                 if (storeGet != null) {
-                    let re = this.getWebsite(storeGet.value);
+                    let re = this.getWebsite(storeGet.ignore);
                     return re;
                 }
                 return null;
@@ -207,7 +209,7 @@
                 if (websiteMappingBefore == null) {
                     // Add website
                     const websiteKey = await this.websites.set({
-                        value: {
+                        ignore: {
                             domain: domain,
                             baseUrl: baseUrl
                         },
@@ -217,7 +219,7 @@
                     // Add domain mapping
                     await this.domains_websites_mapping.set({
                         key: this.hash.md5(domain),
-                        value: websiteKey,
+                        ignore: websiteKey,
                         _: await this.getWebsitePermissions()
                     });
 
@@ -357,7 +359,7 @@
                 websiteObject['websiteKey'] !== undefined && delete websiteObject['websiteKey'];
                 await this.websites.set({
                     key: key,
-                    value: websiteObject,
+                    ignore: websiteObject,
                     _: await this.getWebsitePermissions(key)
                 });
 
@@ -366,7 +368,7 @@
                     await this.domains_websites_mapping.del(this.hash.md5(websiteBefore.domain));
                     await this.domains_websites_mapping.set({
                         key: this.hash.md5(websiteObject.domain),
-                        value: key,
+                        ignore: key,
                         _: await this.getWebsitePermissions()
                     });
                 }
@@ -384,7 +386,7 @@
                 const usersGet = await websiteUsersDataStore.get();
                 let re = [];
                 for (let userGet of usersGet) {
-                    let user = userGet.value;
+                    let user = userGet.ignore;
                     re.push(user);
                 }
                 return re;
@@ -399,7 +401,7 @@
             this.getWebsiteUser = async (key, username) => {
                 const websiteUsersDataStore = await this.getWebsiteUsersDataStore(key);
                 const userGet = await websiteUsersDataStore.get(this.hash.md5(username));
-                return userGet.value;
+                return userGet.ignore;
             };
 
             /**
@@ -482,7 +484,7 @@
                 for (let entry of websiteUsersDataStoreData) {
                     websiteUsersDataStore.del(entry.key);
 
-                    const userWebsitesDataStore = await this.getUserWebsitesDataStore(entry.value.username);
+                    const userWebsitesDataStore = await this.getUserWebsitesDataStore(entry.ignore.username);
                     userWebsitesDataStore.del(key);
                 }
             };
@@ -502,7 +504,7 @@
             this.getUserFromUsername = async (username) => {
                 let storeGet = await this.users.get(this.hash.md5(username));
                 if (storeGet != null) {
-                    let re = storeGet.value;
+                    let re = storeGet.ignore;
                     return re;
                 }
                 return null;
@@ -537,7 +539,7 @@
                     // Add user
                     await this.users.set({
                         key: this.hash.md5(username),
-                        value: {
+                        ignore: {
                             username: username,
                             image: null
                         },
@@ -561,7 +563,7 @@
                 for (let websiteGet of websitesGet) {
                     promises.push(new Promise(async (resolve, reject) => {
                         let website = await this.getWebsite(websiteGet.key);
-                        website.role = websiteGet.value.role;
+                        website.role = websiteGet.ignore.role;
                         resolve(website);
                     }));
                 }
@@ -589,7 +591,7 @@
                 const userWebsitesDataStore = await this.getUserWebsitesDataStore(username);
                 const websiteGet = await userWebsitesDataStore.get(websiteKey);
                 if (websiteGet != null) {
-                    return websiteGet.value.role;
+                    return websiteGet.ignore.role;
                 }
                 return null;
             };
@@ -604,7 +606,7 @@
                 userObject['username'] = username;
                 await this.users.set({
                     key: this.hash.md5(username),
-                    value: userObject,
+                    ignore: userObject,
                     _: await this.getUserPermissions()
                 });
             };
@@ -669,7 +671,7 @@
                     const userWebsitesDataStore = await this.getUserWebsitesDataStore(username)
                     userWebsitesDataStore.set({
                         key: websiteKey,
-                        value: {
+                        ignore: {
                             username: username,
                             role: role
                         },
@@ -680,7 +682,7 @@
                     const websitesUserDataStore = await this.getWebsiteUsersDataStore(websiteKey)
                     websitesUserDataStore.set({
                         key: this.hash.md5(username),
-                        value: {
+                        ignore: {
                             username: username,
                             role: role
                         },
@@ -765,7 +767,7 @@
 
                     await websitePagesDataStore.set({
                         key: page.pageKey, // already with _live
-                        value: pageCopy,
+                        ignore: pageCopy,
                         _: await this.getPagePublishPermissions(websiteKey)
                     });
 
@@ -808,7 +810,7 @@
             this.getTheme = async (websiteKey, themeKey) => {
                 const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 let themeGet = await websiteThemesDataStore.get(themeKey);
-                let theme = themeGet.value;
+                let theme = themeGet.ignore;
                 theme.themeKey = themeGet.key;
                 return theme;
             }
@@ -823,7 +825,7 @@
                 let themesGet = await websiteThemesDataStore.get();
                 let re = [];
                 for (let themeGet of themesGet) {
-                    let theme = themeGet.value;
+                    let theme = themeGet.ignore;
                     theme.themeKey = themeGet.key;
                     re.push(theme);
                 }
@@ -866,7 +868,7 @@
             this.createTheme = async (websiteKey, themeObject) => {
                 const websiteThemesDataStore = await this.getWebsiteThemesDataStore(websiteKey);
                 let themeKey = await websiteThemesDataStore.set({
-                    value: themeObject,
+                    ignore: themeObject,
                     _: await this.getThemePermissions(websiteKey)
                 });
                 return themeKey;
@@ -884,7 +886,7 @@
                 themeObject['themeKey'] !== undefined && delete themeObject['themeKey'];
                 await websiteThemesDataStore.set({
                     key: themeKey,
-                    value: themeObject,
+                    ignore: themeObject,
                     _: await this.getThemePermissions(websiteKey)
                 });
             }
@@ -918,7 +920,7 @@
                 const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
                 let definitionGet = await websiteThemeDefinitionsDataStore.get(definitionKey);
                 if (definitionGet != null) {
-                    let definition = definitionGet.value;
+                    let definition = definitionGet.ignore;
                     definition.themeDefinitionKey = definitionGet.key;
                     return definition;
                 }
@@ -936,7 +938,7 @@
                 let definitionsGet = await websiteThemeLayoutsDataStore.get();
                 let re = [];
                 for (let definitionGet of definitionsGet) {
-                    let definition = definitionGet.value;
+                    let definition = definitionGet.ignore;
                     definition.themeDefinitionKey = definitionGet.key;
                     re.push(definition);
                 }
@@ -980,7 +982,7 @@
             this.createThemeDefinition = async (websiteKey, themeKey, definitionObject) => {
                 const websiteThemeDefinitionsDataStore = await this.getWebsiteThemeDefinitionsDataStore(websiteKey, themeKey);
                 let definitionKey = await websiteThemeDefinitionsDataStore.set({
-                    value: definitionObject,
+                    ignore: definitionObject,
                     _: await this.getThemeDefinitionPermissions(websiteKey)
                 });
                 return definitionKey;
@@ -999,7 +1001,7 @@
                 definitionObject['themeDefinitionKey'] !== undefined && delete definitionObject['themeDefinitionKey'];
                 await websiteThemeDefinitionsDataStore.set({
                     key: definitionKey,
-                    value: definitionObject,
+                    ignore: definitionObject,
                     _: await this.getThemeDefinitionPermissions(websiteKey)
                 });
             }
@@ -1033,7 +1035,7 @@
                 const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                 const pageGet = await websitePagesDataStore.get(pageKey);
                 if (pageGet != null) {
-                    let page = pageGet.value;
+                    let page = pageGet.ignore;
                     page.pageKey = pageGet.key;
                     page._ = pageGet._;
                     page.updated_at = pageGet.updated_at;
@@ -1054,7 +1056,7 @@
                 const websitePageUrlMappingDataStore = await this.getWebsitePageUrlMappingDataStore(websiteKey, live);
                 const pageUrlMappingGet = await websitePageUrlMappingDataStore.get(this.hash.md5(pageUrl));
                 if (pageUrlMappingGet != null) {
-                    const pageKey = pageUrlMappingGet.value;
+                    const pageKey = pageUrlMappingGet.ignore;
                     const page = this.getPage(websiteKey, pageKey);
                     return page;
                 }
@@ -1112,7 +1114,7 @@
                 let pagesGet = await websitePagesDataStore.get();
                 let re = [];
                 for (let pageGet of pagesGet) {
-                    let page = pageGet.value;
+                    let page = pageGet.ignore;
                     page.pageKey = pageGet.key;
                     re.push(page);
                 }
@@ -1201,7 +1203,7 @@
                 if (mappingGet == null) {
                     const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                     let pageKey = await websitePagesDataStore.set({
-                        value: pageObject,
+                        ignore: pageObject,
                         _: await this.getPagePermissions(websiteKey)
                     });
 
@@ -1210,7 +1212,7 @@
                         const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, pageObject.parentKey);
                         await websitePageChildrenDataStore.set({
                             key: pageKey,
-                            value: null,
+                            ignore: null,
                             _: await this.getPagePermissions(websiteKey)
                         });
                     }
@@ -1218,7 +1220,7 @@
                     // Set page url mapping
                     await websitePageUrlMappingDataStore.set({
                         key: this.hash.md5(pageUrl),
-                        value: pageKey,
+                        ignore: pageKey,
                         _: await this.getPagePermissions(websiteKey)
                     });
 
@@ -1279,7 +1281,7 @@
                     const websitePagesDataStore = await this.getWebsitePagesDataStore(websiteKey);
                     await websitePagesDataStore.set({
                         key: pageKey,
-                        value: pageObject,
+                        ignore: pageObject,
                         _: await this.getPagePermissions(websiteKey)
                     });
 
@@ -1291,7 +1293,7 @@
                     if (pageObject.parentKey !== undefined) {
                         await websitePageChildrenDataStore.set({
                             key: pageKey,
-                            value: null,
+                            ignore: null,
                             _: await this.getPagePermissions(websiteKey)
                         });
                     }
@@ -1302,7 +1304,7 @@
                     }
                     await websitePageUrlMappingDataStore.set({
                         key: this.hash.md5(pageUrl),
-                        value: pageKey,
+                        ignore: pageKey,
                         _: await this.getPagePermissions(websiteKey)
                     });
                     resolve();
@@ -1356,7 +1358,7 @@
                     }
                     await websitePagesDataStore.set({
                         key: pageKey + '_live',
-                        value: page,
+                        ignore: page,
                         _: await this.getPagePublishPermissions(websiteKey)
                     });
 
@@ -1369,7 +1371,7 @@
                         const websitePageChildrenDataStore = await this.getWebsitePageChildrenDataStore(websiteKey, page.parentKey);
                         await websitePageChildrenDataStore.set({
                             key: pageKey + '_live',
-                            value: null,
+                            ignore: null,
                             _: await this.getPagePublishPermissions(websiteKey)
                         });
                     }
@@ -1382,7 +1384,7 @@
                     }
                     await websitePageUrlMappingDataStore.set({
                         key: this.hash.md5(pageUrl),
-                        value: pageKey + '_live',
+                        ignore: pageKey + '_live',
                         _: await this.getPagePublishPermissions(websiteKey)
                     });
                     resolve();
@@ -1531,7 +1533,7 @@
                 const localUserDataStore = await this.getUserLocalDataStore(username);
                 let websiteKeyGet = await localUserDataStore.get('selectedWebsite');
                 if (websiteKeyGet != null) {
-                    return websiteKeyGet.value;
+                    return websiteKeyGet.ignore;
                 }
 
                 let userWebsites = await this.getUserWebsites(username);
@@ -1552,7 +1554,7 @@
                 const localUserDataStore = await this.getUserLocalDataStore(username);
                 await localUserDataStore.set({
                     key: 'selectedWebsite',
-                    value: websiteKey
+                    ignore: websiteKey
                 });
             }
 
