@@ -572,7 +572,7 @@
              */
             this.getCcmComponentElement = async (contentZoneName, contentZoneItem, i) => {
                 // init ccm component
-                let config = $.clone(contentZoneItem.data.config);
+                let config = contentZoneItem.data.config;
                 const edit = this.parent.edit;
 
                 let instance = null;
