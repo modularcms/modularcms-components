@@ -581,10 +581,10 @@
                 $.append(element, $.loading());
                 let configStore = await this.ccm.store(config[1]);
                 let configGet = await configStore.get(config[2]);
-                let component = await this.ccm.component(contentZoneItem.data.url, configGet);
-                instance = await component.start({
+                instance = await this.ccm.start(contentZoneItem.data.url, Object.assign({}, configGet, {
+                    root: element,
                     parent: this.parent
-                });
+                }));
                 _contentZoneInstances[contentZoneName][i] = instance;
 
                 if (edit) {
