@@ -579,6 +579,7 @@
                 let instance = null;
                 let element = document.createElement('div');
                 $.append(element, $.loading());
+                console.log(config);
                 let configStore = await this.ccm.store(config[1]);
                 console.log(configStore);
                 let configGet = await configStore.get(config[2]);
