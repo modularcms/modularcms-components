@@ -341,7 +341,6 @@
                                     key: 'app'
                                 },
                                 onchange: async e => {
-                                    console.log(appConfig);
                                     let config = Object.assign({}, appConfig, e.instance.getValue !== undefined ? e.instance.getValue() : console.error('Could not update'));
                                     // previewConfig(configSet);
                                     let appConfigSet = await this.data_controller.createWebsiteApp(websiteKey, appPath, config, appConfig.meta);

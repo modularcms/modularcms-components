@@ -229,20 +229,24 @@
 
                     const getObject = (object, type = null) => new Promise((resolve, reject) => {
                         if (
-                            (type == null || object.type === type)
+                            ((type == null && object.type) || object.type === type)
                             && object.name !== undefined && typeof object.name == 'string'
                             && object.ccmComponent !== undefined && typeof object.ccmComponent == 'object'
                             && object.ccmComponent.url !== undefined && typeof object.ccmComponent.url == 'string'
                             && object.ccmComponent.config !== undefined && typeof object.ccmComponent.config == 'object'
+                            && object.ccmBuilder !== undefined && typeof object.ccmBuilder == 'object'
+                            && object.ccmBuilder.url !== undefined && (object.ccmBuilder.url == null || typeof object.ccmBuilder.url == 'string')
+                            && object.ccmBuilder.config !== undefined && typeof object.ccmBuilder.config == 'object'
                         ) {
-                            let themeDefinitionObject = {
+                            const re = {
                                 name: object.name,
-                                ccmComponent: object.ccmComponent
+                                ccmComponent: object.ccmComponent,
+                                ccmBuilder: object.ccmBuilder
                             };
-                            if (object.type != 'theme') {
-                                themeDefinitionObject.type = object.type;
+                            if (type != 'theme') {
+                                re.type = object.type;
                             }
-                            resolve(themeDefinitionObject);
+                            resolve(re);
                         } else {
                             reject();
                         }
@@ -1494,7 +1498,6 @@
              * @returns {Promise<(string|{name: string, url: string}|*)[]>}
              */
             this.createWebsiteApp = async (websiteKey, path, dataset, appMeta) => {
-                console.log(websiteKey, path, dataset, appMeta);
                 let store = await this.getWebsiteAppsDataStore(websiteKey);
                 delete dataset.key;
                 dataset.meta = appMeta;
