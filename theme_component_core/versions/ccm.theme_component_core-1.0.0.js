@@ -579,7 +579,7 @@
                 let instance = null;
                 let element = document.createElement('div');
                 $.append(element, $.loading());
-                let configStore = this.ccm.store(config[1]);
+                let configStore = await this.ccm.store(config[1]);
                 let configGet = await configStore.get(config[2]);
                 let component = this.ccm.component(contentZoneItem.data.url, configGet);
                 instance = await component.start({
