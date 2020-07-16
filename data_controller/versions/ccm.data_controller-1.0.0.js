@@ -1038,6 +1038,8 @@
                     let page = pageGet.value;
                     page.pageKey = pageGet.key;
                     page._ = pageGet._;
+                    page.updated_at = pageGet.updated_at;
+                    page.create_at = pageGet.create_at;
                     return page;
                 }
                 return null;
@@ -1263,6 +1265,8 @@
 
                     pageObject['pageKey'] !== undefined && delete pageObject['pageKey'];
                     pageObject['_'] !== undefined && delete pageObject['_'];
+                    pageObject['updated_at'] !== undefined && delete pageObject['updated_at'];
+                    pageObject['created_at'] !== undefined && delete pageObject['created_at'];
                     if (commitMessage !== false) {
                         if (pageObject.changeLog === undefined) {
                             pageObject['changeLog'] = [];
