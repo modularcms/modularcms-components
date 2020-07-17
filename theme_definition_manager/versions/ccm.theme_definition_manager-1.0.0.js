@@ -757,7 +757,7 @@
                     $.append(this.element.querySelector('#import-modal-step-2'), loader);
                     const addButton = this.element.querySelector('#modal-import-button');
                     addButton.classList.add('button-disabled');
-                    addButton.value = 'Importing layout...';
+                    addButton.value = 'Importing ' + typeNameInsert + '...';
 
                     const websiteKey = await this.data_controller.getSelectedWebsiteKey();
                     const file = this.element.querySelector('#import-modal-theme-definition-file').files[0];
@@ -766,7 +766,7 @@
                         $.remove(loader);
                         this.element.querySelector('#import-modal-step-2').classList.remove('loading');
                         addButton.classList.remove('button-disabled');
-                        addButton.value = 'Import layout';
+                        addButton.value = 'Import ' + typeNameInsert;
                     };
 
                     // read file
