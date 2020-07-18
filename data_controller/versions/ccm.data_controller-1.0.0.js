@@ -1107,7 +1107,7 @@
                     promises.push(this.getPage(websiteKey, childGet.key));
                 }
                 const re = await Promise.all(promises);
-                return re;
+                return re.filter(item => item != null);
             }
 
             /**
