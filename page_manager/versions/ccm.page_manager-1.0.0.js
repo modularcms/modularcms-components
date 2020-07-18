@@ -253,22 +253,20 @@
 
                         let builderMenu = this.element.querySelector('#builder .edit-menu');
                         let builderMenuJsonItem = this.element.querySelector('#builder .edit-menu .menu-item[data-builder="json_builder"]');
-                        let builderMenuItem = $.html(this.html.editComponentBuilderItem, {title: builder.title});
-                        builderMenuItem.addEventListener('click', () => {
+                        builderMenuJsonItem.addEventListener('click', () => {
                             this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach(i => i.classList.remove('active'));
-                            builderMenuItem.classList.add('active');
-                            openBuilder(builder, $.clone(appConfig), updateConfig);
-                        })
-                        builderMenu.insertBefore(builderMenuItem, builderMenuJsonItem);
+                            builderMenuJsonItem.classList.add('active');
+                            openJsonBuilder(zoneItem, updateConfig);
+                        });
 
                         let themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, zoneItem.data.themeDefinitionKey);
                         if (themeDefinition.ccmBuilder !== undefined && themeDefinition.ccmBuilder.url != null) {
-                            let builderMenuItem = $.html(this.html.editComponentBuilderItem, {title: builder.title});
+                            let builderMenuItem = $.html(this.html.editComponentBuilderItem, {title: 'Submit builder'});
                             builderMenuItem.addEventListener('click', () => {
                                 this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach(i => i.classList.remove('active'));
                                 builderMenuItem.classList.add('active');
-                                openJsonBuilder(zoneItem, updateConfig);
-                            })
+                                openSubmitBuilder(zoneItem, updateConfig);
+                            });
                             builderMenu.insertBefore(builderMenuItem, builderMenuJsonItem);
                             builderMenuItem.classList.add('active');
                             await openSubmitBuilder(zoneItem, updateConfig);

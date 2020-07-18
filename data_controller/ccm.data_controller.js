@@ -1092,7 +1092,7 @@
             }
 
             /**
-             * TODO Get page children of website
+             * Get page children of website
              * @param {string}  websiteKey  The website key
              * @param {string}  pageKey     The page key
              * @returns {Promise<any>}
@@ -1457,8 +1457,6 @@
                     }
                 }
                 const publishedPageHash = publishedPage == null || this.hash.md5(JSON.stringify(publishedPage));
-
-                console.log(page, publishedPage);
 
                 return pageHash == publishedPageHash;
             };
