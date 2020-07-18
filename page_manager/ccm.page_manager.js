@@ -259,7 +259,7 @@
 
                         let themeDefinition = await this.data_controller.getThemeDefinition(websiteKey, page.themeKey, zoneItem.data.themeDefinitionKey);
                         if (themeDefinition.ccmBuilder !== undefined && themeDefinition.ccmBuilder.url != null) {
-                            let builderMenuItem = $.html(this.html.editComponentBuilderItem, {title: 'Submit builder'});
+                            let builderMenuItem = $.html(this.html.editComponentBuilderItem, {title: 'Builder'});
                             builderMenuItem.addEventListener('click', () => {
                                 this.element.querySelectorAll('#builder .edit-menu .menu-item').forEach(i => i.classList.remove('active'));
                                 builderMenuItem.classList.add('active');
