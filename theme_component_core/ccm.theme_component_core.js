@@ -1384,7 +1384,7 @@
                         (error, result) => {
                             if (!error && result && result.event === "success") {
                                 const imgData = result.info;
-                                let newElement = this.getNewImageElement(contentZoneName, imgData.secure_url);
+                                let newElement = this.getNewImageElement(contentZoneName, imgData.secure_url.replace('/image/upload/', '/image/upload/q_auto,w_auto,dpr_auto,c_scale/c_limit,w_2048/'));
                                 replaceWith(newElement);
                                 this.placeCaretAtEnd(newElement);
                             }
