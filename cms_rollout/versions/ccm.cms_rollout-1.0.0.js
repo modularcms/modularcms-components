@@ -86,7 +86,7 @@
                                     }
 
                                     // Set scrollTop
-                                    window.screenTop = 0;
+                                    window.scrollTo(0,0);
                                 }
                             } else {
                                 // render 404
