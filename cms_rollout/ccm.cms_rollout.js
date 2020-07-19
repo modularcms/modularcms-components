@@ -82,6 +82,9 @@
                                         Object.assign(pageRenderer, config);
                                         pageRenderer.updateChildren();
                                     }
+
+                                    // Set scrollTop
+                                    window.screenTop = 0;
                                 }
                             } else {
                                 // render 404
